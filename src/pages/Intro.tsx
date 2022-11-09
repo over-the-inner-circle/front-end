@@ -3,22 +3,24 @@ import React from "react";
 const Intro = () => {
 
   // TODO : 나중에 환경변수로 처리하거나 다른 파일로 빼기
-  const FT_CLIENT_ID = "60d58a20db65c3d3fc6f876357a0cef1b73c712b381b1155eae046592e081c83";
-  const FT_AUTH_URL = "https://api.intra.42.fr/oauth/authorize";
-  const FT_REDIRECT_URL = "http://localhost:3000/login/42";
+  const FT_CLIENT_ID = import.meta.env.VITE_FT_CLIENT_ID;
+  const FT_AUTH_URL = import.meta.env.VITE_FT_AUTH_URL;
+  const FT_REDIRECT_URL = import.meta.env.VITE_FT_REDIRECT_URL;
 
-  const GOOGLE_CLIENT_ID = "691527035660-737mqoqv1fp4jsr2gv8bof9lmj7v36sv.apps.googleusercontent.com";
-  const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
-  const GOOGLE_REDIRECT_URL = "http://localhost:3000/login/google";
+  const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  const GOOGLE_AUTH_URL = import.meta.env.VITE_GOOGLE_AUTH_URL;
+  const GOOGLE_REDIRECT_URL = import.meta.env.VITE_GOOGLE_REDIRECT_URL;
 
-  const KAKAO_CLIENT_ID = "f8445047c2288e6ba1045bd1fd11e93e";
-  const KAKAO_AUTH_URL = "https://kauth.kakao.com/oauth/authorize";
-  const KAKAO_REDIRECT_URL  = "http://localhost:3000/login/kakao";
+  const KAKAO_CLIENT_ID = import.meta.env.VITE_KAKAO_CLIENT_ID;
+  const KAKAO_AUTH_URL = import.meta.env.VITE_KAKAO_AUTH_URL;
+  const KAKAO_REDIRECT_URL = import.meta.env.VITE_KAKAO_REDIRECT_URL;
   // =================================================================
 
 
   const oAuthUrl = (authUrl: string, clientId: string, redirectUrl: string) => {
-    return `${authUrl}?client_id=${clientId}&redirect_uri=${redirectUrl}&response_type=code`;
+    const result = `${authUrl}?client_id=${clientId}&redirect_uri=${redirectUrl}&response_type=code`;
+    console.log(result);
+    return result;
   }
 
   const loginWith42 = () => {
@@ -32,7 +34,6 @@ const Intro = () => {
   const loginWithKakao = () => {
     window.location.href = oAuthUrl(KAKAO_AUTH_URL, KAKAO_CLIENT_ID, KAKAO_REDIRECT_URL);
   }
-
 
   return (
     <div className="flex h-screen bg-true-gray stop-dragging">
