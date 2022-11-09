@@ -33,7 +33,7 @@ body:
     id: related-code
     attributes:
       label: 'Related codes'
-      description: (Auto highlighting in C++)
+      description: (Auto highlighting in JS)
       render: js
 
   - type: dropdown
