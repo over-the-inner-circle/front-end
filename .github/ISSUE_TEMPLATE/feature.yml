@@ -28,8 +28,8 @@ body:
     id: related-code
     attributes:
       label: "Related code"
-      description: API or example codes (Auto highlighting in C++)
-      render: C++
+      description: API or example codes (Auto highlighting in JS)
+      render: js
 
   - type: dropdown
     id: others
