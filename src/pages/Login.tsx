@@ -44,15 +44,24 @@ const Login = () => {
       return;
     }
     const result = fetchUserData(provider, code);
+    //TODO: Result 없을 때 처리
     result.then((data) => {
       if (data.access_token) {
         // user exists. Redirect to main page with access token and refresh token
         console.log("user exists");
         console.log(data);
+
+        window.localStorage.setItem("access_token", data.access_token);
+        window.localStorage.setItem("refresh_token", data.refresh_token);
+
+        navigate("/main");
+
       } else if (data.provider) {
         // user doesn't exist. Redirect to signup page with Oauth user info data.
+
         console.log("user doesn't exist")
         console.log(data);
+
         navigate("/sign-up", { state:
         {
           provider: data.provider,

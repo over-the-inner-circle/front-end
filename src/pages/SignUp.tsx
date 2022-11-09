@@ -29,8 +29,8 @@ const SignUp = () => {
     if (response.ok) {
       const data = await response.json();
       console.log(data);
-      // TODO: 코드 다시 요청하고, auth api에 다시 code 요청.
-      // TODO: access token 날라오면 저장하고 Main으로 리다이렉트.
+      // TODO: 다시 Login으로...
+
       //navigate("/main");
     } else {
       const error = await response.text();
