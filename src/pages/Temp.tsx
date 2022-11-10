@@ -1,9 +1,21 @@
+import Nav from "@/organism/Nav";
+import Game from "@/organism/Game";
+import Chat from "@/organism/Chat";
+
+
 function Temp() {
 	  return (
-		<div className="grid grid-cols-2 grid-rows-2" id="root">
-			<div className="bg-green-500 col-span-1" id="nav"></div>
-			<div className="bg-blue-500 col-span-2" id="side"></div>
-			<div className="bg-blue-200 col-span-2" id="game"></div>
+		<div className="w-full h-full relative mx-auto my-0" id="root">
+			<Nav></Nav>
+
+			{/*<Game></Game>*/}
+			<div className="content-start flex h-full w-full relative pt-[78px]">
+				<Game></Game>
+				<Chat></Chat>
+			{/*	<div className="bg-blue-500 col-span-1 row-span-2 col-start-2 row-start-2 h-full w-[450px]" id="side">side</div>*/}
+			</div>
+
+
 		</div>
   );
 }

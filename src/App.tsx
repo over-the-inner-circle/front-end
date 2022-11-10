@@ -12,7 +12,7 @@ import Temp from "@/pages/Temp";
 
 function App() {
   return (
-    <div className="App">
+    <div className="App h-full">
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Intro />} />
