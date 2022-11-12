@@ -19,7 +19,6 @@ const Intro = () => {
 
   const oAuthUrl = (authUrl: string, clientId: string, redirectUrl: string) => {
     const result = `${authUrl}?client_id=${clientId}&redirect_uri=${redirectUrl}&response_type=code`;
-    console.log(result);
     return result;
   }
 

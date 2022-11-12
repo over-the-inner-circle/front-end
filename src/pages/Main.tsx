@@ -1,5 +1,6 @@
 import React from "react";
 import Button from "@/atom/Button";
+import Game from "@/organism/Game";
 
 const Main = () => {
 
@@ -53,11 +54,14 @@ const Main = () => {
         Delete User
       </button>
     </div>
-      <div>
+    <div>
       <button className={`bg-sky-600 hover:bg-sky-700 active:bg-sky-800 m-5`} onClick={requestUserInfo}>
         Request User Info
       </button>
     </div>
+      <div>
+        <Game/>
+      </div>
     </div>
   );
 }

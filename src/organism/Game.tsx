@@ -1,0 +1,65 @@
+import React, { useRef, useEffect, useState } from 'react';
+import Pong, { PongComponentsPositions } from "../models/Pong";
+
+const Game = () => {
+
+  const isInitialMount = useRef(true);
+
+  const canvasWidth = 800;
+  const canvasHeight = 600;
+
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [pong, setPong] = useState<Pong | null>(null);
+  const [positions, setPositions] = useState<PongComponentsPositions>({
+    p1YPosition: (canvasHeight - 100) / 2,
+    p2YPosition: (canvasHeight - 100) / 2,
+    ballXPosition: canvasWidth / 2,
+    ballYPosition: canvasHeight / 2,
+  });
+
+  useEffect( () => {
+    const canvas = canvasRef.current;
+    const context = canvas?.getContext('2d');
+    if (context) {
+      setPong(new Pong(context));
+    }
+  }, []);
+
+  useEffect(() => {
+    // 마운트 시 실행안함
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+    } else {
+      if (pong) {
+        pong.updateCurrentPositions(positions);
+        pong.render();
+      }
+    }
+  }, [positions]);
+
+  const updatePosition = (newPositions: PongComponentsPositions) => {
+    //TODO: 서버에서 정보 받아서 status 업데이트
+    setPositions(newPositions);
+  }
+
+  const handleKeyPress = (event: any) => {
+    // TODO: 서버에 키보드 입력 쏴주기
+    if (event.key === 'ArrowUp') {
+      updatePosition({ ...positions, p1YPosition: positions.p1YPosition - 10 });
+    } else if (event.key === 'ArrowDown') {
+      updatePosition({ ...positions, p1YPosition: positions.p1YPosition + 10 });
+    }
+  }
+  return (
+    <div className="Pong">
+      <canvas tabIndex={0}
+              ref={canvasRef}
+              width={canvasWidth}
+              height={canvasHeight}
+              onKeyDownCapture={handleKeyPress}
+      />
+    </div>
+  );
+};
+
+export default Game;
