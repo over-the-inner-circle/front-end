@@ -1,15 +1,33 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useRef, useCallback, useEffect } from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 
 const SignUp = () => {
 
-  const REQUEST_URL = "http://146.56.153.237";
+  const REQUEST_URL = import.meta.env.VITE_REQUEST_URL;
 
   const [is2faOn, setIs2faOn] = useState(false);
   const [nickname, setNickname] = useState("");
+  const [imgUrl, setImgUrl] = useState("");
+
   const navigate = useNavigate();
   const location = useLocation();
   const newUserInfo = location.state;
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const onUploadImage = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) {
+      return;
+    }
+    console.log(e.target.value);
+    setImgUrl(e.target.value);
+  }, []);
+
+  const onUploadImageButtonClick = useCallback(() => {
+    if (!inputRef.current) {
+      return;
+    }
+    inputRef.current.click();
+  }, []);
 
   const signUpNewUser = async () => {
     // TODO : 회원가입 API POST 요청
@@ -22,7 +40,7 @@ const SignUp = () => {
         "nickname": nickname,
         "provider": newUserInfo.provider,
         "third_party_id": newUserInfo.thirdPartyId,
-        "prof_img": newUserInfo.profImg,
+        "prof_img": imgUrl,
       }),
     });
 
@@ -52,9 +70,11 @@ const SignUp = () => {
     setNickname(e.target.value);
   }
 
-  const addProfilePhoto = () => {
-    // TODO : 프로필 사진 추가
-  }
+  useEffect(() => {
+    if (newUserInfo.profImg) {
+      setImgUrl(newUserInfo.profImg);
+    }
+  }, [newUserInfo]);
 
   return (
     <div className="flex h-screen bg-true-gray text-white font-pixel">
@@ -62,10 +82,12 @@ const SignUp = () => {
           <div className="flex flex-row justify-center mb-20">
             <div className="mr-20 stop-dragging">
               <div className="mb-2"> Profile </div>
-              <div className="box-content h-36 w-32 bg-white flex justify-center items-center"
-                   onClick={addProfilePhoto}>
-                <div className="text-3xl text-true-gray hover:text-gray-400"> + </div>
+              <div className={`flex h-36 w-32 bg-white justify-center items-center`}>
+                {/*<img className="h-full w-full z-0" src={imgUrl} alt="profile" />*/}
+                <div className="text-3xl text-true-gray hover:text-gray-400 z-50"
+                     onClick={onUploadImageButtonClick}> + </div>
               </div>
+              <input className="hidden" type="file" accept="image/*" ref={inputRef} onChange={onUploadImage}/>
             </div>
             <div>
               <div className="mb-10">
