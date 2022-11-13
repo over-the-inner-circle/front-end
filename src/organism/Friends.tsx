@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import Circle from '@/atom/Circle';
 
 interface Friend {
   user_id: string;
@@ -95,19 +96,6 @@ function FriendsList({ friends }: FriendsListProps) {
         </li>
       ))}
     </ul>
-  );
-}
-
-interface CircleProps {
-  radius: number;
-  style?: string;
-}
-
-function Circle({ radius, style }: CircleProps) {
-  return (
-    <svg height={radius * 2} width={radius * 2} className={style}>
-      <circle cx={radius} cy={radius} r={radius} />
-    </svg>
   );
 }
 
