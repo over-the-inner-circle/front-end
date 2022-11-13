@@ -1,3 +1,6 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+
 interface Friend {
   user_id: string;
   nickname: string;
@@ -9,41 +12,48 @@ interface Friend {
 }
 
 const initialFriendsState: Friend[] = [
-    {
-      user_id: '1',
-      nickname: 'nickname1',
-      prof_img: 'https://via.placeholder.com/65',
-      status: 'online',
-      created: new Date(),
-    },
-    {
-      user_id: '2',
-      nickname: 'nickname2',
-      prof_img: 'https://via.placeholder.com/65',
-      status: 'online',
-      created: new Date(),
-    },
-    {
-      user_id: '3',
-      nickname: 'nickname3',
-      prof_img: 'https://via.placeholder.com/65',
-      status: 'online',
-      created: new Date(),
-    },
-]
+  {
+    user_id: '1',
+    nickname: 'nickname1',
+    prof_img: 'https://via.placeholder.com/65',
+    status: 'online',
+    created: new Date(),
+  },
+  {
+    user_id: '2',
+    nickname: 'nickname2',
+    prof_img: 'https://via.placeholder.com/65',
+    status: 'online',
+    created: new Date(),
+  },
+  {
+    user_id: '3',
+    nickname: 'tooMuchLongNickname1',
+    prof_img: 'https://via.placeholder.com/65',
+    status: 'online',
+    created: new Date(),
+  },
+];
 
-function Friends(props: React.HTMLAttributes<HTMLDivElement>) {
-  const friends: Friend[] = initialFriendsState;
+function useFriends(initialFriends: Friend[]) {
+  const [friends] = useState<Friend[]>(initialFriends);
+
+  return friends;
+}
+
+function Friends() {
+  // TODO: useFriends() to fetch friends list
+  const friends = useFriends(initialFriendsState);
 
   return (
     <div
-      {...props}
-      id="sidebar-container"
-      className="w-[370px] h-full px-5 py-3 bg-blue-500 font-pixel flex flex-col
-                 col-span-1 row-span-2 col-start-2 row-start-2"
+      id="friends-container"
+      className="col-span-1 col-start-2 row-span-2 row-start-2
+                 flex h-full w-[370px] flex-col items-start justify-center
+                 border-l border-neutral-400 bg-neutral-600 font-pixel text-white"
     >
-      <div className="flex flex-row items-center pb-3 pl-0.5">
-        <button className="flex flex-row justify-start items-center">
+      <div className="flex h-14 w-full flex-row items-center border-b border-inherit bg-neutral-800 px-5">
+        <button className="flex flex-row items-center justify-start">
           <p className="text-lg">Friends</p>+
         </button>
       </div>
@@ -58,27 +68,46 @@ interface FriendsListProps {
 
 function FriendsList({ friends }: FriendsListProps) {
   return (
-    <ul className="flex flex-col gap-2 h-full overflow-auto">
+    <ul className="flex h-full w-full flex-col overflow-auto border-inherit bg-neutral-600 ">
       {friends.map((friend) => (
         <li
           key={friend.user_id}
-          className="h-[65px] flex flex-row items-center my-1"
+          className="flex w-full flex-row items-center justify-start
+                     border-b border-inherit bg-neutral-700 px-5 py-4"
         >
-          <a href={`/user/${friend.nickname}`}>
+          <Link to={`/user/${friend.nickname}`}>
             <img
               src={friend.prof_img}
               alt="profile"
-              className="mr-2 rounded-full"
+              width={65}
+              height={65}
+              className="rounded-full"
             />
-          </a>
-          <div className="h-full px-2 flex flex-col justify-around">
-            <div>{friend.nickname}</div>
-            <div className="text-xs">{friend.status}</div>
+          </Link>
+          <div className="flex h-16 flex-col justify-around px-5">
+            <p className="w-52 truncate text-base">{friend.nickname}</p>
+            <div className="flex flex-row items-center space-x-2">
+              <Circle radius={9.5} style="fill-green-500" />
+              <p className="text-xs">{friend.status}</p>
+            </div>
           </div>
-          <p className="ml-auto">:</p>
+          <p className="ml-auto mt-2 flex h-full w-4 items-start text-lg">:</p>
         </li>
       ))}
     </ul>
+  );
+}
+
+interface CircleProps {
+  radius: number;
+  style?: string;
+}
+
+function Circle({ radius, style }: CircleProps) {
+  return (
+    <svg height={radius * 2} width={radius * 2} className={style}>
+      <circle cx={radius} cy={radius} r={radius} />
+    </svg>
   );
 }
 
