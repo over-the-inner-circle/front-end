@@ -1,18 +1,31 @@
 import Nav from "@/organism/Nav";
 import Game from "@/organism/Game";
 import Chat from "@/organism/Chat";
+import Friends from "@/organism/Friends";
+import React, { useState } from 'react';
+import Directmsg from "@/organism/Directmsg";
 
+export type SidebarItem = 'dm' | 'friend' | 'chat';
+
+function sidebarSelector(sidebarIndex: SidebarItem) {
+	return sidebarIndex === 'dm' ? (
+		<Directmsg />
+	) : sidebarIndex === 'friend' ? (
+		<Friends />
+	) : (
+		<Chat />
+	);
+}
 
 function Temp() {
-	  return (
-		<div className="w-full h-full relative mx-auto my-0" id="root">
-			<Nav></Nav>
+	const [sideState, setSideState] = useState<SidebarItem>("chat");
 
-			{/*<Game></Game>*/}
-			<div className="content-start flex h-full w-full relative pt-[78px]">
+	return (
+		<div className="bg-neutral-600 flex flex-col w-full h-full relative mx-auto my-0" id="root">
+			<Nav current={sideState} onChange={setSideState}></Nav>
+			<div className="content-start flex h-full w-full relative">
 				<Game></Game>
-				<Chat></Chat>
-			{/*	<div className="bg-blue-500 col-span-1 row-span-2 col-start-2 row-start-2 h-full w-[450px]" id="side">side</div>*/}
+				{sidebarSelector(sideState)};
 			</div>
 
 
