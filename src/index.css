@@ -7,6 +7,11 @@
   src: url('./assets/PressStart2P-Regular.ttf');
 }
 
+body, html, #root {
+  height: 100%;
+  width: 100%;
+}
+
 div.stop-dragging
 {
   -ms-user-select: none;

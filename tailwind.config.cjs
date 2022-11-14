@@ -1,5 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 
+const defaultTheme = require('tailwindcss/defaultTheme');
+
 module.exports = {
   content: ['./src/**/*.{js,ts,jsx,tsx}'],
   theme: {
@@ -12,7 +14,7 @@ module.exports = {
         'color-kakao' : "#fce403"
       },
       fontFamily: {
-        pixel: ['PressStart2P', 'sans'],
+        pixel: ['PressStart2P', ...defaultTheme.fontFamily.mono],
       },
     },
   },

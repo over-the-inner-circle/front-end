@@ -136,10 +136,6 @@ class Pong {
     // draw the net
     this.drawNet();
 
-    // draw the scores
-    this.drawText(this.p1.score.toString(), this.canvasContext.canvas.width / 4, this.canvasContext.canvas.height / 5, 'white');
-    this.drawText(this.p2.score.toString(), 3 * this.canvasContext.canvas.width / 4, this.canvasContext.canvas.height / 5, 'white');
-
     // draw the players
     this.drawRect(this.p1.xPosition, this.p1.yPosition, this.p1.width, this.p1.height, this.p1.color);
     this.drawRect(this.p2.xPosition, this.p2.yPosition, this.p2.width, this.p2.height, this.p2.color);

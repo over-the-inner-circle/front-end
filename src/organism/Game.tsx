@@ -15,8 +15,8 @@ const socketUri = ():string => {
 const Game = () => {
   const isInitialMount = useRef(true);
 
-  const canvasWidth = 800;
-  const canvasHeight = 600;
+  const canvasWidth = 640;
+  const canvasHeight = 480;
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [pong, setPong] = useState<Pong | null>(null);
@@ -73,12 +73,14 @@ const Game = () => {
 
   return (
     <div className="Pong">
-      <canvas tabIndex={0}
-              ref={canvasRef}
-              width={canvasWidth}
-              height={canvasHeight}
-              onKeyDown={handleKeyPress}
-      />
+      <div>
+        <canvas tabIndex={0}
+                ref={canvasRef}
+                width={canvasWidth}
+                height={canvasHeight}
+                onKeyDown={handleKeyPress}
+        />
+      </div>
     </div>
   );
 };

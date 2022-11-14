@@ -7,22 +7,21 @@ import Intro from '@/pages/Intro';
 import Login from '@/pages/Login';
 import SignUp from '@/pages/SignUp';
 import Main from "@/pages/Main";
+import Temp from "@/pages/Temp";
 
 
 function App() {
   return (
-    <div className="App">
+    <div className="App h-full">
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Intro />} />
           <Route path="/login/:provider" element={ <Login /> }/>
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/main" element={<Main />} />
+          <Route path="/temp" element={<Temp />} />
         </Routes>
       </BrowserRouter>
-      {/*<Button className="bg-sky-600 hover:bg-sky-700 active:bg-sky-800">*/}
-      {/*  Button*/}
-      {/*</Button>*/}
     </div>
   );
 }
