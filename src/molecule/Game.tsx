@@ -72,16 +72,12 @@ const Game = () => {
   }
 
   return (
-    <div className="flex flex-col items-center">
-      <div>
-        <canvas tabIndex={0}
-                ref={canvasRef}
-                width={canvasWidth}
-                height={canvasHeight}
-                onKeyDown={handleKeyPress}
-        />
-      </div>
-    </div>
+      <canvas tabIndex={0}
+              ref={canvasRef}
+              width={canvasWidth}
+              height={canvasHeight}
+              onKeyDown={handleKeyPress}
+      />
   );
 };
 
