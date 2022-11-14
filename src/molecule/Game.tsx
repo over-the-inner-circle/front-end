@@ -28,11 +28,18 @@ const Game = () => {
   });
 
   const socket = useSocket(socketUri());
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect( () => {
     const canvas = canvasRef.current;
+    const container = containerRef.current;
     const context = canvas?.getContext('2d');
-    if (context) {
+
+    if (container && canvas) {
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
+    }
+    if (canvas && context && container) {
       setPong(new Pong(context));
     }
   }, []);
@@ -72,12 +79,13 @@ const Game = () => {
   }
 
   return (
+    <div ref={containerRef} className="w-full h-full">
+        
       <canvas tabIndex={0}
-              ref={canvasRef}
-              width={canvasWidth}
-              height={canvasHeight}
-              onKeyDown={handleKeyPress}
-      />
+        ref={canvasRef}
+        onKeyDown={handleKeyPress}
+        />
+    </div>
   );
 };
 
