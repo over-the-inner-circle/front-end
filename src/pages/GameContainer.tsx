@@ -3,7 +3,7 @@ import GameWindow from '@/organism/GameWindow';
 
 const GameContainer = () => {
   return (
-    <div className="h-full w-full bg-neutral-900">
+    <div className="flex flex-col h-full w-full bg-neutral-900">
       <GameWindow />
     </div>
   );

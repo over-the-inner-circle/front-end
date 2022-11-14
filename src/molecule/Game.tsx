@@ -28,12 +28,18 @@ const Game = () => {
   });
 
   const socket = useSocket(socketUri());
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect( () => {
     const canvas = canvasRef.current;
+    const container = containerRef.current;
     const context = canvas?.getContext('2d');
-    if (context) {
+    
+    if (canvas && context && container) {
       setPong(new Pong(context));
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
+      console.log(container.clientWidth, container.clientHeight)
     }
   }, []);
 
@@ -72,15 +78,12 @@ const Game = () => {
   }
 
   return (
-    <div className="flex flex-col items-center">
-      <div>
-        <canvas tabIndex={0}
-                ref={canvasRef}
-                width={canvasWidth}
-                height={canvasHeight}
-                onKeyDown={handleKeyPress}
+    <div ref={containerRef} className="w-full h-full">
+        
+      <canvas tabIndex={0}
+        ref={canvasRef}
+        onKeyDown={handleKeyPress}
         />
-      </div>
     </div>
   );
 };
