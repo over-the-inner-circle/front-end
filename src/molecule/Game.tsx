@@ -34,12 +34,13 @@ const Game = () => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
     const context = canvas?.getContext('2d');
-    
-    if (canvas && context && container) {
-      setPong(new Pong(context));
+
+    if (container && canvas) {
       canvas.width = container.clientWidth;
       canvas.height = container.clientHeight;
-      console.log(container.clientWidth, container.clientHeight)
+    }
+    if (canvas && context && container) {
+      setPong(new Pong(context));
     }
   }, []);
 
