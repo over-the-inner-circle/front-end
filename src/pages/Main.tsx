@@ -1,6 +1,6 @@
 import React from "react";
 import Button from "@/atom/Button";
-import Game from "@/organism/Game";
+import Game from "@/molecule/Game";
 
 const Main = () => {
 
@@ -49,18 +49,18 @@ const Main = () => {
   return (
     <div>
       <h1>Main</h1>
-    <div>
-      <button className="bg-sky-600 hover:bg-sky-700 active:bg-sky-800 m-5" onClick={deleteUser}>
-        Delete User
-      </button>
-    </div>
-    <div>
-      <button className={`bg-sky-600 hover:bg-sky-700 active:bg-sky-800 m-5`} onClick={requestUserInfo}>
-        Request User Info
-      </button>
-    </div>
       <div>
-        <Game/>
+        <button className="bg-sky-600 hover:bg-sky-700 active:bg-sky-800 m-5" onClick={deleteUser}>
+          Delete User
+        </button>
+      </div>
+      <div>
+        <button className={`bg-sky-600 hover:bg-sky-700 active:bg-sky-800 m-5`} onClick={requestUserInfo}>
+          Request User Info
+        </button>
+      </div>
+      <div>
+        <Game />
       </div>
     </div>
   );

@@ -72,7 +72,7 @@ const Game = () => {
   }
 
   return (
-    <div className="Pong">
+    <div className="flex flex-col items-center">
       <div>
         <canvas tabIndex={0}
                 ref={canvasRef}
