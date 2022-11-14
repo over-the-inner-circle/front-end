@@ -1,8 +1,18 @@
 import React, { useRef, useEffect, useState } from 'react';
-import Pong, { PongComponentsPositions } from "../models/Pong";
+import Pong, { PongComponentsPositions } from "@/models/Pong";
+import useSocket from "@/hooks/useSocket";
+
+const socketUri = ():string => {
+  const requestUri = import.meta.env.VITE_REQUEST_URL;
+  // TODO: 소켓 요청하기
+  // const soketUri = fetch(requestUri) {
+  //
+  // }
+  const socketUri = '';
+  return socketUri;
+}
 
 const Game = () => {
-
   const isInitialMount = useRef(true);
 
   const canvasWidth = 800;
@@ -16,6 +26,8 @@ const Game = () => {
     ballXPosition: canvasWidth / 2,
     ballYPosition: canvasHeight / 2,
   });
+
+  const socket = useSocket(socketUri());
 
   useEffect( () => {
     const canvas = canvasRef.current;
@@ -42,21 +54,30 @@ const Game = () => {
     setPositions(newPositions);
   }
 
-  const handleKeyPress = (event: any) => {
+  const sendPressedKey = (type: string) => {
+    if (socket) {
+      socket.emit('pressedKey', type);
+    }
+  }
+
+  const handleKeyPress = (event: React.KeyboardEvent) => {
     // TODO: 서버에 키보드 입력 쏴주기
+    // TODO: keyUP과 keyDown을 구분해서 보내기
+
     if (event.key === 'ArrowUp') {
       updatePosition({ ...positions, p1YPosition: positions.p1YPosition - 10 });
     } else if (event.key === 'ArrowDown') {
       updatePosition({ ...positions, p1YPosition: positions.p1YPosition + 10 });
     }
   }
+
   return (
     <div className="Pong">
       <canvas tabIndex={0}
               ref={canvasRef}
               width={canvasWidth}
               height={canvasHeight}
-              onKeyDownCapture={handleKeyPress}
+              onKeyDown={handleKeyPress}
       />
     </div>
   );

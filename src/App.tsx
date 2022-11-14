@@ -1,6 +1,6 @@
 import Button from '@/atom/Button';
 
-import React, { useReducer } from 'react';
+import React from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Intro from '@/pages/Intro';

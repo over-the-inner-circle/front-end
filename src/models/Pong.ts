@@ -29,13 +29,22 @@ export interface PongComponentsPositions {
   ballYPosition: number;
 }
 
+export interface PongCongif {
+  theme: {
+    backgroundColor: string;
+    playerColor: string;
+    ballColor: string;
+  }
+  difficulty: string;
+}
+
 class Pong {
 
-  canvasContext: CanvasRenderingContext2D;
-  p1: Player;
-  p2: Player;
-  ball: Ball;
-  net: Net;
+  protected canvasContext: CanvasRenderingContext2D;
+  protected p1: Player;
+  protected p2: Player;
+  protected ball: Ball;
+  protected net: Net;
 
   constructor(context: CanvasRenderingContext2D) {
     this.canvasContext = context;
@@ -136,7 +145,7 @@ class Pong {
     this.drawRect(this.p2.xPosition, this.p2.yPosition, this.p2.width, this.p2.height, this.p2.color);
 
     // draw the ball
-    this.drawCircle(this.ball.xPosition, this.ball.xPosition, this.ball.radius, this.ball.color);
+    this.drawCircle(this.ball.xPosition, this.ball.yPosition, this.ball.radius, this.ball.color);
   }
 }
 
