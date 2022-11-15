@@ -7,7 +7,7 @@ const SignUp = () => {
 
   const [is2faOn, setIs2faOn] = useState(false);
   const [nickname, setNickname] = useState("");
-  const [imgUrl, setImgUrl] = useState("");
+  // const [imgUrl, setImgUrl] = useState("");
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,7 +19,7 @@ const SignUp = () => {
       return;
     }
     console.log(e.target.value);
-    setImgUrl(e.target.value);
+    // setImgUrl(e.target.value);
   }, []);
 
   const onUploadImageButtonClick = useCallback(() => {
@@ -40,7 +40,7 @@ const SignUp = () => {
         "nickname": nickname,
         "provider": newUserInfo.provider,
         "third_party_id": newUserInfo.thirdPartyId,
-        "prof_img": imgUrl,
+        // "prof_img": imgUrl,
       }),
     });
 
@@ -70,11 +70,11 @@ const SignUp = () => {
     setNickname(e.target.value);
   }
 
-  useEffect(() => {
-    if (newUserInfo.profImg) {
-      setImgUrl(newUserInfo.profImg);
-    }
-  }, [newUserInfo]);
+  // useEffect(() => {
+  //   if (newUserInfo.profImg !== null) {
+  //     setImgUrl(newUserInfo.profImg);
+  //   }
+  // }, [newUserInfo]);
 
   return (
     <div className="flex h-screen bg-true-gray text-white font-pixel">
