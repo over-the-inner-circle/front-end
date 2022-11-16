@@ -2,7 +2,7 @@ import { ComponentMeta, ComponentStory } from '@storybook/react';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import Friends from './Friends';
-import { friendAll, friendAllError } from '@/mock/handler';
+import {handlers, errorHandlers} from '@/mock/handler';
 
 export default {
   title: 'organism/Friends',
@@ -23,7 +23,7 @@ export const main = Template.bind({});
 main.args = {};
 main.parameters = {
   msw: {
-    handlers: [friendAll],
+    handlers,
   },
 };
 
@@ -31,6 +31,6 @@ export const notFound = Template.bind({});
 notFound.args = {};
 notFound.parameters = {
   msw: {
-    handlers: [friendAllError],
+    handlers: errorHandlers,
   },
 };

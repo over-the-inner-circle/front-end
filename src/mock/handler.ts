@@ -1,16 +1,64 @@
 import { rest } from 'msw';
-import { type Friend } from '@/organism/Friends';
+import { type Friend, type RequestedFriend } from '@/organism/Friends';
 
-export const friendAll = rest.get('/friend/all', (_req, res, ctx) => {
+const friendAll = rest.get('/friend/all', (_req, res, ctx) => {
   return res(ctx.delay(300), ctx.status(200), ctx.json(friendsData));
 });
 
-export const friendAllError = rest.get('/friend/all', (_req, res, ctx) => {
+const friendAllError = rest.get('/friend/all', (_req, res, ctx) => {
   return res(
     ctx.status(404),
     ctx.json({ statusCode: 404, message: '{userId} not found' }),
   );
 });
+
+const friendRequestSent = rest.get('/friend/request/sent', (_req, res, ctx) => {
+  return res(ctx.status(200), ctx.json(requestedFriendsData));
+});
+
+const friendRequestRecv = rest.get('/friend/request/recv', (_req, res, ctx) => {
+  return res(ctx.status(200), ctx.json(requestedFriendsData));
+});
+
+const friendRequestCancle = rest.delete(
+  '/friend/request/:id',
+  (_req, res, ctx) => {
+    return res(ctx.status(204));
+  },
+);
+
+const friendRequestAccept = rest.post(
+  '/friend/request/:id/accept',
+  (_req, res, ctx) => {
+    return res(
+      ctx.status(201),
+      ctx.json({
+        statusCode: 201,
+        message: 'friend relationship created',
+      }),
+    );
+  },
+);
+
+const friendRequestReject = rest.post(
+  '/friend/request/:id/reject',
+  (_req, res, ctx) => {
+    return res(ctx.status(204));
+  },
+);
+
+export const handlers = [
+  friendAll,
+  friendRequestSent,
+  friendRequestRecv,
+  friendRequestCancle,
+  friendRequestAccept,
+  friendRequestReject,
+];
+
+export const errorHandlers = [
+  friendAllError,
+]
 
 const friendsData: Friend[] = [
   {
@@ -40,5 +88,38 @@ const friendsData: Friend[] = [
     prof_img: 'https://via.placeholder.com/65',
     status: 'offline',
     created: new Date(),
+  },
+];
+
+const requestedFriendsData: RequestedFriend[] = [
+  {
+    request_id: 1,
+    requester: '7044bd97-a10e-4e81-97c0-f5e07438ab51',
+    receiver: '7044bd97-a10e-4e81-97c0-f5e07438ab51',
+    created_date: new Date(),
+  },
+  {
+    request_id: 2,
+    requester: '7044bd97-a10e-4e81-97c0-f5e07438ab51',
+    receiver: '7044bd97-a10e-4e81-97c0-f5e07438ab51',
+    created_date: new Date(),
+  },
+  {
+    request_id: 3,
+    requester: '7044bd97-a10e-4e81-97c0-f5e07438ab51',
+    receiver: '7044bd97-a10e-4e81-97c0-f5e07438ab51',
+    created_date: new Date(),
+  },
+  {
+    request_id: 4,
+    requester: '7044bd97-a10e-4e81-97c0-f5e07438ab51',
+    receiver: '7044bd97-a10e-4e81-97c0-f5e07438ab51',
+    created_date: new Date(),
+  },
+  {
+    request_id: 5,
+    requester: '7044bd97-a10e-4e81-97c0-f5e07438ab51',
+    receiver: '7044bd97-a10e-4e81-97c0-f5e07438ab51',
+    created_date: new Date(),
   },
 ];

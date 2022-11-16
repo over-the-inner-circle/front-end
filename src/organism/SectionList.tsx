@@ -1,12 +1,12 @@
 interface Section<T> {
   title: string;
-  list: T[];
+  list?: T[];
 }
 
 interface SectionListProps<T> {
   sections: Section<T>[] | undefined;
-  keyExtractor(data: T): React.Key;
-  renderItem(data: T): React.ReactNode;
+  keyExtractor(data: T, section?: Section<T>['title']): React.Key;
+  renderItem(data: T, section?: Section<T>['title']): React.ReactNode;
 }
 
 function SectionList<T>({
@@ -25,12 +25,12 @@ function SectionList<T>({
             {section.title}
           </div>
           <ul>
-            {section.list.map((data) => (
+            {section.list?.map((data) => (
               <li
-                key={keyExtractor(data)}
+                key={keyExtractor(data, section.title)}
                 className="w-full border-b border-neutral-400 bg-neutral-700"
               >
-                {renderItem(data)}
+                {renderItem(data, section.title)}
               </li>
             ))}
           </ul>

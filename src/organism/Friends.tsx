@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Circle from '@/atom/Circle';
 import SectionList from './SectionList';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 interface Friend {
   user_id: string;
@@ -51,6 +51,22 @@ function useFriends() {
   return { friends: data, error, isLoading, isError };
 }
 
+export interface RequestedFriend {
+  request_id: number;
+  requester: string;
+  receiver: string;
+  created_date: Date;
+}
+
+function useRequestedFriends(type: 'sent' | 'recv') {
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ['friend/request', type],
+    queryFn: (): Promise<RequestedFriend[]> =>
+      fetcher(`/friend/request/${type}`),
+  });
+  return { data, isLoading, isError, error };
+}
+
 function Friends() {
   const [isOpenForm, setIsOpenForm] = useState<boolean>(false);
   const [isOpenRequest, setIsOpenRequest] = useState<boolean>(false);
@@ -81,7 +97,68 @@ function Friends() {
 }
 
 function RequestedFriendsList() {
-  return <div className="h-full w-full"></div>;
+  const sentFriends = useRequestedFriends('sent');
+  const recvFriends = useRequestedFriends('recv');
+
+  const requestedData = [
+    {
+      title: 'recv',
+      list: recvFriends.data,
+    },
+    {
+      title: 'sent',
+      list: sentFriends.data,
+    },
+  ];
+  return (
+    <SectionList
+      sections={requestedData}
+      renderItem={(data, type) => (
+        <RequestedFriendItem data={data} type={type} />
+      )}
+      keyExtractor={(data) => data.request_id}
+    />
+  );
+}
+
+interface RequestedFriendItemProps {
+  data: RequestedFriend;
+  type?: string;
+}
+
+function RequestedFriendItem({ data, type }: RequestedFriendItemProps) {
+  const accept = useMutation({
+    mutationFn: () => {
+      return fetcher(`/friend/request/${data.request_id}/accept`, {
+        method: 'POST',
+      });
+    },
+  });
+  const reject = useMutation({
+    mutationFn: (type?: string) => {
+      if (type === 'sent') {
+        return fetcher(`/friend/request/${data.request_id}`, {
+          method: 'DELETE',
+        });
+      }
+      return fetcher(`/friend/request/${data.request_id}/reject`, {
+        method: 'POST',
+      });
+    },
+    onError: () => console.log('reject is failed'),
+  });
+
+  return (
+    <div className="flex flex-row p-5">
+      <p>{type === 'sent' ? data.receiver : data.requester}</p>
+      {type === 'recv' ? (
+        <button onClick={() => accept.mutate()}>V</button>
+      ) : null}
+      <button onClick={() => reject.mutate(type)} className="pl-3">
+        X
+      </button>
+    </div>
+  );
 }
 
 function FriendsList() {
