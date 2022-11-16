@@ -1,7 +1,6 @@
-import Button from '@/atom/Button';
-
 import React from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { RecoilRoot } from "recoil";
 
 import Intro from '@/pages/Intro';
 import Login from '@/pages/Login';
@@ -12,17 +11,19 @@ import Temp from "@/pages/Temp";
 
 function App() {
   return (
-    <div className="App h-full">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Intro />} />
-          <Route path="/login/:provider" element={ <Login /> }/>
-          <Route path="/sign-up" element={<SignUp />} />
-          <Route path="/main" element={<Main />} />
-          <Route path="/temp" element={<Temp />} />
-        </Routes>
-      </BrowserRouter>
-    </div>
+    <RecoilRoot>
+      <div className="App h-full">
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Intro />} />
+            <Route path="/login/:provider" element={ <Login /> }/>
+            <Route path="/sign-up" element={<SignUp />} />
+            <Route path="/main" element={<Main />} />
+            <Route path="/temp" element={<Temp />} />
+          </Routes>
+        </BrowserRouter>
+      </div>
+    </RecoilRoot>
   );
 }
 

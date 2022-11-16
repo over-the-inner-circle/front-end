@@ -3,11 +3,11 @@ import Circle from "@/atom/Circle";
 export interface MatchedUserInfoProps {
   name: string;
   eloScore: string;
-  imgUri: string;
-  className: string;
+  imgUri?: string;
+  className?: string;
 }
 
-const GameMatchedUserInfo = ({ info } : { info: MatchedUserInfoProps}) =>
+const GameMatchedUserInfo = (info: MatchedUserInfoProps) =>
 {
   return (
     <div className={`flex flex-col items-center ${info.className}`}>
