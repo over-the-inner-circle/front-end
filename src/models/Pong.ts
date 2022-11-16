@@ -76,7 +76,7 @@ class Pong {
     this.net = {
       xPosition: (canvasWidth - 2) / 2,
       yPosition: 0,
-      width: this.relativeXValue(2),
+      width: this.relativeXValue(4),
       height: this.relativeYValue(10),
       color: 'white'
     }
@@ -116,6 +116,7 @@ class Pong {
     this.canvasContext.fillRect(x, y, w, h);
   }
 
+  //TODO: 위치 안맞으면 타원으로 변경 후  캔버스 너비와 높이 변화에 따라서 x,y값 변화하도록.
   protected drawCircle(x: number,
              y: number,
              r: number,
@@ -142,11 +143,35 @@ class Pong {
     }
   }
 
+  public setContext(newContext: CanvasRenderingContext2D) {
+    this.canvasContext = newContext;
+  }
+
   public updateCurrentPositions(positions: PongComponentsPositions) {
     this.p1.yPosition = positions.p1YPosition;
     this.p2.yPosition = positions.p2YPosition;
     this.ball.xPosition = positions.ballXPosition;
     this.ball.yPosition = positions.ballYPosition;
+  }
+
+  public adjustAfterResize() {
+
+    const canvasHeight = this.canvasContext.canvas.height;
+    const canvasWidth = this.canvasContext.canvas.width;
+
+    this.p1.width = this.relativeXValue(10);
+    this.p1.height = this.relativeYValue(100);
+
+    this.p2.width = this.relativeXValue(10);
+    this.p2.height = this.relativeYValue(100);
+
+    this.ball.radius = this.relativeDiagonalValue(10);
+
+    this.net = {...this.net, 
+      xPosition: (canvasWidth - 2) / 2,
+      width: this.relativeXValue(4),
+      height: this.relativeYValue(10),
+    }
   }
 
   public render() {
@@ -164,6 +189,8 @@ class Pong {
       this.p1.height, 
       this.p1.color
       );
+    console.log(this.p1.width);
+    console.log(this.p1.height);
 
     this.drawRect(
       this.p2.xPosition, 
@@ -172,6 +199,8 @@ class Pong {
       this.p2.height, 
       this.p2.color
       );
+    console.log(this.p1.width);
+    console.log(this.p2.height);
 
     // draw the ball
     this.drawCircle(this.ball.xPosition, 
