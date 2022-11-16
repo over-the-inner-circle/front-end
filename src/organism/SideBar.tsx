@@ -15,7 +15,9 @@ export default function SideBar({ title }: SideBarProps) {
       </div>
       <ul className="w-full border-inherit">
         {[...Array(4)].map((_, idx) => (
-          <Item key={idx} />
+          <button className="flex items-center w-full" key={idx}>
+            <Item key={idx} />
+          </button>
         ))}
       </ul>
     </div>
@@ -24,7 +26,7 @@ export default function SideBar({ title }: SideBarProps) {
 
 function Item(props: React.HTMLAttributes<HTMLLIElement>) {
   return (
-    <li {...props} className="flex items-center h-12 px-3 border-b border-inherit">
+    <li {...props} className="flex items-center w-full h-12 px-3 border-b border-inherit">
       <div className="">item</div>
     </li>
   );
