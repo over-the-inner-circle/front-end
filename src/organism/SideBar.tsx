@@ -1,6 +1,7 @@
 export interface SideBarProps {
   title: string;
 }
+import chatingRoom from "@/organism/ChatingRoom";
 
 export default function SideBar({ title }: SideBarProps) {
   return (
@@ -15,7 +16,7 @@ export default function SideBar({ title }: SideBarProps) {
       </div>
       <ul className="w-full border-inherit">
         {[...Array(4)].map((_, idx) => (
-          <button className="flex items-center w-full" key={idx}>
+          <button onClick={chatingRoom} className="flex items-center w-full" key={idx}>
             <Item key={idx} />
           </button>
         ))}
@@ -25,6 +26,7 @@ export default function SideBar({ title }: SideBarProps) {
 }
 
 function Item(props: React.HTMLAttributes<HTMLLIElement>) {
+
   return (
     <li {...props} className="flex items-center w-full h-12 px-3 border-b border-inherit">
       <div className="">item</div>
