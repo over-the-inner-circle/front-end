@@ -143,8 +143,14 @@ class Pong {
     }
   }
 
-  public setContext(newContext: CanvasRenderingContext2D) {
-    this.canvasContext = newContext;
+  public currentPositions(): PongComponentsPositions {
+    return ( {
+      p1YPosition: this.p1.yPosition,
+      p2YPosition: this.p2.yPosition,
+      ballXPosition: this.ball.xPosition,
+      ballYPosition: this.ball.yPosition,
+    }
+    );
   }
 
   public updateCurrentPositions(positions: PongComponentsPositions) {
@@ -152,11 +158,11 @@ class Pong {
     this.p2.yPosition = positions.p2YPosition;
     this.ball.xPosition = positions.ballXPosition;
     this.ball.yPosition = positions.ballYPosition;
+    console.log("position updated");
   }
 
   public adjustAfterResize() {
 
-    const canvasHeight = this.canvasContext.canvas.height;
     const canvasWidth = this.canvasContext.canvas.width;
 
     this.p1.width = this.relativeXValue(10);
@@ -164,11 +170,12 @@ class Pong {
 
     this.p2.width = this.relativeXValue(10);
     this.p2.height = this.relativeYValue(100);
+    this.p2.xPosition = canvasWidth - this.relativeXValue(10);
 
     this.ball.radius = this.relativeDiagonalValue(10);
 
     this.net = {...this.net, 
-      xPosition: (canvasWidth - 2) / 2,
+      xPosition: (canvasWidth - 4) / 2,
       width: this.relativeXValue(4),
       height: this.relativeYValue(10),
     }
@@ -189,8 +196,6 @@ class Pong {
       this.p1.height, 
       this.p1.color
       );
-    console.log(this.p1.width);
-    console.log(this.p1.height);
 
     this.drawRect(
       this.p2.xPosition, 
@@ -199,11 +204,10 @@ class Pong {
       this.p2.height, 
       this.p2.color
       );
-    console.log(this.p1.width);
-    console.log(this.p2.height);
 
     // draw the ball
-    this.drawCircle(this.ball.xPosition, 
+    this.drawCircle(
+      this.ball.xPosition, 
       this.ball.yPosition, 
       this.ball.radius, 
       this.ball.color

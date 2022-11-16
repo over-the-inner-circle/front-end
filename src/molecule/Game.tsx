@@ -13,23 +13,14 @@ const socketUri = (): string => {
 }
 
 const Game = () => {
-
-  let pong: Pong;
-
   const isInitialMount = useRef(true);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const pongRef = useRef<Pong | null>(null);
   const socket = useSocket(socketUri());
 
-
-
-  // const [positions, setPositions] = useState<PongComponentsPositions>({
-  //   p1YPosition: (canvasHeight - 100) / 2,
-  //   p2YPosition: (canvasHeight - 100) / 2,
-  //   ballXPosition: canvasWidth / 2,
-  //   ballYPosition: canvasHeight / 2,
-  // });
+  const [positions, setPositions] = useState<PongComponentsPositions | null>(null);
 
   // 퐁 초기화
   useEffect( () => {
@@ -41,7 +32,8 @@ const Game = () => {
     }
     const context = canvas?.getContext('2d');
     if (canvas && context && container) {
-      pong = new Pong(context);
+      pongRef.current = new Pong(context);
+      setPositions(pongRef.current.currentPositions()); // 포지션 초기화
     }
   }, []);
 
@@ -53,17 +45,18 @@ const Game = () => {
     }
   }, []);
 
-  // useEffect(() => {
-  //   // 마운트 시 실행안함
-  //   if (isInitialMount.current) {
-  //     isInitialMount.current = false;
-  //   } else {
-  //     if (pong) {
-  //       pong.updateCurrentPositions(positions);
-  //       pong.render();
-  //     }
-  //   }
-  // }, [positions]);
+  useEffect(() => {
+    // 마운트 시 실행안함
+    console.log(pongRef.current);
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+    } else {
+      if (pongRef.current && positions) {
+        pongRef.current.updateCurrentPositions(positions);
+        pongRef.current.render();
+      }
+    }
+  }, [positions]);
 
   const adjustGameSize = () => {
     const canvas = canvasRef.current;
@@ -73,14 +66,14 @@ const Game = () => {
       canvas.height = container.clientHeight
       canvas.width = container.clientWidth
     }
-    pong.adjustAfterResize();
-    pong.render();
+    pongRef.current?.adjustAfterResize();
+    pongRef.current?.render();
   }
 
-  // const updatePosition = (newPositions: PongComponentsPositions) => {
-  //   //TODO: 서버에서 정보 받아서 status 업데이트
-  //   setPositions(newPositions);
-  // }
+  const updatePosition = (newPositions: PongComponentsPositions) => {
+    //TODO: 서버에서 정보 받아서 status 업데이트
+    setPositions(newPositions);
+  }
 
   const sendPressedKey = (type: string) => {
     if (socket) {
@@ -92,11 +85,14 @@ const Game = () => {
     // TODO: 서버에 키보드 입력 쏴주기
     // TODO: keyUP과 keyDown을 구분해서 보내기
 
-    // if (event.key === 'ArrowUp') {
-    //   updatePosition({ ...positions, p1YPosition: positions.p1YPosition - 10 });
-    // } else if (event.key === 'ArrowDown') {
-    //   updatePosition({ ...positions, p1YPosition: positions.p1YPosition + 10 });
-    // }
+
+
+    
+    if (event.key === 'ArrowUp' && positions) {
+      updatePosition({ ...positions, p1YPosition: positions.p1YPosition - 10 });
+    } else if (event.key === 'ArrowDown' && positions) {
+      updatePosition({ ...positions, p1YPosition: positions.p1YPosition + 10 });
+    }
   }
 
   return (
