@@ -15,7 +15,7 @@ const GameMatched = () => {
     <div className="h-full w-full flex flex-col font-pixel text-white justify-center items-center stop-dragging">
       <div className="flex justify-center gap-52">
         <GameMatchedUserInfo name={"jaemjung"} eloScore={"1000"}/>
-        <GameMatchedUserInfo name={"someone"} eloScore={"2000"}/>
+        <GameMatchedUserInfo name={"jaehwkim"} eloScore={"2000"}/>
       </div>
       <div className="flex flex-col items-center">
         <span className="m-4 mt-10 text-xl">Game settings</span>

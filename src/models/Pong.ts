@@ -4,7 +4,6 @@ interface Player {
   width: number;
   height: number;
   color: string;
-  score: number;
 }
 
 interface Ball {
@@ -53,20 +52,18 @@ class Pong {
 
     this.p1 = {
       xPosition: 0,
-      yPosition: (canvasHeight - 100) / 2,
-      width: 10,
-      height: 100,
+      yPosition: (canvasHeight - this.relativeYValue(100) ) / 2,
+      width: this.relativeXValue(10),
+      height: this.relativeYValue(100),
       color: 'white',
-      score: 0
     }
 
     this.p2 = {
-      xPosition: canvasWidth - 10,
-      yPosition: (canvasHeight - 100) / 2,
-      width: 10,
-      height: 100,
+      xPosition: canvasWidth - this.relativeXValue(10),
+      yPosition: (canvasHeight - this.relativeYValue(100)) / 2,
+      width: this.relativeXValue(10),
+      height: this.relativeYValue(100),
       color: 'white',
-      score: 0
     }
 
     this.ball = {
@@ -85,6 +82,24 @@ class Pong {
     }
 
     this.render();
+  }
+
+  protected relativeXValue(value: number) {
+    const originalCanvasWidth = 800;
+    const currentCanvasWidth  = this.canvasContext.canvas.width;
+    const ratio               = currentCanvasWidth / originalCanvasWidth;
+    return value * ratio;
+  }
+
+  protected relativeYValue(value: number) {
+    const originalCanvasHeight = 600;
+    const currentCanvasHeight  = this.canvasContext.canvas.height;
+    const ratio                = currentCanvasHeight / originalCanvasHeight;
+    return value * ratio;
+  }
+
+  protected relativeDiagonalValue(value: number) {
+    
   }
 
   protected drawRect(x: number,
@@ -137,11 +152,28 @@ class Pong {
     this.drawNet();
 
     // draw the players
-    this.drawRect(this.p1.xPosition, this.p1.yPosition, this.p1.width, this.p1.height, this.p1.color);
-    this.drawRect(this.p2.xPosition, this.p2.yPosition, this.p2.width, this.p2.height, this.p2.color);
+    this.drawRect(
+      this.p1.xPosition, 
+      this.p1.yPosition, 
+      this.p1.width, 
+      this.p1.height, 
+      this.p1.color
+      );
+
+    this.drawRect(
+      this.p2.xPosition, 
+      this.p2.yPosition, 
+      this.p2.width, 
+      this.p2.height, 
+      this.p2.color
+      );
 
     // draw the ball
-    this.drawCircle(this.ball.xPosition, this.ball.yPosition, this.ball.radius, this.ball.color);
+    this.drawCircle(this.ball.xPosition, 
+      this.ball.yPosition, 
+      this.ball.radius, 
+      this.ball.color
+      );
   }
 }
 
