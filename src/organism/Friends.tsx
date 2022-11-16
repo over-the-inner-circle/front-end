@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Circle from '@/atom/Circle';
+import SectionList from './SectionList';
 
 interface Friend {
   user_id: string;
@@ -47,7 +48,6 @@ function useFriends() {
 
 function Friends() {
   // TODO: useFriends() to fetch friends list
-  const friends = useFriends();
   const [isOpenForm, setIsOpenForm] = useState<boolean>(false);
   const [isOpenRequest, setIsOpenRequest] = useState<boolean>(false);
 
@@ -74,7 +74,7 @@ function Friends() {
       {isOpenRequest ? (
         <RequestedFriendsList />
       ) : (
-        <FriendsList friends={friends} />
+        <FriendsList />
       )}
     </div>
   );
@@ -84,11 +84,8 @@ function RequestedFriendsList() {
   return <div className="h-full w-full"></div>;
 }
 
-interface FriendsListProps {
-  friends: Friend[];
-}
-
-function FriendsList({ friends }: FriendsListProps) {
+function FriendsList() {
+  const friends = useFriends();
   const friendsData = [
     {
       title: 'online',
@@ -101,23 +98,11 @@ function FriendsList({ friends }: FriendsListProps) {
   ];
 
   return (
-    <ul className="flex h-full w-full flex-col overflow-auto bg-neutral-600 font-pixel text-white">
-      {friendsData.map((data) => (
-        <>
-          <li
-            className="flex w-full flex-row items-center justify-start
-                   border-b border-neutral-400 bg-neutral-800 px-5 py-1 text-xs"
-          >
-            {data.title}
-          </li>
-          {data.list.map((friend) => (
-            <li key={friend.user_id}>
-              <FriendItem friend={friend} />
-            </li>
-          ))}
-        </>
-      ))}
-    </ul>
+    <SectionList
+      sections={friendsData}
+      renderItem={(friend) => <FriendItem friend={friend} />}
+      keyExtractor={(friend) => friend.user_id}
+    />
   );
 }
 
