@@ -28,7 +28,7 @@ export interface PongComponentsPositions {
   ballYPosition: number;
 }
 
-export interface PongCongif {
+export interface PongConfig {
   theme: {
     backgroundColor: string;
     playerColor: string;
@@ -69,15 +69,15 @@ class Pong {
     this.ball = {
       xPosition: canvasWidth / 2,
       yPosition: canvasHeight / 2,
-      radius: 10,
+      radius: this.relativeDiagonalValue(10),
       color: 'white'
     }
 
     this.net = {
       xPosition: (canvasWidth - 2) / 2,
       yPosition: 0,
-      width: 2,
-      height: 10,
+      width: this.relativeXValue(2),
+      height: this.relativeYValue(10),
       color: 'white'
     }
 
@@ -99,7 +99,12 @@ class Pong {
   }
 
   protected relativeDiagonalValue(value: number) {
-    
+    const originalDiagonal = Math.sqrt(800 * 800 + 600 * 600);
+    const currentCanvasH = this.canvasContext.canvas.height;
+    const currentCanvasW = this.canvasContext.canvas.width;
+    const currentDiagonal = Math.sqrt(currentCanvasH * currentCanvasH + currentCanvasW * currentCanvasW);
+    const ratio = currentDiagonal / originalDiagonal;
+    return value * ratio;
   }
 
   protected drawRect(x: number,
@@ -132,7 +137,7 @@ class Pong {
   }
 
   protected drawNet() {
-    for (let i = 0; i <= this.canvasContext.canvas.height; i += 15) {
+    for (let i = 0; i <= this.canvasContext.canvas.height; i += this.relativeYValue(15)) {
       this.drawRect(this.net.xPosition, this.net.yPosition + i, this.net.width, this.net.height, this.net.color);
     }
   }
