@@ -107,10 +107,7 @@ interface FriendItemProps {
 
 function FriendItem({ friend, onClickOption = console.log }: FriendItemProps) {
   return (
-    <div
-      className="flex h-full w-full flex-row items-center justify-start
-                 border-b border-neutral-400 bg-neutral-700 px-5 py-4"
-    >
+    <div className="flex h-full w-full flex-row items-center justify-start px-5 py-4">
       <Link to={`/user/${friend.nickname}`} className="min-w-fit">
         <img
           src={friend.prof_img}

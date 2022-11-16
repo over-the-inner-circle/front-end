@@ -9,7 +9,7 @@ interface SectionListProps<T> {
   renderItem(data: T): React.ReactNode;
 }
 
-function SectionList<T extends object>({
+function SectionList<T>({
   sections = [],
   keyExtractor,
   renderItem,
@@ -26,7 +26,12 @@ function SectionList<T extends object>({
           </div>
           <ul>
             {section.list.map((data) => (
-              <li key={keyExtractor(data)}>{renderItem(data)}</li>
+              <li
+                key={keyExtractor(data)}
+                className="w-full border-b border-neutral-400 bg-neutral-700"
+              >
+                {renderItem(data)}
+              </li>
             ))}
           </ul>
         </li>
