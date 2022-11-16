@@ -4,13 +4,13 @@ interface Section<T> {
 }
 
 interface SectionListProps<T> {
-  sections: Section<T>[];
+  sections: Section<T>[] | undefined;
   keyExtractor(data: T): React.Key;
   renderItem(data: T): React.ReactNode;
 }
 
 function SectionList<T extends object>({
-  sections,
+  sections = [],
   keyExtractor,
   renderItem,
 }: SectionListProps<T>) {

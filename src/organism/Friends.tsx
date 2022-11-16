@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Circle from '@/atom/Circle';
 import SectionList from './SectionList';
+import { useQuery } from '@tanstack/react-query';
 
 interface Friend {
   user_id: string;
@@ -13,7 +14,7 @@ interface Friend {
   deleted?: Date;
 }
 
-function fetcher(url: string, options: RequestInit = {}) {
+async function fetcher(url: string, options: RequestInit = {}) {
   const accessToken = window.localStorage.getItem('refresh_token');
 
   options.headers = {
@@ -27,27 +28,30 @@ function fetcher(url: string, options: RequestInit = {}) {
       'content-type': 'application/json',
     };
   }
-  return fetch(url, options);
+
+  const res = await fetch(url, options);
+  return res.json();
 }
 
 function useFriends() {
-  const [friends, setFriends] = useState<Friend[]>([]);
-
-  useEffect(() => {
-    (async () => {
-      const res = await fetcher('/friend/all');
-
-      if (res.ok) {
-        setFriends(await res.json());
-      }
-    })();
-  }, []);
-
-  return friends;
+  const { data, error, isLoading, isError } = useQuery({
+    queryKey: ['friend/all'],
+    queryFn: (): Promise<Friend[]> => fetcher('friend/all'),
+    select: (friends) => [
+      {
+        title: 'online',
+        list: friends.filter((friend) => friend.status !== 'offline'),
+      },
+      {
+        title: 'offline',
+        list: friends.filter((friend) => friend.status === 'offline'),
+      },
+    ],
+  });
+  return { friends: data, error, isLoading, isError };
 }
 
 function Friends() {
-  // TODO: useFriends() to fetch friends list
   const [isOpenForm, setIsOpenForm] = useState<boolean>(false);
   const [isOpenRequest, setIsOpenRequest] = useState<boolean>(false);
 
@@ -71,11 +75,7 @@ function Friends() {
         </button>
       </div>
       {isOpenForm ? <AddFriendForm /> : null}
-      {isOpenRequest ? (
-        <RequestedFriendsList />
-      ) : (
-        <FriendsList />
-      )}
+      {isOpenRequest ? <RequestedFriendsList /> : <FriendsList />}
     </div>
   );
 }
@@ -85,21 +85,14 @@ function RequestedFriendsList() {
 }
 
 function FriendsList() {
-  const friends = useFriends();
-  const friendsData = [
-    {
-      title: 'online',
-      list: friends.filter((friend) => friend.status !== 'offline'),
-    },
-    {
-      title: 'offline',
-      list: friends.filter((friend) => friend.status === 'offline'),
-    },
-  ];
+  const { friends, isLoading, isError } = useFriends();
+
+  if (isLoading) return <div>spinner</div>;
+  if (isError) return null;
 
   return (
     <SectionList
-      sections={friendsData}
+      sections={friends}
       renderItem={(friend) => <FriendItem friend={friend} />}
       keyExtractor={(friend) => friend.user_id}
     />
@@ -140,7 +133,7 @@ function FriendItem({ friend, onClickOption = console.log }: FriendItemProps) {
                 : 'fill-neutral-500'
             }
           />
-          <p className="truncate min-w-0 text-xs">{friend.status}</p>
+          <p className="min-w-0 truncate text-xs">{friend.status}</p>
         </div>
       </div>
       <button
