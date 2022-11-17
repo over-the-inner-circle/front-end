@@ -1,7 +1,7 @@
 import Circle from "@/atom/Circle"
 import Spacer from "@/atom/Spacer"
 
-const GamePlayerInfo = () => {
+const GamePlayerInfoBar = () => {
 	return (
 		<>
 		<div className="flex flex-row bg-neutral-800 font-pixel text-white">
@@ -28,4 +28,4 @@ const GamePlayerInfo = () => {
 	)
 }
 
-export default GamePlayerInfo
+export default GamePlayerInfoBar

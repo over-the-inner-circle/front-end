@@ -1,12 +1,29 @@
+import io from "socket.io-client";
+import {useSetRecoilState, useRecoilState} from "recoil";
+
 import Button from "@/atom/Button";
-import {useSetRecoilState} from "recoil";
-import {currentGameStatus} from "@/states/currentGameStatus";
+import {currentGameStatus} from "@/states/game/currentGameStatus";
+import {gameSocket} from "@/states/game/gameSocket";
 
 const GameIntro = () => {
-
   const setGameStatus = useSetRecoilState(currentGameStatus);
+  const [socket, setSocket] = useRecoilState(gameSocket);
+
   const startMatching = () => {
-    setGameStatus("ON_MATCHING");
+    const newSocket = io("");
+    if (newSocket.connected) {
+      setSocket(newSocket);
+    }
+    if (!socket) {
+      //TODO: 에러처리
+      console.log("socket is not connected");
+    } else {
+      socket.emit("user_join_queue");
+      // TODO: 유저가 큐에 들어갔다는 메시지가 필요할까?
+      setGameStatus("ON_MATCHING");
+    }
+
+    // setGameStatus("ON_MATCHING");
   }
 
   return(

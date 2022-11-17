@@ -1,11 +1,25 @@
+import {useSetRecoilState, useRecoilValue, useRecoilState} from "recoil";
+import {useEffect} from "react";
+
 import GameMatchedUserInfo from "@/atom/GameMatchedUserInfo";
 import Button from "@/atom/Button";
-import {useSetRecoilState} from "recoil";
-import {currentGameStatus} from "@/states/currentGameStatus";
+import {currentGameStatus} from "@/states/game/currentGameStatus";
+import {matchInfo} from "@/states/game/matchInfo";
+import {gameSocket} from "@/states/game/gameSocket";
 
 const GameMatched = () => {
 
   const setGameStatus = useSetRecoilState(currentGameStatus);
+  const currentMatchInfo = useRecoilValue(matchInfo);
+  const [socket, setSocket] = useRecoilState(gameSocket);
+
+  useEffect(() => {
+    // 유저 인포 안넘어올시 에러처리
+    if (!currentMatchInfo || !socket) {
+      console.error("currentMatchInfo or socket is null");
+      setGameStatus("INTRO");
+    }
+  }, []);
 
   const startGame = () => {
     setGameStatus("PLAYING");

@@ -5,7 +5,7 @@ import GameIntro from "@/molecule/GameIntro";
 import GameFinished from '@/molecule/GameFinished';
 
 import {useRecoilValue} from "recoil";
-import {currentGameStatus} from "@/states/currentGameStatus";
+import {currentGameStatus} from "@/states/game/currentGameStatus";
 
 export type GameStatus = 'INTRO' | 'ON_MATCHING' | 'MATCHED' | 'PLAYING' | 'FINISHED';
 

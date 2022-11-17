@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
 import Pong, { PongComponentsPositions } from "@/models/Pong";
-import useSocket from "@/hooks/useSocket";
 
 const socketUri = (): string => {
   const requestUri = import.meta.env.VITE_REQUEST_URL;
@@ -18,7 +17,6 @@ const Game = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pongRef = useRef<Pong | null>(null);
-  const socket = useSocket(socketUri());
 
   const [positions, setPositions] = useState<PongComponentsPositions | null>(null);
 
@@ -76,9 +74,9 @@ const Game = () => {
   }
 
   const sendPressedKey = (type: string) => {
-    if (socket) {
-      socket.emit('pressedKey', type);
-    }
+    // if (socket) {
+    //   socket.emit('pressedKey', type);
+    // }
   }
 
   const handleKeyPress = (event: React.KeyboardEvent) => {

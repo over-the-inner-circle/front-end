@@ -1,7 +1,7 @@
 import Button from '@/atom/Button';
 import Game from '@/molecule/Game';
-import GamePlayerInfo from "@/molecule/GamePlayerInfo";
-import { currentGameStatus } from '@/states/currentGameStatus';
+import GamePlayerInfoBar from "@/molecule/GamePlayerInfoBar";
+import { currentGameStatus } from '@/states/game/currentGameStatus';
 import { useSetRecoilState } from 'recoil';
 
 const GameWindow = () => {
@@ -15,7 +15,7 @@ const GameWindow = () => {
   return (
     <>
     <Button onClick={finishGame}>finish</Button>
-    <GamePlayerInfo />
+    <GamePlayerInfoBar />
     <div className="flex h-full items-center justify-center min-h-0 min-w-0">
       <Game />
     </div>
