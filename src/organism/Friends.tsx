@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Circle from '@/atom/Circle';
 import SectionList from './SectionList';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import SideBarLayout from './SideBarLayout';
 
 interface Friend {
   user_id: string;
@@ -72,12 +73,7 @@ function Friends() {
   const [isOpenRequest, setIsOpenRequest] = useState<boolean>(false);
 
   return (
-    <div
-      id="friends-container"
-      className="col-span-1 col-start-2 row-span-2 row-start-2
-                 flex h-full w-[370px] flex-col items-start justify-start
-                 border-l border-neutral-400 bg-neutral-600 font-pixel text-white"
-    >
+    <SideBarLayout>
       <div className="flex h-12 w-full shrink-0 flex-row items-center justify-between border-b border-neutral-400 bg-neutral-800 px-5">
         <button
           className="flex flex-row items-center justify-start"
@@ -92,7 +88,7 @@ function Friends() {
       </div>
       {isOpenForm ? <AddFriendForm /> : null}
       {isOpenRequest ? <RequestedFriendsList /> : <FriendsList />}
-    </div>
+    </SideBarLayout>
   );
 }
 
