@@ -1,13 +1,17 @@
 import { useState } from "react";
-import io from "socket.io-client"
+
 import SideBar from "@/organism/SideBar";
+import ChatingRoom from "@/organism/ChatingRoom";
+
 
 const Chat = () => {
-	const socketClient = io("http://ip:port");
+	const [room_id, setRoom_Id] = useState<string | null>(null);
 
+	if (room_id === null) {
+		return <SideBar title={"Chat"} setRoom_Id={setRoom_Id} />;
+	}
 	return (
-		<SideBar title="Chat" />
-
+		<ChatingRoom title={room_id} setRoom_Id={setRoom_Id} />
 	);
 }
 

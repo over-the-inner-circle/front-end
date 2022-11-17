@@ -4,6 +4,7 @@ import Chat from "@/organism/Chat";
 import Friends from "@/organism/Friends";
 import React, { useState } from 'react';
 import Directmsg from "@/organism/Directmsg";
+import io from "socket.io-client"
 
 export type SidebarItem = 'dm' | 'friend' | 'chat';
 
