@@ -5,6 +5,18 @@ import SectionList from './SectionList';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import SideBarLayout from './SideBarLayout';
 import Spinner from '@/atom/Spinner';
+import {
+  useFloating,
+  useInteractions,
+  useClick,
+  useDismiss,
+  useRole,
+  autoUpdate,
+  offset,
+  flip,
+  shift,
+  FloatingPortal,
+} from '@floating-ui/react-dom-interactions';
 
 interface Friend {
   user_id: string;
@@ -181,13 +193,54 @@ function FriendsList() {
   );
 }
 
+function useOptionMenu() {
+  const [open, setOpen] = useState(false);
+
+  const data = useFloating({
+    open,
+    onOpenChange: setOpen,
+    whileElementsMounted: autoUpdate,
+    middleware: [
+      offset(3),
+      flip(),
+      shift({ padding: 3 }),
+    ],
+  });
+
+  const context = data.context;
+
+  const click = useClick(context);
+  const dismiss = useDismiss(context);
+  const role = useRole(context, { role: 'menu' });
+  const interactions = useInteractions([click, dismiss, role]);
+
+  return {
+    open,
+    setOpen,
+    ...data,
+    ...interactions,
+  };
+}
+
 interface FriendItemProps {
   friend: Friend;
   onClickItem?(friend: Friend): void;
   onClickOption?(friend: Friend): void;
 }
 
-function FriendItem({ friend, onClickOption = console.log }: FriendItemProps) {
+function FriendItem({ friend }: FriendItemProps) {
+  const {
+    open,
+    setOpen,
+    reference,
+    floating,
+    getReferenceProps,
+    getFloatingProps,
+    x,
+    y,
+    strategy,
+  } = useOptionMenu();
+
   return (
     <div className="flex h-full w-full flex-row items-center justify-start px-5 py-4">
       <Link to={`/user/${friend.nickname}`} className="min-w-fit">
@@ -216,11 +269,41 @@ function FriendItem({ friend, onClickOption = console.log }: FriendItemProps) {
         </div>
       </div>
       <button
+        ref={reference}
+        {...getReferenceProps()}
         className="ml-auto mt-2 flex h-full w-4 items-start text-lg hover:text-neutral-400"
-        onClick={() => onClickOption(friend)}
       >
         :
       </button>
+      <FloatingPortal>
+        {open && (
+          <div
+            ref={floating}
+            style={{
+              position: strategy,
+              top: y ?? 0,
+              left: x ?? 0,
+              width: 'max-content',
+            }}
+            {...getFloatingProps()}
+          >
+            <ul>
+              <li className="bg-neutral-800 p-3 font-pixel text-xs text-white">
+                <button onClick={() => setOpen(false)} className="w-full h-full">Invite Game</button>
+              </li>
+              <li className="bg-neutral-800 p-3 font-pixel text-xs text-white">
+                <button className="w-full h-full">DM</button>
+              </li>
+              <li className="bg-neutral-800 p-3 font-pixel text-xs text-white">
+                <button className="w-full h-full">Block</button>
+              </li>
+              <li className="bg-neutral-800 p-3 font-pixel text-xs text-red-700">
+                <button className="w-full h-full">Delete</button>
+              </li>
+            </ul>
+          </div>
+        )}
+      </FloatingPortal>
     </div>
   );
 }
