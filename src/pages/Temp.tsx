@@ -1,5 +1,4 @@
 import Nav from "@/organism/Nav";
-import Game from "@/molecule/Game";
 import Chat from "@/organism/Chat";
 import GameContainer from "./GameContainer";
 

@@ -1,5 +1,5 @@
 import {useSetRecoilState, useRecoilValue, useRecoilState} from "recoil";
-import {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 
 import GameMatchedUserInfo from "@/atom/GameMatchedUserInfo";
 import Button from "@/atom/Button";
@@ -8,21 +8,52 @@ import {matchInfo} from "@/states/game/matchInfo";
 import {gameSocket} from "@/states/game/gameSocket";
 
 const GameMatched = () => {
-
   const setGameStatus = useSetRecoilState(currentGameStatus);
   const currentMatchInfo = useRecoilValue(matchInfo);
   const [socket, setSocket] = useRecoilState(gameSocket);
+  const [isPlayerReady, setIsPlayerReady] = useState<boolean>(false);
+  const [isCounterpartReady, setIsCounterpartReady] = useState<boolean>(false);
 
   useEffect(() => {
-    // 유저 인포 안넘어올시 에러처리
-    if (!currentMatchInfo || !socket) {
-      console.error("currentMatchInfo or socket is null");
-      setGameStatus("INTRO");
-    }
+    // 유저 인포 안넘어올시 or 소켓 없을 시 에러처리
+    // if (!currentMatchInfo || !socket) {
+    //   console.error("currentMatchInfo or socket is null");
+    //   setGameStatus("INTRO");
+    // }
+
+    socket?.on('counterpart_ready', () => {
+      setIsCounterpartReady(true);
+    })
+
   }, []);
 
-  const startGame = () => {
+  const playerReady = () => {
+    if (socket && socket.connected) {
+      setIsPlayerReady(true);
+      socket.emit('player_ready');
+    } else {
+      console.error("socket is not connected");
+    }
+
+    // TODO: 완성 시 삭제
     setGameStatus("PLAYING");
+  }
+
+  const setGameDifficulty = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+                             difficulty: string) => {
+    switch (difficulty) {
+      case "EASY":
+        socket?.emit("player_change_difficulty", "1");
+        break;
+      case "NORMAL":
+        socket?.emit("player_change_difficulty", "2");
+        break;
+      case "HARD":
+        socket?.emit("player_change_difficulty", "3");
+        break;
+      default:
+        console.error("difficulty is not valid");
+    }
   }
 
   return (
@@ -35,9 +66,18 @@ const GameMatched = () => {
         <span className="m-4 mt-10 text-xl">Game settings</span>
         <span className="m-2">Difficulty</span>
         <div className="flex flex-row gap-8">
-          <Button className="bg-green-400 text-white font-pixel"> easy </Button>
-          <Button className="bg-yellow-500 text-white font-pixel"> normal </Button>
-          <Button className="bg-red-500 text-white font-pixel"> hard </Button>
+          <Button onClick={(e) => {setGameDifficulty(e, "EASY")}}
+                  className="bg-green-400 text-white font-pixel">
+            easy
+          </Button>
+          <Button onClick={(e) => {setGameDifficulty(e, "NORMAL")}}
+                  className="bg-yellow-500 text-white font-pixel">
+            normal
+          </Button>
+          <Button onClick={(e) => {setGameDifficulty(e, "HARD")} }
+                  className="bg-red-500 text-white font-pixel">
+            hard
+          </Button>
         </div>
         <span className="m-2 mt-6">Theme</span>
         <div className="flex flex-row gap-8">
@@ -46,7 +86,7 @@ const GameMatched = () => {
           <Button className="bg-neutral-500"> theme3 </Button>
         </div>
         <Button className="bg-green-700 text-xl mt-10"
-        onClick={startGame}> READY </Button>
+        onClick={playerReady}> READY </Button>
       </div>
     </div>
   );
