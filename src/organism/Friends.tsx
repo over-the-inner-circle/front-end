@@ -4,6 +4,7 @@ import Circle from '@/atom/Circle';
 import SectionList from './SectionList';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import SideBarLayout from './SideBarLayout';
+import Spinner from '@/atom/Spinner';
 
 interface Friend {
   user_id: string;
@@ -106,6 +107,14 @@ function RequestedFriendsList() {
       list: sentFriends.data,
     },
   ];
+
+  if (sentFriends.isLoading || recvFriends.isLoading) {
+    return <Spinner />;
+  }
+  if (sentFriends.isError || recvFriends.isError) {
+    return null;
+  }
+
   return (
     <SectionList
       sections={requestedData}
@@ -160,7 +169,7 @@ function RequestedFriendItem({ data, type }: RequestedFriendItemProps) {
 function FriendsList() {
   const { friends, isLoading, isError } = useFriends();
 
-  if (isLoading) return <div>spinner</div>;
+  if (isLoading) return <Spinner />;
   if (isError) return null;
 
   return (
