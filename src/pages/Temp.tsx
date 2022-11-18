@@ -4,6 +4,7 @@ import Chat from "@/organism/Chat";
 import Friends from "@/organism/Friends";
 import React, { useState } from 'react';
 import Directmsg from "@/organism/Directmsg";
+import GameContainer from "./GameContainer";
 
 export type SidebarItem = 'dm' | 'friend' | 'chat';
 
@@ -24,11 +25,9 @@ function Temp() {
 		<div className="bg-neutral-600 flex flex-col w-full h-full relative mx-auto my-0" id="root">
 			<Nav current={sideState} onChange={setSideState}></Nav>
 			<div className="content-start flex h-full w-full relative">
-				<Game></Game>
+				<GameContainer />
 				{sidebarSelector(sideState)};
 			</div>
-
-
 		</div>
   );
 }

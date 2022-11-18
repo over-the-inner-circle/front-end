@@ -1,4 +1,6 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { RecoilRoot } from "recoil";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import Intro from '@/pages/Intro';
@@ -11,17 +13,19 @@ const queryClient = new QueryClient();
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
+    <RecoilRoot>
+      <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Intro />} />
-          <Route path="/login/:provider" element={<Login />} />
+          <Route path="/login/:provider" element={ <Login /> }/>
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/main" element={<Main />} />
           <Route path="/temp" element={<Temp />} />
         </Routes>
       </BrowserRouter>
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </RecoilRoot>
   );
 }
 

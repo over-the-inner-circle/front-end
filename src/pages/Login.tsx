@@ -1,11 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 const Login = () => {
 
-  const REQUEST_URL = "http://146.56.153.237:80";
+  const REQUEST_URL = import.meta.env.VITE_REQUEST_URL;
   const params = useParams();
   const navigate = useNavigate();
+
+  const [message, setMessage] = useState("Loading...");
 
   const fetchUserData = async (provider: string, code: string) => {
       const response: Response = await fetch(`${REQUEST_URL}/auth/oauth2/${provider}`, {
@@ -19,8 +21,7 @@ const Login = () => {
         const data = await response.json();
         return data;
       } else {
-        //TODO: 에러처리
-        return null;
+        throw new Error("failed to login: " + response.statusText);
       }
   }
 
@@ -29,11 +30,6 @@ const Login = () => {
     const provider: string = params.provider || "";
     const urlQuery = new URLSearchParams(window.location.search);
     const code = urlQuery.get("code");
-
-    console.log("login page called");
-    console.log(`provider is ${params.provider}`);
-    console.log(`code is ${code}`);
-    console.log(JSON.stringify({code}));
 
     if (!code || code === "") {
       // TODO : 에러처리
@@ -45,23 +41,15 @@ const Login = () => {
     }
     const result = fetchUserData(provider, code);
     //TODO: Result 없을 때 처리
-    result.then((data) => {
+    result
+      .then((data) => {
       if (data.access_token) {
-        // user exists. Redirect to main page with access token and refresh token
-        console.log("user exists");
-        console.log(data);
-
+        // 회원이 있는 경우: 액세스 토큰 저장 후 메인페이지로 리다이렉션.
         window.localStorage.setItem("access_token", data.access_token);
         window.localStorage.setItem("refresh_token", data.refresh_token);
-
         navigate("/main");
-
       } else if (data.provider) {
-        // user doesn't exist. Redirect to signup page with Oauth user info data.
-
-        console.log("user doesn't exist")
-        console.log(data);
-
+        // 회원이 없는 경우: 회원가입 페이지로 리다이렉션. 회원가입에 필요한 정보를 state로 전달.
         navigate("/sign-up", { state:
         {
           provider: data.provider,
@@ -69,26 +57,20 @@ const Login = () => {
           profImg: data.prof_img,
           locale: data.locale,
         }});
+      } else {
+        // TODO : 에러처리
       }
+    })
+    .catch((error) => {
+      console.log(error);
     });
-
-    // TODO: 나중에 지우기
-    // setTimeout(() => {
-    //   // navigate("/main");
-    //   navigate("/sign-up", { state: {
-    //       provider: "42",
-    //       thirdPartyId: "123456",
-    //       profImg: "",
-    //       locale: "ko",
-    //     }});
-    // }, 1000);
   }
   , [params, navigate]);
 
   return (
     <div className="flex h-screen bg-true-gray">
       <div className="m-auto font-pixel text-2xl text-white">
-        Signing in...
+        {message}
       </div>
     </div>
   );
