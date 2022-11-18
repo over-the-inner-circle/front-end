@@ -5,7 +5,7 @@ import { currentGameStatus } from "@/states/game/currentGameStatus";
 
 const GameFinished = () => {
   
-  const gameResult: string = "YOU WIN";
+  const gameResult = "YOU WIN";
   const setGameStatus = useSetRecoilState(currentGameStatus);
 
   const toIntro = () => {

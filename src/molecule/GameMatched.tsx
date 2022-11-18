@@ -8,6 +8,7 @@ import {matchInfo} from "@/states/game/matchInfo";
 import {gameSocket} from "@/states/game/gameSocket";
 
 const GameMatched = () => {
+
   const setGameStatus = useSetRecoilState(currentGameStatus);
   const currentMatchInfo = useRecoilValue(matchInfo);
   const [socket, setSocket] = useRecoilState(gameSocket);
@@ -15,6 +16,7 @@ const GameMatched = () => {
   const [isCounterpartReady, setIsCounterpartReady] = useState<boolean>(false);
 
   useEffect(() => {
+
     // 유저 인포 안넘어올시 or 소켓 없을 시 에러처리
     // if (!currentMatchInfo || !socket) {
     //   console.error("currentMatchInfo or socket is null");
@@ -28,6 +30,7 @@ const GameMatched = () => {
   }, []);
 
   const playerReady = () => {
+
     if (socket && socket.connected) {
       setIsPlayerReady(true);
       socket.emit('player_ready');
@@ -35,8 +38,9 @@ const GameMatched = () => {
       console.error("socket is not connected");
     }
 
-    // TODO: 완성 시 삭제
+    // TODO: 완성 시 삭제 --------------------
     setGameStatus("PLAYING");
+    // ------------------------------------
   }
 
   const setGameDifficulty = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
