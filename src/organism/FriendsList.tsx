@@ -92,7 +92,7 @@ function FriendItem({ friend }: FriendItemProps) {
         <div className="flex flex-row items-center space-x-2">
           <Circle
             radius={9.5}
-            style={
+            className={
               friend.status === 'online'
                 ? 'fill-green-500'
                 : friend.status === 'ingame'

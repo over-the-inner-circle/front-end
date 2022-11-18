@@ -14,7 +14,11 @@ export interface Friend {
 export function useFriends() {
   const { data, error, isLoading, isError } = useQuery({
     queryKey: ['friend/all'],
-    queryFn: (): Promise<Friend[]> => fetcher('friend/all'),
+    queryFn: async (): Promise<Friend[]> => {
+      const res = await fetcher('/friend/all');
+      if (res.ok) return res.json();
+      return [];
+    },
     select: (friends) => [
       {
         title: 'online',
@@ -39,8 +43,11 @@ export interface RequestedFriend {
 export function useRequestedFriends(type: 'sent' | 'recv') {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['friend/request', type],
-    queryFn: (): Promise<RequestedFriend[]> =>
-      fetcher(`/friend/request/${type}`),
+    queryFn: async (): Promise<RequestedFriend[]> => {
+      const res = await fetcher(`/friend/request/${type}`);
+      if (res.ok) return res.json();
+      return [];
+    },
   });
   return { data, isLoading, isError, error };
 }
