@@ -28,6 +28,8 @@ function Temp() {
 				<GameContainer />
 				{sidebarSelector(sideState)};
 			</div>
+
+
 		</div>
   );
 }

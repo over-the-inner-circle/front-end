@@ -1,9 +1,16 @@
 import { useState } from "react";
+import ChatingRoom from "@/organism/ChatingRoom";
+
 
 const Chat = () => {
-    return (
-      <div className="bg-blue-500 col-span-1 row-span-2 col-start-2 row-start-2 h-full w-[450px]" id="side">side</div>
-    );
+	const [room_id, setRoom_Id] = useState<string | null>(null);
+
+	if (room_id === null) {
+		return null;
+	}
+	return (
+		<ChatingRoom title={room_id} setRoom_Id={setRoom_Id} />
+	);
 }
 
 export default Chat;
