@@ -2,7 +2,7 @@ import { ComponentMeta, ComponentStory } from '@storybook/react';
 import SectionList from './SectionList';
 
 export default {
-  title: 'organism/SectionList',
+  title: 'molecule/SectionList',
   component: SectionList,
 } as ComponentMeta<typeof SectionList>;
 
