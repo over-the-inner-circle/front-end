@@ -1,4 +1,10 @@
+import { initialize, mswDecorator } from 'msw-storybook-addon';
+
 import '../src/index.css';
+
+initialize({
+  onUnhandledRequest: 'bypass',
+});
 
 export const parameters = {
   actions: { argTypesRegex: '^on[A-Z].*' },
@@ -9,3 +15,5 @@ export const parameters = {
     },
   },
 };
+
+export const decorators = [mswDecorator];
