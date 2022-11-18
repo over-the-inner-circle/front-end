@@ -1,4 +1,3 @@
-import io from "socket.io-client";
 import {useSetRecoilState, useRecoilState} from "recoil";
 
 import Button from "@/atom/Button";
