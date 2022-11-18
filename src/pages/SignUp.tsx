@@ -39,7 +39,7 @@ const SignUp = () => {
       body: JSON.stringify({
         "nickname": nickname,
         "provider": newUserInfo.provider,
-        "third_party_id": newUserInfo.thirdPartyId,
+        "third_party_id": newUserInfo.thirdPartyId.toString(),
         // "prof_img": imgUrl,
       }),
     });
