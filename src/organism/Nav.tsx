@@ -1,6 +1,37 @@
-const Nav = () => {
+import DmIcon from "@/atom/DmIcon";
+import ChatIcon from "@/atom/ChatIcon";
+import FriendIcon from "@/atom/FriendIcon";
+import { SidebarItem } from "@/pages/Temp";
+
+interface NavProps {
+    current: string;
+    onChange(n: SidebarItem): void;
+}
+
+const Nav = ({ current, onChange }: NavProps) => {
     return (
-        <div className="bg-green-500 left-0 fixed top-0 w-full h-[78px] bg-background/[0.87]" id="nav">nav</div>
+        <div className="flex w-full h-[78px] bg-background/[0.87] justify-between items-center" id="nav">
+            navtext
+          <div className="flex items-center gap-2">
+            <div className="">
+              <button onClick={() => onChange('chat')}>
+                <ChatIcon isActive={current === 'chat'}/>
+              </button>
+            </div>
+            <div className="">
+              <button onClick={() => onChange('friend')}>
+                <FriendIcon isActive={current === 'friends'}/>
+              </button>
+            </div>
+            <div className="">
+              <button onClick={() => onChange('dm')}>
+                <DmIcon isActive={current === 'directMsg'}/>
+              </button>
+            </div>
+          </div>
+
+
+        </div>
     )
 }
 

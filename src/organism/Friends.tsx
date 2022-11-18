@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Circle from '@/atom/Circle';
+import SectionList from './SectionList';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 interface Friend {
   user_id: string;
@@ -12,91 +14,165 @@ interface Friend {
   deleted?: Date;
 }
 
-const initialFriendsState: Friend[] = [
-  {
-    user_id: '1',
-    nickname: 'nickname1',
-    prof_img: 'https://via.placeholder.com/65',
-    status: 'online',
-    created: new Date(),
-  },
-  {
-    user_id: '2',
-    nickname: 'nickname2',
-    prof_img: 'https://via.placeholder.com/65',
-    status: 'ingame',
-    created: new Date(),
-  },
-  {
-    user_id: '3',
-    nickname: 'tooMuchLongNickname1',
-    prof_img: 'https://via.placeholder.com/65',
-    status: 'offline',
-    created: new Date(),
-  },
-];
+async function fetcher(url: string, options: RequestInit = {}) {
+  const accessToken = window.localStorage.getItem('refresh_token');
 
-function useFriends(initialFriends: Friend[]) {
-  const [friends] = useState<Friend[]>(initialFriends);
+  options.headers = {
+    ...options.headers,
+    Authorization: `Bearer ${accessToken}`,
+  };
 
-  return friends;
+  if (options?.body) {
+    options.headers = {
+      ...options.headers,
+      'content-type': 'application/json',
+    };
+  }
+
+  const res = await fetch(url, options);
+  return res.json();
+}
+
+function useFriends() {
+  const { data, error, isLoading, isError } = useQuery({
+    queryKey: ['friend/all'],
+    queryFn: (): Promise<Friend[]> => fetcher('friend/all'),
+    select: (friends) => [
+      {
+        title: 'online',
+        list: friends.filter((friend) => friend.status !== 'offline'),
+      },
+      {
+        title: 'offline',
+        list: friends.filter((friend) => friend.status === 'offline'),
+      },
+    ],
+  });
+  return { friends: data, error, isLoading, isError };
+}
+
+export interface RequestedFriend {
+  request_id: number;
+  requester: string;
+  receiver: string;
+  created_date: Date;
+}
+
+function useRequestedFriends(type: 'sent' | 'recv') {
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ['friend/request', type],
+    queryFn: (): Promise<RequestedFriend[]> =>
+      fetcher(`/friend/request/${type}`),
+  });
+  return { data, isLoading, isError, error };
 }
 
 function Friends() {
-  // TODO: useFriends() to fetch friends list
-  const friends = useFriends(initialFriendsState);
+  const [isOpenForm, setIsOpenForm] = useState<boolean>(false);
+  const [isOpenRequest, setIsOpenRequest] = useState<boolean>(false);
 
   return (
     <div
       id="friends-container"
       className="col-span-1 col-start-2 row-span-2 row-start-2
-                 flex h-full w-[370px] flex-col items-start justify-center
+                 flex h-full w-[370px] flex-col items-start justify-start
                  border-l border-neutral-400 bg-neutral-600 font-pixel text-white"
     >
-      <div className="flex h-14 w-full flex-row items-center border-b border-neutral-400 bg-neutral-800 px-5">
-        <button className="flex flex-row items-center justify-start">
-          <p className="text-lg">Friends</p>+
+      <div className="flex h-12 w-full shrink-0 flex-row items-center justify-between border-b border-neutral-400 bg-neutral-800 px-5">
+        <button
+          className="flex flex-row items-center justify-start"
+          onClick={() => setIsOpenForm(!isOpenForm)}
+        >
+          <p className="text-lg">Friends</p>
+          <p className="px-1">{isOpenForm ? 'x' : '+'}</p>
+        </button>
+        <button onClick={() => setIsOpenRequest(!isOpenRequest)}>
+          {isOpenRequest ? 'x' : '?'}
         </button>
       </div>
-      <FriendsList friends={friends} />
+      {isOpenForm ? <AddFriendForm /> : null}
+      {isOpenRequest ? <RequestedFriendsList /> : <FriendsList />}
     </div>
   );
 }
 
-interface FriendsListProps {
-  friends: Friend[];
-}
+function RequestedFriendsList() {
+  const sentFriends = useRequestedFriends('sent');
+  const recvFriends = useRequestedFriends('recv');
 
-function FriendsList({ friends }: FriendsListProps) {
-  const friendsData = [
+  const requestedData = [
     {
-      title: 'online',
-      list: friends.filter((friend) => friend.status !== 'offline'),
+      title: 'recv',
+      list: recvFriends.data,
     },
     {
-      title: 'offline',
-      list: friends.filter((friend) => friend.status === 'offline'),
+      title: 'sent',
+      list: sentFriends.data,
     },
   ];
+  return (
+    <SectionList
+      sections={requestedData}
+      renderItem={(data, type) => (
+        <RequestedFriendItem data={data} type={type} />
+      )}
+      keyExtractor={(data) => data.request_id}
+    />
+  );
+}
+
+interface RequestedFriendItemProps {
+  data: RequestedFriend;
+  type?: string;
+}
+
+function RequestedFriendItem({ data, type }: RequestedFriendItemProps) {
+  const accept = useMutation({
+    mutationFn: () => {
+      return fetcher(`/friend/request/${data.request_id}/accept`, {
+        method: 'POST',
+      });
+    },
+  });
+  const reject = useMutation({
+    mutationFn: (type?: string) => {
+      if (type === 'sent') {
+        return fetcher(`/friend/request/${data.request_id}`, {
+          method: 'DELETE',
+        });
+      }
+      return fetcher(`/friend/request/${data.request_id}/reject`, {
+        method: 'POST',
+      });
+    },
+    onError: () => console.log('reject is failed'),
+  });
 
   return (
-    <ul className="flex h-full w-full flex-col overflow-auto bg-neutral-600 font-pixel text-white">
-      {friendsData.map((data) => (
-        <>
-          <li
-            className="flex w-full flex-row items-center justify-start
-                   border-b border-neutral-400 bg-neutral-800 px-5 py-1 text-xs"
-          >
-            {data.title}
-          </li>
-          {data.list.map((friend) => (
-            <li key={friend.user_id}>
-              <FriendItem friend={friend} />
-            </li>
-          ))}
-        </>
-      ))}
-    </ul>
+    <div className="flex flex-row p-5">
+      <p>{type === 'sent' ? data.receiver : data.requester}</p>
+      {type === 'recv' ? (
+        <button onClick={() => accept.mutate()}>V</button>
+      ) : null}
+      <button onClick={() => reject.mutate(type)} className="pl-3">
+        X
+      </button>
+    </div>
+  );
+}
+
+function FriendsList() {
+  const { friends, isLoading, isError } = useFriends();
+
+  if (isLoading) return <div>spinner</div>;
+  if (isError) return null;
+
+  return (
+    <SectionList
+      sections={friends}
+      renderItem={(friend) => <FriendItem friend={friend} />}
+      keyExtractor={(friend) => friend.user_id}
+    />
   );
 }
 
@@ -108,10 +184,7 @@ interface FriendItemProps {
 
 function FriendItem({ friend, onClickOption = console.log }: FriendItemProps) {
   return (
-    <div
-      className="flex h-full w-full flex-row items-center justify-start
-                 border-b border-neutral-400 bg-neutral-700 px-5 py-4"
-    >
+    <div className="flex h-full w-full flex-row items-center justify-start px-5 py-4">
       <Link to={`/user/${friend.nickname}`} className="min-w-fit">
         <img
           src={friend.prof_img}
@@ -134,7 +207,7 @@ function FriendItem({ friend, onClickOption = console.log }: FriendItemProps) {
                 : 'fill-neutral-500'
             }
           />
-          <p className="truncate min-w-0 text-xs">{friend.status}</p>
+          <p className="min-w-0 truncate text-xs">{friend.status}</p>
         </div>
       </div>
       <button
@@ -147,6 +220,40 @@ function FriendItem({ friend, onClickOption = console.log }: FriendItemProps) {
   );
 }
 
+function AddFriendForm() {
+  const [query, setQuery] = useState<string>('');
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
+    e.preventDefault();
+
+    if (query) {
+      console.log('request:', query);
+      // TODO: response를 받아 사용자에게 요청 결과 알려주기.
+      fetcher(`/friend/request/${query}`, { method: 'POST' });
+      setQuery('');
+    }
+  };
+
+  return (
+    <form
+      className="flex h-16 w-full shrink-0 flex-row items-center border-b border-neutral-400 bg-neutral-800"
+      onSubmit={handleSubmit}
+    >
+      <button className="px-2" type="submit">
+        +
+      </button>
+      <div className="flex h-full w-min items-center bg-neutral-800">
+        <input
+          className=" w-min border-b-4 border-white bg-inherit"
+          name="q"
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+      </div>
+    </form>
+  );
+}
+
 export default Friends;
 
-export { FriendsList, initialFriendsState };
+export { FriendsList, type Friend };
