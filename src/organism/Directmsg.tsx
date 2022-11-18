@@ -1,8 +1,10 @@
-import SideBar from "@/organism/SideBar";
+import SideBarLayout from "@/molecule/SideBarLayout";
 
 const Directmsg = () => {
 	return (
-		<SideBar title="Dm" />
+    <SideBarLayout>
+      directmsg
+    </SideBarLayout>
 	)
 }
 
