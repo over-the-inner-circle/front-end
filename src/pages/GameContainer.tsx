@@ -18,20 +18,20 @@ const GameContainer = () => {
   const [currentStatus, setCurrentStatus] = useRecoilState(currentGameStatus);
   const [socket, setSocket] = useRecoilState(gameSocket);
 
-  useEffect(() => {
-    // if (!socket) {
-    //   setSocket(io("http://localhost:3001"));
-    // }
-    // if (socket) {
-    //   socket.on("disconnect", () => {
-    //     // 에러메시지 출력 후
-    //     socket.disconnect();
-    //     setSocket(null);
-    //     setCurrentStatus("INTRO");
-    //   });
-    // }
-  }, []);
+  const gameSocketUri = "";
+  const accessToken = window.localStorage.getItem("access_token");
 
+  // 최초 소켓연결
+  useEffect(() => {
+    if (!socket) {
+      const newSocket = io(gameSocketUri, {
+        auth: {
+          token: accessToken
+        }
+      });
+      setSocket(newSocket);
+    }
+  },[]);
 
   return (
     <div className="flex flex-col h-full w-full bg-neutral-900">

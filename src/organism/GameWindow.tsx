@@ -14,6 +14,7 @@ const GameWindow = () => {
 
   return (
     <>
+    {/*TODO: 매치 완성 후 지울 것*/}
     <Button onClick={finishGame}>finish</Button>
     <GamePlayerInfoBar />
     <div className="flex h-full items-center justify-center min-h-0 min-w-0">
