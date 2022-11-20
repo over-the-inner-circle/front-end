@@ -18,7 +18,7 @@ function useChattingRooms() {
     queryKey: ['chat/rooms'],
     queryFn: async (): Promise<Room[]> => {
       const res = await fetcher('/chat/rooms/all');
-      if (res.ok) {
+      if (res?.ok) {
         const data = await res.json();
         return data.rooms;
       }
@@ -30,7 +30,7 @@ function useChattingRooms() {
 
 const Chat = () => {
   const [room_id, setRoom_Id] = useState<string | null>(null);
-  const { isError, isLoading, data: chattingRooms } = useChattingRooms();
+  const { isLoading, data: chattingRooms } = useChattingRooms();
   const mutation = useMutation({
     mutationFn: async (id: string) => {
       const res = await fetcher(`/chat/room/${id}/join`, {
@@ -38,15 +38,12 @@ const Chat = () => {
         body: JSON.stringify({ room_password: '' }),
       });
 
-      if (!res.ok) return;
-
-      const data = await res.json();
-
-      setRoom_Id(data.room_id ?? null);
+      if (res?.ok) {
+        const data = await res.json();
+        setRoom_Id(data.room_id ?? null);
+      }
     },
   });
-
-  if (isError) return null;
 
   if (room_id === null) {
     return (
