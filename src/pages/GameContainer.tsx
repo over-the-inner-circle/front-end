@@ -23,14 +23,14 @@ const GameContainer = () => {
 
   // 최초 소켓연결
   useEffect(() => {
-    if (!socket) {
-      const newSocket = io(gameSocketUri, {
-        auth: {
-          token: accessToken
-        }
-      });
-      setSocket(newSocket);
-    }
+    // if (!socket) {
+    //   const newSocket = io(gameSocketUri, {
+    //     auth: {
+    //       token: accessToken
+    //     }
+    //   });
+    //   setSocket(newSocket);
+    // }
   },[]);
 
   return (

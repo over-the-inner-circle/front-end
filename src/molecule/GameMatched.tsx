@@ -1,17 +1,23 @@
 import {useSetRecoilState, useRecoilValue, useRecoilState} from "recoil";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
+
+import {PongTheme, availablePongThemes} from "@/models/Pong";
 
 import GameMatchedUserInfo from "@/atom/GameMatchedUserInfo";
 import Button from "@/atom/Button";
 import {currentGameStatus} from "@/states/game/currentGameStatus";
 import {matchInfo} from "@/states/game/matchInfo";
 import {gameSocket} from "@/states/game/gameSocket";
+import {gameTheme} from "@/states/game/gameTheme";
 
 const GameMatched = () => {
 
   const setGameStatus = useSetRecoilState(currentGameStatus);
+  const setPongTheme = useSetRecoilState(gameTheme);
   const currentMatchInfo = useRecoilValue(matchInfo);
   const [socket, setSocket] = useRecoilState(gameSocket);
+
+
   const [isPlayerReady, setIsPlayerReady] = useState<boolean>(false);
   const [isCounterpartReady, setIsCounterpartReady] = useState<boolean>(false);
 
@@ -60,6 +66,11 @@ const GameMatched = () => {
     }
   }
 
+  const setGameTheme = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+                        themeNumber: number) => {
+    setPongTheme(availablePongThemes()[themeNumber]);
+  }
+
   return (
     <div className="h-full w-full flex flex-col font-pixel text-white justify-center items-center stop-dragging">
       <div className="flex justify-center gap-52">
@@ -85,9 +96,12 @@ const GameMatched = () => {
         </div>
         <span className="m-2 mt-6">Theme</span>
         <div className="flex flex-row gap-8">
-          <Button className="bg-neutral-500"> theme1 </Button>
-          <Button className="bg-neutral-500"> theme2 </Button>
-          <Button className="bg-neutral-500"> theme3 </Button>
+          <Button onClick={(e) => {setGameTheme(e, 0)}}
+                  className="bg-neutral-600"> theme1 </Button>
+          <Button onClick={(e) => {setGameTheme(e, 1)}}
+                  className="bg-neutral-600 text-hot-green"> theme2 </Button>
+          <Button onClick={(e) => {setGameTheme(e, 2)}}
+                  className="bg-neutral-600 text-hot-pink"> theme3 </Button>
         </div>
         <Button className="bg-green-700 text-xl mt-10"
         onClick={playerReady}> READY </Button>

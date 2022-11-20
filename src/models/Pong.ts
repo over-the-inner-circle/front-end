@@ -28,13 +28,42 @@ export interface PongComponentsPositions {
   ballYPosition: number;
 }
 
-export interface PongConfig {
-  theme: {
-    backgroundColor: string;
-    playerColor: string;
-    ballColor: string;
+export interface PongTheme {
+  backgroundColor: string;
+  playerColor: string;
+  ballColor: string;
+  netColor: string;
+}
+
+export const availablePongThemes = (): PongTheme[] => {
+  const pongThemeDefault: PongTheme = {
+    backgroundColor: "#000000",
+    ballColor: "#FFFFFF",
+    playerColor: "#FFFFFF",
+    netColor: "#FFFFFF",
+  };
+
+  const pongTheme1: PongTheme = {
+    backgroundColor: "#000000",
+    ballColor: "#00FF38",
+    playerColor: "#00FF38",
+    netColor: "#00FF38",
   }
-  difficulty: string;
+
+  const pongTheme2: PongTheme = {
+    backgroundColor: "#000000",
+    ballColor: "#FF00E5",
+    playerColor: "#FF00E5",
+    netColor: "#FF00E5",
+  }
+
+  return (
+    [
+      pongThemeDefault,
+      pongTheme1,
+      pongTheme2,
+    ]
+  )
 }
 
 class Pong {
@@ -45,7 +74,7 @@ class Pong {
   protected ball: Ball;
   protected net: Net;
 
-  constructor(context: CanvasRenderingContext2D) {
+  constructor(context: CanvasRenderingContext2D, theme: PongTheme) {
     this.canvasContext = context;
     const canvasHeight = this.canvasContext.canvas.height;
     const canvasWidth = this.canvasContext.canvas.width;
@@ -55,7 +84,7 @@ class Pong {
       yPosition: (canvasHeight - this.relativeYValue(100) ) / 2,
       width: this.relativeXValue(10),
       height: this.relativeYValue(100),
-      color: 'white',
+      color: theme.playerColor,
     }
 
     this.p2 = {
@@ -63,14 +92,14 @@ class Pong {
       yPosition: (canvasHeight - this.relativeYValue(100)) / 2,
       width: this.relativeXValue(10),
       height: this.relativeYValue(100),
-      color: 'white',
+      color: theme.playerColor,
     }
 
     this.ball = {
       xPosition: canvasWidth / 2,
       yPosition: canvasHeight / 2,
       radius: this.relativeDiagonalValue(10),
-      color: 'white'
+      color: theme.ballColor,
     }
 
     this.net = {
@@ -78,7 +107,7 @@ class Pong {
       yPosition: 0,
       width: this.relativeXValue(4),
       height: this.relativeYValue(10),
-      color: 'white'
+      color: theme.netColor,
     }
 
     this.render();

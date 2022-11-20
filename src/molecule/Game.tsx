@@ -1,10 +1,11 @@
 import React, { useRef, useEffect, useState } from 'react';
-import {useRecoilState, useSetRecoilState} from "recoil";
+import {useRecoilState, useSetRecoilState, useRecoilValue } from "recoil";
 
 import Pong, { PongComponentsPositions } from "@/models/Pong";
 import {gameSocket} from "@/states/game/gameSocket";
 import {currentGameScore} from "@/states/game/currentGameScore";
 import {currentGameStatus} from "@/states/game/currentGameStatus";
+import {gameTheme} from "@/states/game/gameTheme";
 
 interface initialGameData {
   width: number;
@@ -34,6 +35,9 @@ const Game = () => {
   const pongRef = useRef<Pong | null>(null);
 
   const [socket, setSocket] = useRecoilState(gameSocket);
+
+  const currentGameTheme = useRecoilValue(gameTheme);
+
   const setGameScore = useSetRecoilState(currentGameScore);
   const setGameStatus = useSetRecoilState(currentGameStatus);
 
@@ -52,7 +56,7 @@ const Game = () => {
     }
     const context = canvas?.getContext('2d');
     if (canvas && context && container) {
-      pongRef.current = new Pong(context);
+      pongRef.current = new Pong(context, currentGameTheme);
       setPositions(pongRef.current.currentPositions()); // 포지션 초기화
     }
   }, []);
