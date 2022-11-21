@@ -16,7 +16,7 @@ export function useFriends() {
     queryKey: ['friend/all'],
     queryFn: async (): Promise<Friend[]> => {
       const res = await fetcher('/friend/all');
-      if (res?.ok) return res.json();
+      if (res.ok) return res.json();
       return [];
     },
     select: (friends) => [
@@ -45,7 +45,7 @@ export function useRequestedFriends(type: 'sent' | 'recv') {
     queryKey: ['friend/request', type],
     queryFn: async (): Promise<RequestedFriend[]> => {
       const res = await fetcher(`/friend/request/${type}`);
-      if (res?.ok) return res.json();
+      if (res.ok) return res.json();
       return [];
     },
   });

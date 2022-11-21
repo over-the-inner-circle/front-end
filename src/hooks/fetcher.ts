@@ -27,6 +27,7 @@ export async function fetcher(url: string, options: RequestInit = {}) {
       }
       return error;
     }
+    throw error;
   }
 }
 
