@@ -1,7 +1,8 @@
-import React, {useState, useRef, useCallback, useEffect } from "react";
-import {useLocation, useNavigate} from "react-router-dom";
-import Button from "@/atom/Button";
-import Spacer from "@/atom/Spacer";
+import { useState, useRef, useCallback, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useRecoilValue } from 'recoil';
+import { signUpUserInfoState } from '@/states/user/signUp';
+import Button from '@/atom/Button';
 
 interface ImageInfo {
   file: File;
@@ -19,9 +20,14 @@ const SignUp = () => {
   const [imageInfo, setImageInfo] = useState<ImageInfo | null>(null);
 
   const navigate = useNavigate();
-  const location = useLocation();
-  const newUserInfo = location.state;
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const signUpUserInfo = useRecoilValue(signUpUserInfoState);
+  useEffect(() => {
+    if (!signUpUserInfo) {
+      navigate('/');
+    }
+  }, [signUpUserInfo, navigate]);
 
   // const onUploadImage = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
   //   if (!e.target.files) {
@@ -55,8 +61,8 @@ const SignUp = () => {
   const currentProfileImageUrl = () => {
     if (imageInfo) {
       return imageInfo.url;
-    } else if (newUserInfo && newUserInfo.profImg) {
-      return newUserInfo.profImg;
+    } else if (signUpUserInfo?.prof_img) {
+      return signUpUserInfo.prof_img;
     } else {
       return DEFAULT_PROFILE_IMAGE_URL;
     }
@@ -70,10 +76,8 @@ const SignUp = () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        "nickname": nickname,
-        "provider": newUserInfo.provider,
-        "third_party_id": newUserInfo.thirdPartyId.toString(),
-        // "prof_img": imgUrl,
+        nickname,
+        ...signUpUserInfo,
       }),
     });
 
@@ -110,8 +114,8 @@ const SignUp = () => {
         <span className="mb-2"> Profile </span>
         <div className={`h-36 w-32 bg-cover bg-white`}>
           <img src={currentProfileImageUrl()}
-               alt="profileImage"
-               className="h-36 w-32 hover:border-gray-400"
+               alt="profile"
+               className="h-36 w-32 hover:border-gray-400 text-black text-xs"
                onClick={onUploadImageButtonClick}
           />
           {/*<div className="text-neutral-200 text-stroke text-3xl hover:text-neutral-400 z-50"*/}
