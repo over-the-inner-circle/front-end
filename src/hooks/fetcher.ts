@@ -1,4 +1,4 @@
-const BASE_API_URL = import.meta.env.VITE_REQUEST_URL;
+export const BASE_API_URL = import.meta.env.VITE_REQUEST_URL;
 
 export async function fetcher(url: string, options: RequestInit = {}) {
   options = appendAccessToken(options);
