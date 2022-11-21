@@ -114,8 +114,8 @@ const SignUp = () => {
         <span className="mb-2"> Profile </span>
         <div className={`h-36 w-32 bg-cover bg-white`}>
           <img src={currentProfileImageUrl()}
-               alt="profileImage"
-               className="h-36 w-32 hover:border-gray-400"
+               alt="profile"
+               className="h-36 w-32 hover:border-gray-400 text-black text-xs"
                onClick={onUploadImageButtonClick}
           />
           {/*<div className="text-neutral-200 text-stroke text-3xl hover:text-neutral-400 z-50"*/}
