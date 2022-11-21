@@ -77,7 +77,9 @@ const SignUp = () => {
       },
       body: JSON.stringify({
         nickname,
-        ...signUpUserInfo,
+        provider: signUpUserInfo?.provider,
+        third_party_id: signUpUserInfo?.third_party_id,
+        prof_img: signUpUserInfo?.prof_img,
       }),
     });
 
