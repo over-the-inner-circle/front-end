@@ -47,7 +47,7 @@ const Login = () => {
         // 회원이 있는 경우: 액세스 토큰 저장 후 메인페이지로 리다이렉션.
         window.localStorage.setItem("access_token", data.access_token);
         window.localStorage.setItem("refresh_token", data.refresh_token);
-        navigate("/main");
+        navigate("/temp");
       } else if (data.provider) {
         // 회원이 없는 경우: 회원가입 페이지로 리다이렉션. 회원가입에 필요한 정보를 state로 전달.
         navigate("/sign-up", { state:
