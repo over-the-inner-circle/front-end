@@ -31,25 +31,39 @@ interface Message {
 
 function useChat(roomId: string) {
   const [messages, setMessages] = useState<Message[]>([]);
-  const token = window.localStorage.getItem('access_token');
-  const socketRef = useRef(io('ws://146.56.153.237:9999', { auth: { token } }));
+  const access_token = window.localStorage.getItem('access_token');
+  const socketRef = useRef(
+    io(`ws://${import.meta.env.VITE_BASE_URL}:9999`, {
+      auth: { access_token },
+      autoConnect: false,
+    }),
+  );
 
   useEffect(() => {
     const socket = socketRef.current;
 
     const handleSub = (data: SubscribeData) => {
-      setMessages((m) => [
-        ...m,
-        { nickname: data.sender.nickname, content: data.payload },
+      setMessages((msg) => [
+        ...msg,
+        { nickname: data.sender?.nickname, content: data.payload },
       ]);
     };
 
+    const handleAnnounce = (data) => {
+      console.log(data);
+    };
+
+    socket.connect();
     socket.emit('join', { room: roomId });
 
     socket.on('subscribe', handleSub);
+    socket.on('subscribe_self', handleSub);
+    socket.on('announcement', handleAnnounce);
 
     return () => {
       socket.off('subscribe', handleSub);
+      socket.off('subscribe_self', handleSub);
+      socket.off('announcement', handleAnnounce);
       socket.disconnect();
     };
   }, [roomId]);
@@ -63,7 +77,7 @@ export default function ChatingRoom({ roomId, setRoom_Id }: ChatProps) {
 
   return (
     <div
-      className="flex h-full w-80 flex-col
+      className="flex h-full w-full flex-col
 										items-start justify-start border-l border-neutral-400 bg-neutral-600 font-pixel
 										text-sm text-white"
     >

@@ -86,7 +86,7 @@ const SignUp = () => {
       console.log(data);
       // TODO: 다시 Login으로...
 
-      //navigate("/main");
+      navigate("/");
     } else {
       const error = await response.text();
       console.log(error);
