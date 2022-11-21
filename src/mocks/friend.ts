@@ -1,34 +1,41 @@
 import { rest } from 'msw';
-import { type Friend, type RequestedFriend } from '@/organism/Friends';
+import { type Friend, type RequestedFriend } from '@/hooks/friends';
+import { api } from '@/mocks/worker';
 
-const friendAll = rest.get('/friend/all', (_req, res, ctx) => {
+const friendAll = rest.get(api('/friend/all'), (_req, res, ctx) => {
   return res(ctx.delay(300), ctx.status(200), ctx.json(friendsData));
 });
 
-const friendAllError = rest.get('/friend/all', (_req, res, ctx) => {
+const friendAllError = rest.get(api('/friend/all'), (_req, res, ctx) => {
   return res(
     ctx.status(404),
     ctx.json({ statusCode: 404, message: '{userId} not found' }),
   );
 });
 
-const friendRequestSent = rest.get('/friend/request/sent', (_req, res, ctx) => {
-  return res(ctx.status(200), ctx.json(requestedFriendsData));
-});
+const friendRequestSent = rest.get(
+  api('/friend/request/sent'),
+  (_req, res, ctx) => {
+    return res(ctx.status(200), ctx.json(requestedFriendsData));
+  },
+);
 
-const friendRequestRecv = rest.get('/friend/request/recv', (_req, res, ctx) => {
-  return res(ctx.status(200), ctx.json(requestedFriendsData));
-});
+const friendRequestRecv = rest.get(
+  api('/friend/request/recv'),
+  (_req, res, ctx) => {
+    return res(ctx.status(200), ctx.json(requestedFriendsData));
+  },
+);
 
 const friendRequestCancle = rest.delete(
-  '/friend/request/:id',
+  api('/friend/request/:id'),
   (_req, res, ctx) => {
     return res(ctx.status(204));
   },
 );
 
 const friendRequestAccept = rest.post(
-  '/friend/request/:id/accept',
+  api('/friend/request/:id/accept'),
   (_req, res, ctx) => {
     return res(
       ctx.status(201),
@@ -41,7 +48,7 @@ const friendRequestAccept = rest.post(
 );
 
 const friendRequestReject = rest.post(
-  '/friend/request/:id/reject',
+  api('/friend/request/:id/reject'),
   (_req, res, ctx) => {
     return res(ctx.status(204));
   },
@@ -56,9 +63,7 @@ export const handlers = [
   friendRequestReject,
 ];
 
-export const errorHandlers = [
-  friendAllError,
-]
+export const errorHandlers = [friendAllError];
 
 const friendsData: Friend[] = [
   {
