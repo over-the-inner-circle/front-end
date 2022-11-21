@@ -26,7 +26,7 @@ function Temp() {
 			<Nav current={sideState} onChange={setSideState}></Nav>
 			<div className="content-start flex h-full w-full relative">
 				<GameContainer />
-				{sidebarSelector(sideState)};
+				{sidebarSelector(sideState)}
 			</div>
 
 

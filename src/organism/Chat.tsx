@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import ChatingRoom from '@/organism/ChatingRoom';
-import Spinner from '@/atom/Spinner';
 import { fetcher } from '@/hooks/fetcher';
 import SideBarLayout from '@/molecule/SideBarLayout';
 import { useQuery, useMutation } from '@tanstack/react-query';
+import SectionList from '@/molecule/SectionList';
 
 export interface Room {
   room_id: string;
@@ -13,12 +13,27 @@ export interface Room {
   created: Date;
 }
 
-function useChattingRooms() {
+function useAllRooms() {
   const result = useQuery({
-    queryKey: ['chat/rooms'],
+    queryKey: ['chat/rooms/all'],
     queryFn: async (): Promise<Room[]> => {
       const res = await fetcher('/chat/rooms/all');
-      if (res?.ok) {
+      if (res.ok) {
+        const data = await res.json();
+        return data.rooms;
+      }
+      return [];
+    },
+  });
+  return result;
+}
+
+function useJoinedRooms() {
+  const result = useQuery({
+    queryKey: ['chat/rooms/joined'],
+    queryFn: async (): Promise<Room[]> => {
+      const res = await fetcher('/chat/rooms/joined');
+      if (res.ok) {
         const data = await res.json();
         return data.rooms;
       }
@@ -30,43 +45,49 @@ function useChattingRooms() {
 
 const Chat = () => {
   const [room_id, setRoom_Id] = useState<string | null>(null);
-  const { isLoading, data: chattingRooms } = useChattingRooms();
+  const { data: allRooms } = useAllRooms();
+  const { data: joinedRooms } = useJoinedRooms();
+
+  const section = [
+    {
+      title: 'all',
+      list: allRooms,
+    },
+    {
+      title: 'joined',
+      list: joinedRooms,
+    },
+  ];
   const mutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetcher(`/chat/room/${id}/join`, {
+      return fetcher(`/chat/room/${id}/join`, {
         method: 'POST',
         body: JSON.stringify({ room_password: '' }),
       });
-
-      if (res?.ok) {
-        const data = await res.json();
-        setRoom_Id(data.room_id ?? null);
-      }
+    },
+    onSettled: (_data, _error, variables) => {
+      setRoom_Id(variables ?? null);
     },
   });
 
-  if (room_id === null) {
-    return (
-      <SideBarLayout>
-        <AddChatRoom />
-        {isLoading ? <Spinner /> : null}
-        {chattingRooms ? (
-          <ul>
-            {chattingRooms.map((room) => (
-              <li key={room.room_id} className="w-full">
-                <button onClick={() => mutation.mutate(room.room_id)}>
-                  {room.room_name}
-                </button>
-              </li>
-            ))}
-          </ul>
-        ) : null}
-      </SideBarLayout>
-    );
-  }
   return (
     <SideBarLayout>
-      <ChatingRoom roomId={room_id} setRoom_Id={setRoom_Id} />
+      {room_id ? (
+        <ChatingRoom roomId={room_id} setRoom_Id={setRoom_Id} />
+      ) : (
+        <>
+          <AddChatRoom />
+          <SectionList
+            sections={section}
+            renderItem={(room) => (
+              <button onClick={() => mutation.mutate(room.room_id)}>
+                {room.room_name}
+              </button>
+            )}
+            keyExtractor={(room) => room.room_id}
+          />
+        </>
+      )}
     </SideBarLayout>
   );
 };
