@@ -1,54 +1,70 @@
-import React from "react";
+interface OAuthProvider {
+  auth_url: string;
+  redirect_uri: string;
+  client_id: string;
+  scope?: string;
+}
+
+function getOAuthUrl({ auth_url, ...params }: OAuthProvider) {
+  const query = new URLSearchParams({
+    response_type: 'code',
+    ...params,
+  });
+
+  return `${auth_url}?${query.toString()}`;
+}
 
 const Intro = () => {
-
-  // TODO : 나중에 환경변수로 처리하거나 다른 파일로 빼기
-  const FT_CLIENT_ID = import.meta.env.VITE_FT_CLIENT_ID;
-  const FT_AUTH_URL = import.meta.env.VITE_FT_AUTH_URL;
-  const FT_REDIRECT_URL = import.meta.env.VITE_FT_REDIRECT_URL;
-
-  const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-  const GOOGLE_AUTH_URL = import.meta.env.VITE_GOOGLE_AUTH_URL;
-  const GOOGLE_REDIRECT_URL = import.meta.env.VITE_GOOGLE_REDIRECT_URL;
-
-  const KAKAO_CLIENT_ID = import.meta.env.VITE_KAKAO_CLIENT_ID;
-  const KAKAO_AUTH_URL = import.meta.env.VITE_KAKAO_AUTH_URL;
-  const KAKAO_REDIRECT_URL = import.meta.env.VITE_KAKAO_REDIRECT_URL;
-  // =================================================================
-
-
-  const oAuthUrl = (authUrl: string, clientId: string, redirectUrl: string) => {
-    const result = `${authUrl}?client_id=${clientId}&redirect_uri=${redirectUrl}&response_type=code`;
-    return result;
-  }
-
-  const loginWith42 = () => {
-    window.location.href = oAuthUrl(FT_AUTH_URL, FT_CLIENT_ID, FT_REDIRECT_URL);
-  }
-
-  const loginWithGoogle = () => {
-    window.location.href = oAuthUrl(GOOGLE_AUTH_URL, GOOGLE_CLIENT_ID, GOOGLE_REDIRECT_URL) + "&scope=https://www.googleapis.com/auth/userinfo.profile";
-  }
-
-  const loginWithKakao = () => {
-    window.location.href = oAuthUrl(KAKAO_AUTH_URL, KAKAO_CLIENT_ID, KAKAO_REDIRECT_URL);
-  }
+  const providers: { [key: string]: OAuthProvider } = {
+    ft: {
+      auth_url: import.meta.env.VITE_FT_AUTH_URL,
+      client_id: import.meta.env.VITE_FT_CLIENT_ID,
+      redirect_uri: import.meta.env.VITE_FT_REDIRECT_URL,
+    },
+    google: {
+      auth_url: import.meta.env.VITE_GOOGLE_AUTH_URL,
+      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      redirect_uri: import.meta.env.VITE_GOOGLE_REDIRECT_URL,
+      scope: 'https://www.googleapis.com/auth/userinfo.profile',
+    },
+    kakao: {
+      auth_url: import.meta.env.VITE_KAKAO_AUTH_URL,
+      client_id: import.meta.env.VITE_KAKAO_CLIENT_ID,
+      redirect_uri: import.meta.env.VITE_KAKAO_REDIRECT_URL,
+    },
+  };
 
   return (
-    <div className="flex h-screen bg-true-gray stop-dragging">
+    <div className="stop-dragging flex h-screen bg-true-gray">
       <div className="m-auto font-pixel">
-        <div className="text-7xl text-white mb-20 text-center">42pong</div>
+        <div className="mb-20 text-center text-7xl text-white">42pong</div>
         <div className="">
-          <div className="text-white text-sm mb-4">Start with:</div>
+          <div className="mb-4 text-sm text-white">Start with:</div>
           <div className="flex flex-row gap-10 text-xl">
-            <button className="text-color-42 hover:text-white" onClick={loginWith42}>42</button>
-            <button className="text-color-kakao hover:text-white" onClick={loginWithKakao}>Kakao</button>
-            <button className="text-blue-600 hover:text-white" onClick={loginWithGoogle}>Google</button>
+            <a
+              className="text-color-42 hover:text-white"
+              href={getOAuthUrl(providers['ft'])}
+            >
+              42
+            </a>
+            <a
+              className="text-color-kakao hover:text-white"
+              href={getOAuthUrl(providers['kakao'])}
+            >
+              Kakao
+            </a>
+            <a
+              className="text-blue-600 hover:text-white"
+              href={getOAuthUrl(providers['google'])}
+            >
+              Google
+            </a>
           </div>
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default Intro;
+
