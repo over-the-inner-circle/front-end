@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { fetcher } from '@/hooks/fetcher';
 
 export interface ChatProps {
   roomId: string;
@@ -25,15 +27,36 @@ interface SubscribeData {
 }
 
 interface Message {
-  nickname: string;
-  content: string;
+  room_msg_id: number;
+  room_id: string;
+  sender_id: string;
+  payload: string;
+  created: Date;
 }
 
-function useChat(roomId: string) {
-  const [messages, setMessages] = useState<Message[]>([]);
+function useChatMessages(roomId: string) {
+  const data = useQuery<Message[]>({
+    queryKey: ['chat/room/messages', roomId],
+    queryFn: async () => {
+      const res = await fetcher(`/chat/room/${roomId}/messages`);
+
+      if (res.ok) {
+        const data = await res.json();
+        return data.messages;
+      }
+      return [];
+    },
+    retry: false,
+    staleTime: Infinity,
+  });
+
+  return data;
+}
+
+function useSocketRef(url: string) {
   const access_token = window.localStorage.getItem('access_token');
   const socketRef = useRef(
-    io(`ws://${import.meta.env.VITE_BASE_URL}:9999`, {
+    io(url, {
       auth: { access_token },
       autoConnect: false,
     }),
@@ -42,18 +65,43 @@ function useChat(roomId: string) {
   useEffect(() => {
     const socket = socketRef.current;
 
+    socket.connect();
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  return socketRef;
+}
+
+function useChat(roomId: string) {
+  const { data: messages } = useChatMessages(roomId);
+  const queryClient = useQueryClient();
+  const socketRef = useSocketRef(`ws://${import.meta.env.VITE_BASE_URL}:9999`);
+
+  useEffect(() => {
+    const socket = socketRef.current;
+
     const handleSub = (data: SubscribeData) => {
-      setMessages((msg) => [
-        ...msg,
-        { nickname: data.sender?.nickname, content: data.payload },
-      ]);
+      queryClient.setQueryData<Message[]>(
+        ['chat/room/messages', roomId],
+        (prevMsg) => {
+          const newMessage: Message = {
+            room_msg_id: prevMsg ? prevMsg.length + 1 : 1,
+            room_id: roomId,
+            sender_id: data.sender?.nickname,
+            payload: data.payload,
+            created: new Date(),
+          };
+          return prevMsg ? [...prevMsg, newMessage] : [newMessage];
+        },
+      );
     };
 
     const handleAnnounce = (data) => {
       console.log(data);
     };
 
-    socket.connect();
     socket.emit('join', { room: roomId });
 
     socket.on('subscribe', handleSub);
@@ -64,9 +112,8 @@ function useChat(roomId: string) {
       socket.off('subscribe', handleSub);
       socket.off('subscribe_self', handleSub);
       socket.off('announcement', handleAnnounce);
-      socket.disconnect();
     };
-  }, [roomId]);
+  }, [roomId, queryClient, socketRef]);
 
   return { messages, socket: socketRef.current };
 }
@@ -89,8 +136,10 @@ export default function ChatingRoom({ roomId, setRoom_Id }: ChatProps) {
       </div>
       <div className="flex h-full w-full flex-col items-start justify-end border-b border-inherit">
         <div className="flex h-full w-full flex-col items-start justify-end border-b border-inherit">
-          {messages.map((message, idx) => (
-            <li key={idx}>{`${message.nickname}: ${message.content}`}</li>
+          {messages?.map((message) => (
+            <li
+              key={message.room_msg_id}
+            >{`${message.sender_id}: ${message.payload}`}</li>
           ))}
         </div>
         <div className="h-30 flex items-end justify-end">
