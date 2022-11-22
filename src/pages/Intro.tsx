@@ -1,5 +1,10 @@
 import React from "react";
 
+export const oAuthUrl = (authUrl: string, clientId: string, redirectUrl: string) => {
+  const result = `${authUrl}?client_id=${clientId}&redirect_uri=${redirectUrl}&response_type=code`;
+  return result;
+}
+
 const Intro = () => {
 
   // TODO : 나중에 환경변수로 처리하거나 다른 파일로 빼기
@@ -15,12 +20,6 @@ const Intro = () => {
   const KAKAO_AUTH_URL = import.meta.env.VITE_KAKAO_AUTH_URL;
   const KAKAO_REDIRECT_URL = import.meta.env.VITE_KAKAO_REDIRECT_URL;
   // =================================================================
-
-
-  const oAuthUrl = (authUrl: string, clientId: string, redirectUrl: string) => {
-    const result = `${authUrl}?client_id=${clientId}&redirect_uri=${redirectUrl}&response_type=code`;
-    return result;
-  }
 
   const loginWith42 = () => {
     window.location.href = oAuthUrl(FT_AUTH_URL, FT_CLIENT_ID, FT_REDIRECT_URL);

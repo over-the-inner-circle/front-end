@@ -1,7 +1,8 @@
 import React, {useState, useRef, useCallback, useEffect } from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 import Button from "@/atom/Button";
-import Spacer from "@/atom/Spacer";
+
+import {oAuthUrl} from "@/pages/Intro";
 
 interface ImageInfo {
   file: File;
@@ -10,6 +11,18 @@ interface ImageInfo {
 }
 
 const SignUp = () => {
+
+  const FT_CLIENT_ID = import.meta.env.VITE_FT_CLIENT_ID;
+  const FT_AUTH_URL = import.meta.env.VITE_FT_AUTH_URL;
+  const FT_REDIRECT_URL = import.meta.env.VITE_FT_REDIRECT_URL;
+
+  const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  const GOOGLE_AUTH_URL = import.meta.env.VITE_GOOGLE_AUTH_URL;
+  const GOOGLE_REDIRECT_URL = import.meta.env.VITE_GOOGLE_REDIRECT_URL;
+
+  const KAKAO_CLIENT_ID = import.meta.env.VITE_KAKAO_CLIENT_ID;
+  const KAKAO_AUTH_URL = import.meta.env.VITE_KAKAO_AUTH_URL;
+  const KAKAO_REDIRECT_URL = import.meta.env.VITE_KAKAO_REDIRECT_URL;
 
   const REQUEST_URL = import.meta.env.VITE_REQUEST_URL;
   const DEFAULT_PROFILE_IMAGE_URL = '/src/assets/default_profile_image.png';
@@ -30,6 +43,10 @@ const SignUp = () => {
   //   console.log(e.target.value);
   //   // setImgUrl(e.target.value);
   // }, []);
+
+  useEffect(() => {
+    console.log(newUserInfo);
+  },[]);
 
   const onUploadImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files;
@@ -78,11 +95,19 @@ const SignUp = () => {
     });
 
     if (response.ok) {
-      const data = await response.json();
-      console.log(data);
-      // TODO: 다시 Login으로...
-
-      //navigate("/main");
+      // 회원가입 성공 시 다시 auth 페이지로 이동
+      const provider = newUserInfo.provider;
+      switch (provider) {
+        case "google":
+          window.location.href = oAuthUrl(GOOGLE_AUTH_URL, GOOGLE_CLIENT_ID, GOOGLE_REDIRECT_URL) + "&scope=https://www.googleapis.com/auth/userinfo.profile";
+          break;
+        case "kakao":
+          window.location.href = oAuthUrl(KAKAO_AUTH_URL, KAKAO_CLIENT_ID, KAKAO_REDIRECT_URL);
+          break;
+        case "42":
+          window.location.href = oAuthUrl(FT_AUTH_URL, FT_CLIENT_ID, FT_REDIRECT_URL);
+          break;
+      }
     } else {
       const error = await response.text();
       console.log(error);
