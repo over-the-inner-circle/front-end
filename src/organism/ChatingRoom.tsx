@@ -74,8 +74,15 @@ function useChat(roomId: string) {
 export default function ChatingRoom({ roomId, setRoom_Id }: ChatProps) {
   const [content, setContent] = useState('');
   const { messages, socket } = useChat(roomId);
+  const sendMessage = () => {
+    socket.emit('publish', { room: roomId, payload: content });
+    setContent('');
+  }
+
 
   return (
+
+
     <div
       className="flex h-full w-full flex-col
 										items-start justify-start border-l border-neutral-400 bg-neutral-600 font-pixel
@@ -99,12 +106,17 @@ export default function ChatingRoom({ roomId, setRoom_Id }: ChatProps) {
             className="h-20 w-full resize-none border-none bg-neutral-300 text-black"
             value={content}
             onChange={(e) => setContent(e.target.value)}
+            onKeyUp={(e) => {
+              if (e.key === 'Enter') {
+                sendMessage();
+              }
+            }
+            }
           />
           <button
             className="h-full border-b border-inherit bg-neutral-800 px-3"
             onClick={() => {
-              socket.emit('publish', { room: roomId, payload: content });
-              setContent('');
+              sendMessage();
             }}
           >
             send
