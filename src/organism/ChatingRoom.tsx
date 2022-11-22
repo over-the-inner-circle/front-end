@@ -123,43 +123,40 @@ export default function ChatingRoom({ roomId, setRoom_Id }: ChatProps) {
   const { messages, socket } = useChat(roomId);
 
   return (
-    <div
-      className="flex h-full w-full flex-col
-										items-start justify-start border-l border-neutral-400 bg-neutral-600 font-pixel
-										text-sm text-white"
-    >
-      <div className="flex h-10 w-full items-center justify-between border-b border-inherit bg-neutral-800 px-3">
+    <>
+      <div className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
         {roomId}
         <button onClick={() => setRoom_Id(null)} className="px-1">
           ⬅
         </button>
       </div>
-      <div className="flex h-full w-full flex-col items-start justify-end border-b border-inherit">
-        <div className="flex h-full w-full flex-col items-start justify-end border-b border-inherit">
+      <div className="h-full w-full grow overflow-y-auto border-b border-inherit">
+        <ul className="flex h-fit w-full flex-col items-start justify-start">
           {messages?.map((message) => (
             <li
               key={message.room_msg_id}
+              className="p-1 px-5 h-fit w-full text-xs break-words"
             >{`${message.sender_id}: ${message.payload}`}</li>
           ))}
-        </div>
-        <div className="h-30 flex items-end justify-end">
-          <textarea
-            placeholder="plase input here."
-            className="h-20 w-full resize-none border-none bg-neutral-300 text-black"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
-          <button
-            className="h-full border-b border-inherit bg-neutral-800 px-3"
-            onClick={() => {
-              socket.emit('publish', { room: roomId, payload: content });
-              setContent('');
-            }}
-          >
-            send
-          </button>
-        </div>
+        </ul>
       </div>
-    </div>
+      <div className="flex">
+        <textarea
+          placeholder="plase input here."
+          className="h-20 w-full resize-none border-none bg-neutral-300 text-black"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+        />
+        <button
+          className="h-full border-b border-inherit bg-neutral-800 px-3"
+          onClick={() => {
+            socket.emit('publish', { room: roomId, payload: content });
+            setContent('');
+          }}
+        >
+          send
+        </button>
+      </div>
+    </>
   );
 }
