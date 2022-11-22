@@ -46,8 +46,7 @@ function useChatMessages(roomId: string) {
       }
       return [];
     },
-    retry: false,
-    staleTime: Infinity,
+    refetchOnWindowFocus: false,
   });
 
   return data;
