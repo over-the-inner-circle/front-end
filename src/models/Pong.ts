@@ -128,11 +128,11 @@ class Pong {
   }
 
   protected relativeDiagonalValue(value: number) {
-    const originalDiagonal = Math.sqrt(800 * 800 + 600 * 600);
-    const currentCanvasH = this.canvasContext.canvas.height;
-    const currentCanvasW = this.canvasContext.canvas.width;
-    const currentDiagonal = Math.sqrt(currentCanvasH * currentCanvasH + currentCanvasW * currentCanvasW);
-    const ratio = currentDiagonal / originalDiagonal;
+    const originalDiagonal  = Math.sqrt(800 * 800 + 600 * 600);
+    const currentCanvasH    = this.canvasContext.canvas.height;
+    const currentCanvasW    = this.canvasContext.canvas.width;
+    const currentDiagonal   = Math.sqrt(currentCanvasH * currentCanvasH + currentCanvasW * currentCanvasW);
+    const ratio             = currentDiagonal / originalDiagonal;
     return value * ratio;
   }
 
@@ -193,6 +193,7 @@ class Pong {
   public adjustAfterResize() {
 
     const canvasWidth = this.canvasContext.canvas.width;
+    const canvasHeight = this.canvasContext.canvas.height;
 
     this.p1.width = this.relativeXValue(10);
     this.p1.height = this.relativeYValue(100);
@@ -202,6 +203,8 @@ class Pong {
     this.p2.xPosition = canvasWidth - this.relativeXValue(10);
 
     this.ball.radius = this.relativeDiagonalValue(10);
+    // this.ball.xPosition = this.relativeXValue(this.ball.xPosition);
+    // this.ball.yPosition = this.relativeYValue(this.ball.yPosition);
 
     this.net = {...this.net, 
       xPosition: (canvasWidth - 4) / 2,

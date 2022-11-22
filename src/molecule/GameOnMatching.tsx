@@ -1,5 +1,6 @@
 import {useSetRecoilState, useRecoilValue} from "recoil";
 import {useEffect} from "react";
+import {Socket} from "socket.io-client";
 
 import Button from "@/atom/Button";
 import {currentGameStatus} from "@/states/game/currentGameStatus";
@@ -17,25 +18,34 @@ export interface MatchInfo {
   counterpartProfileImage: string;
 }
 
-const GameOnMatching = () => {
+interface GameOnMatchingProps {
+  gameSocket: Socket;
+}
 
-  const socket = useRecoilValue(gameSocket);
+const GameOnMatching = (props: GameOnMatchingProps) => {
+
+  const socket = props.gameSocket;
   const setGameStatus = useSetRecoilState(currentGameStatus);
   const setMatchedPlayerInfo = useSetRecoilState(matchInfo);
 
   useEffect(() => {
-    if (socket) {
-      //TODO: 에러처리
+    //TODO: 에러처리
+    socket.once('player_matched', (data: GameRoomId) => {
+      console.log(data);
+      //socket.emit('user_join_room', data.roomId);
+    });
 
-      socket.once('player_matched', (data: GameRoomId) => {
-        socket.emit('user_join_room', data.roomId);
-      });
+    socket.once('user_joined_room', (data: MatchInfo) => {
+      setMatchedPlayerInfo(data);
+      setGameStatus("MATCHED");
+    });
 
-      socket.once('user_joined_room', (data: MatchInfo) => {
-        setMatchedPlayerInfo(data);
-        setGameStatus("MATCHED");
-      });
+    return () => {
+      socket.removeAllListeners('player_matched');
+      socket.removeAllListeners('user_joined_room');
+      console.log("GameOnMatching unmounted");
     }
+
   }, []);
 
   const gameMatched = () => {
