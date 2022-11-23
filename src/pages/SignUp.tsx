@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { signUpUserInfoState } from '@/states/user/signUp';
 import Button from '@/atom/Button';
+import {getOAuthUrl, providers} from "@/pages/Intro";
 
 interface ImageInfo {
   file: File;
@@ -86,9 +87,9 @@ const SignUp = () => {
     if (response.ok) {
       const data = await response.json();
       console.log(data);
-      // TODO: 다시 Login으로...
-
-      navigate("/");
+      if (signUpUserInfo) {
+        window.location.href = getOAuthUrl(providers[signUpUserInfo.provider]);
+      }
     } else {
       const error = await response.text();
       console.log(error);

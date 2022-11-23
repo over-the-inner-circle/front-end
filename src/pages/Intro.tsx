@@ -5,7 +5,7 @@ interface OAuthProvider {
   scope?: string;
 }
 
-function getOAuthUrl({ auth_url, ...params }: OAuthProvider) {
+export function getOAuthUrl({ auth_url, ...params }: OAuthProvider) {
   const query = new URLSearchParams({
     response_type: 'code',
     ...params,
@@ -14,25 +14,26 @@ function getOAuthUrl({ auth_url, ...params }: OAuthProvider) {
   return `${auth_url}?${query.toString()}`;
 }
 
+export const providers: { [key: string]: OAuthProvider } = {
+  ft: {
+    auth_url: import.meta.env.VITE_FT_AUTH_URL,
+    client_id: import.meta.env.VITE_FT_CLIENT_ID,
+    redirect_uri: import.meta.env.VITE_FT_REDIRECT_URL,
+  },
+  google: {
+    auth_url: import.meta.env.VITE_GOOGLE_AUTH_URL,
+    client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+    redirect_uri: import.meta.env.VITE_GOOGLE_REDIRECT_URL,
+    scope: 'https://www.googleapis.com/auth/userinfo.profile',
+  },
+  kakao: {
+    auth_url: import.meta.env.VITE_KAKAO_AUTH_URL,
+    client_id: import.meta.env.VITE_KAKAO_CLIENT_ID,
+    redirect_uri: import.meta.env.VITE_KAKAO_REDIRECT_URL,
+  },
+};
+
 const Intro = () => {
-  const providers: { [key: string]: OAuthProvider } = {
-    ft: {
-      auth_url: import.meta.env.VITE_FT_AUTH_URL,
-      client_id: import.meta.env.VITE_FT_CLIENT_ID,
-      redirect_uri: import.meta.env.VITE_FT_REDIRECT_URL,
-    },
-    google: {
-      auth_url: import.meta.env.VITE_GOOGLE_AUTH_URL,
-      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-      redirect_uri: import.meta.env.VITE_GOOGLE_REDIRECT_URL,
-      scope: 'https://www.googleapis.com/auth/userinfo.profile',
-    },
-    kakao: {
-      auth_url: import.meta.env.VITE_KAKAO_AUTH_URL,
-      client_id: import.meta.env.VITE_KAKAO_CLIENT_ID,
-      redirect_uri: import.meta.env.VITE_KAKAO_REDIRECT_URL,
-    },
-  };
 
   return (
     <div className="stop-dragging flex h-screen bg-true-gray">
