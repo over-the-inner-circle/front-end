@@ -85,13 +85,13 @@ const GameMatched = (props: GameMatchedProps) => {
                              difficulty: string) => {
     switch (difficulty) {
       case "EASY":
-        socket.emit("player_change_difficulty", "1");
+        socket.emit("player_change_difficulty", 1);
         break;
       case "NORMAL":
-        socket.emit("player_change_difficulty", "2");
+        socket.emit("player_change_difficulty", 2);
         break;
       case "HARD":
-        socket.emit("player_change_difficulty", "3");
+        socket.emit("player_change_difficulty", 3);
         break;
       default:
         console.error("difficulty is not valid");

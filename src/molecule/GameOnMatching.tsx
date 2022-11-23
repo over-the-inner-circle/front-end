@@ -6,7 +6,7 @@ import Button from "@/atom/Button";
 import {currentGameStatus} from "@/states/game/currentGameStatus";
 import {matchInfo} from "@/states/game/matchInfo";
 
-interface MatchedUserInfo {
+export interface MatchedUserInfo {
   "user_id": string,
   "nickname": string,
   "prof_img": string | null,
@@ -43,7 +43,7 @@ const GameOnMatching = (props: GameOnMatchingProps) => {
       console.log("user_joined_room received");
       console.log(data);
       setMatchedPlayerInfo(data);
-      //setGameStatus("MATCHED");
+      setGameStatus("MATCHED");
     });
 
     return () => {

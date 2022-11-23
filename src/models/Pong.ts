@@ -187,10 +187,10 @@ class Pong {
   }
 
   public updateCurrentPositions(positions: PongComponentsPositions) {
-    this.p1.yPosition = positions.p1YPosition;
-    this.p2.yPosition = positions.p2YPosition;
-    this.ball.xPosition = positions.ballXPosition;
-    this.ball.yPosition = positions.ballYPosition;
+    this.p1.yPosition = this.relativeYValue(positions.p1YPosition);
+    this.p2.yPosition = this.relativeYValue(positions.p2YPosition);
+    this.ball.xPosition = this.relativeXValue(positions.ballXPosition);
+    this.ball.yPosition = this.relativeYValue(positions.ballYPosition);
     console.log("position updated");
   }
 

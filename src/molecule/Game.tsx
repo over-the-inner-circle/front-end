@@ -1,12 +1,16 @@
 import React, { useRef, useEffect, useState } from 'react';
 import {Socket} from "socket.io-client";
-import {useRecoilState, useSetRecoilState, useRecoilValue } from "recoil";
+import {useSetRecoilState, useRecoilValue } from "recoil";
 
 import Pong, { PongComponentsPositions } from "@/models/Pong";
+import {MatchedUserInfo} from "@/molecule/GameOnMatching";
+
 import {currentGameScore} from "@/states/game/currentGameScore";
 import {currentGameStatus} from "@/states/game/currentGameStatus";
 import {gameTheme} from "@/states/game/gameTheme";
 import {gameInitialData} from "@/states/game/gameInitialData";
+import {gameResult} from "@/states/game/gameResult";
+
 
 interface GameRenderData {
   lPlayerY: number;
@@ -15,6 +19,29 @@ interface GameRenderData {
   rPlayerScore: number;
   ballX: number;
   bally: number;
+}
+
+export interface GameResultData {
+  "game_id": string,
+  "winner": string,
+  "game_end": string,
+  "game_start": string,
+  "difficulty": string,
+  "mode": string,
+  "l_player": {
+    "user_id": string,
+    "nickname": string,
+    "prof_img": string | null,
+    "mmr": number,
+    "score": number,
+  },
+  "r_player": {
+    "user_id": string,
+    "nickname": string,
+    "prof_img": string | null,
+    "mmr": number,
+    "score": number,
+  }
 }
 
 interface GameProps {
@@ -34,6 +61,7 @@ const Game = (props: GameProps) => {
 
   const setGameScore = useSetRecoilState(currentGameScore);
   const setGameStatus = useSetRecoilState(currentGameStatus);
+  const setGameResult = useSetRecoilState(gameResult);
 
   const [positions, setPositions] = useState<PongComponentsPositions | null>(null);
 
@@ -85,17 +113,9 @@ const Game = (props: GameProps) => {
       console.log("socket is not connected");
       return;
     }
-
     socket.once('game_started', () => {
       console.log("game_started");
       didGameStarted.current = true;
-      //pongRef.current?.updateGameConfig(data);
-    });
-
-    socket.once('game_finished', () => {
-      // 게임 종료
-      console.log("game_finished");
-      setGameStatus("FINISHED");
     });
 
     socket.on('game_render_data', (data: GameRenderData) => {
@@ -108,6 +128,37 @@ const Game = (props: GameProps) => {
       })
       setGameScore({ p1Score: data.lPlayerScore, p2Score: data.rPlayerScore });
     });
+
+    socket.once('game_finished', () => {
+      // 게임 종료
+      console.log("game_finished received");
+      socket.emit("save_game_data");
+      console.log("game_save_data emitted");
+    });
+
+    socket.once('saved_game_data', () => {
+      console.log("game_saved_data received");
+      socket.emit('user_leave_room');
+    });
+
+    socket.once('game_result', (data: GameResultData) => {
+      console.log("game_result received");
+      console.log(data);
+      setGameResult(data);
+      setGameStatus("FINISHED");
+    })
+
+    socket.onAny((event, ...args) => {
+      console.log(event, args);
+    });
+
+    return () => {
+      socket.removeAllListeners('game_started');
+      socket.removeAllListeners('game_finished');
+      socket.removeAllListeners('game_render_data');
+      socket.removeAllListeners('game_saved_data');
+      socket.removeAllListeners('game_result');
+    }
 
   }, []);
 
