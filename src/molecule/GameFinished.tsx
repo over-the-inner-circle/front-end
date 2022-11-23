@@ -21,7 +21,7 @@ return (
         <span className="text-6xl">{"Game Result"}</span>
         <div className="flex flex-row items-center justify-center gap-40 m-20 mb-8">
           <GameMatchedUserInfo name={result.l_player.nickname}
-                               eloScore={result.r_player.mmr} />
+                               eloScore={result.l_player.mmr} />
           <div className="flex flex-col justify-center items-center gap-12">
             <span className="text-5xl whitespace-nowrap "> {result.l_player.score} : {result.r_player.score} </span>
             <span className="text-3xl text-green-600 "> {"+ or -"} </span>

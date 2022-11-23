@@ -191,7 +191,6 @@ class Pong {
     this.p2.yPosition = this.relativeYValue(positions.p2YPosition);
     this.ball.xPosition = this.relativeXValue(positions.ballXPosition);
     this.ball.yPosition = this.relativeYValue(positions.ballYPosition);
-    console.log("position updated");
   }
 
   public adjustAfterResize() {

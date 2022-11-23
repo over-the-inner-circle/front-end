@@ -142,8 +142,6 @@ const Game = (props: GameProps) => {
     });
 
     socket.once('game_result', (data: GameResultData) => {
-      console.log("game_result received");
-      console.log(data);
       setGameResult(data);
       setGameStatus("FINISHED");
     })
