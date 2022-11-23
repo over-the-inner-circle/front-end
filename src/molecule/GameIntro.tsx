@@ -24,8 +24,9 @@ const GameIntro = ( props: gameIntroProps ) => {
   const startMatching = () => {
     //TODO: 여러번 눌렸을 때 어떻게 되는지 체크하기
     socket.emit("user_join_queue");
+    console.log("user_join_queue emitted");
     socket.once("user_is_in_queue", () => {
-      console.log("user is in queue");
+      console.log("user_is_in_queue received");
       setGameStatus("ON_MATCHING");
     });
   }

@@ -5,17 +5,18 @@ import {Socket} from "socket.io-client";
 import Button from "@/atom/Button";
 import {currentGameStatus} from "@/states/game/currentGameStatus";
 import {matchInfo} from "@/states/game/matchInfo";
-import {gameSocket} from "@/states/game/gameSocket";
 
-interface GameRoomId {
-  roomId: string;
+interface MatchedUserInfo {
+  "user_id": string,
+  "nickname": string,
+  "prof_img": string | null,
+  "mmr": number
 }
 
 export interface MatchInfo {
-  roomOwnerSocketId: string;
-  counterpartName: string;
-  counterpartELO: string;
-  counterpartProfileImage: string;
+  "owner": string,
+  "lPlayerInfo": MatchedUserInfo,
+  "rPlayerInfo": MatchedUserInfo,
 }
 
 interface GameOnMatchingProps {
@@ -30,14 +31,19 @@ const GameOnMatching = (props: GameOnMatchingProps) => {
 
   useEffect(() => {
     //TODO: 에러처리
-    socket.once('player_matched', (data: GameRoomId) => {
+    socket.on('player_matched', (data: string) => {
+      console.log("player_matched received");
       console.log(data);
-      //socket.emit('user_join_room', data.roomId);
+
+      socket.emit('user_join_room', data);
+      console.log('user_join_room emitted');
     });
 
-    socket.once('user_joined_room', (data: MatchInfo) => {
+    socket.on('user_joined_room', (data: MatchInfo) => {
+      console.log("user_joined_room received");
+      console.log(data);
       setMatchedPlayerInfo(data);
-      setGameStatus("MATCHED");
+      //setGameStatus("MATCHED");
     });
 
     return () => {
@@ -53,7 +59,8 @@ const GameOnMatching = (props: GameOnMatchingProps) => {
   }
 
   const cancelMatching = () => {
-    console.log("cancel matching");
+    socket.emit("user_left_queue");
+    console.log("user_left_queue emitted");
     setGameStatus("INTRO");
   }
 

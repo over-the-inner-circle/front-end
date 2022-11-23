@@ -1,32 +1,27 @@
 import React, { useRef, useEffect, useState } from 'react';
+import {Socket} from "socket.io-client";
 import {useRecoilState, useSetRecoilState, useRecoilValue } from "recoil";
 
 import Pong, { PongComponentsPositions } from "@/models/Pong";
-import {gameSocket} from "@/states/game/gameSocket";
 import {currentGameScore} from "@/states/game/currentGameScore";
 import {currentGameStatus} from "@/states/game/currentGameStatus";
 import {gameTheme} from "@/states/game/gameTheme";
+import {gameInitialData} from "@/states/game/gameInitialData";
 
-interface initialGameData {
-  width: number;
-  height: number;
-  playerHeight: number;
-  playerWidth: number;
-  ballRadius: number;
-  lPlayerX: number;
-  rPlayerX: number;
-}
-
-interface gameRenderData {
+interface GameRenderData {
   lPlayerY: number;
   lPlayerScore: number;
   rPlayerY: number;
   rPlayerScore: number;
   ballX: number;
-  ballY: number;
+  bally: number;
 }
 
-const Game = () => {
+interface GameProps {
+  gameSocket: Socket;
+}
+
+const Game = (props: GameProps) => {
   const isInitialMount = useRef(true);
   const didGameStarted = useRef(false);
 
@@ -34,19 +29,19 @@ const Game = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pongRef = useRef<Pong | null>(null);
 
-  const [socket, setSocket] = useRecoilState(gameSocket);
-
   const currentGameTheme = useRecoilValue(gameTheme);
+  const initialGameData = useRecoilValue(gameInitialData);
 
   const setGameScore = useSetRecoilState(currentGameScore);
   const setGameStatus = useSetRecoilState(currentGameStatus);
 
   const [positions, setPositions] = useState<PongComponentsPositions | null>(null);
 
+  const socket = props.gameSocket;
 
   /* useEffects ---------------------------------------------------------------*/
 
-  // 퐁 초기화
+  // 게임 초기화
   useEffect( () => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
@@ -55,16 +50,17 @@ const Game = () => {
       canvas.height = container.clientHeight;
     }
     const context = canvas?.getContext('2d');
-    if (canvas && context && container) {
-      pongRef.current = new Pong(context, currentGameTheme);
+    if (canvas && context && container && initialGameData) {
+      pongRef.current = new Pong(context, currentGameTheme, initialGameData);
       setPositions(pongRef.current.currentPositions()); // 포지션 초기화
+      setGameScore({ p1Score: 0,  p2Score: 0});
+      socket.emit('client_ready_to_start');
     }
-  }, []);
+  }, [socket]);
 
   // 포지션 데이터 받아올 때 마다 실행, Pong 객체의 포지션 데이터를 업데이트하고 렌더링
   useEffect(() => {
     // 마운트 시 실행안함
-    console.log(pongRef.current);
     if (isInitialMount.current) {
       isInitialMount.current = false;
     } else {
@@ -90,26 +86,25 @@ const Game = () => {
       return;
     }
 
-    socket.once('game_started', (data: initialGameData) => {
-      // 게임 최초 데이터 셋업( 난이도 설정에 따른 바 크기 등등...)
+    socket.once('game_started', () => {
       console.log("game_started");
       didGameStarted.current = true;
       //pongRef.current?.updateGameConfig(data);
     });
 
-    socket.once('game_finished', (data: gameRenderData) => {
+    socket.once('game_finished', () => {
       // 게임 종료
       console.log("game_finished");
       setGameStatus("FINISHED");
     });
 
-    socket.on('game_render_data', (data: gameRenderData) => {
+    socket.on('game_render_data', (data: GameRenderData) => {
       if (!didGameStarted.current) { return; }
       setPositions({
         p1YPosition: data.lPlayerY,
         p2YPosition: data.rPlayerY,
         ballXPosition: data.ballX,
-        ballYPosition: data.ballY,
+        ballYPosition: data.bally,
       })
       setGameScore({ p1Score: data.lPlayerScore, p2Score: data.rPlayerScore });
     });
@@ -140,9 +135,7 @@ const Game = () => {
       // 소켓 연결 안되어있으면 에러처리
       return;
     }
-
     const key = event.key;
-
     if (key === 'ArrowUp' && type === 'keyDown') {
       socket.emit('up_key_pressed');
     } else if (key === 'ArrowDown' && type === 'keyDown') {
@@ -152,12 +145,6 @@ const Game = () => {
     } else if (key === 'ArrowDown' && type === 'keyUp') {
       socket.emit('down_key_released');
     }
-
-    // if (event.key === 'ArrowUp' && positions) {
-    //   updatePosition({ ...positions, p1YPosition: positions.p1YPosition - 10 });
-    // } else if (event.key === 'ArrowDown' && positions) {
-    //   updatePosition({ ...positions, p1YPosition: positions.p1YPosition + 10 });
-    // }
   }
 
   /* -------------------------------------------------------------------------- */

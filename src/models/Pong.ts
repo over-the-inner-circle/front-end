@@ -1,3 +1,5 @@
+import {GameInitialData} from "@/molecule/GameMatched";
+
 interface Player {
   xPosition: number;
   yPosition: number;
@@ -74,31 +76,33 @@ class Pong {
   protected ball: Ball;
   protected net: Net;
 
-  constructor(context: CanvasRenderingContext2D, theme: PongTheme) {
+  constructor(context: CanvasRenderingContext2D,
+              theme: PongTheme,
+              initialGameData: GameInitialData) {
     this.canvasContext = context;
     const canvasHeight = this.canvasContext.canvas.height;
     const canvasWidth = this.canvasContext.canvas.width;
 
     this.p1 = {
       xPosition: 0,
-      yPosition: (canvasHeight - this.relativeYValue(100) ) / 2,
-      width: this.relativeXValue(10),
-      height: this.relativeYValue(100),
+      yPosition: (canvasHeight - this.relativeYValue(initialGameData.playerHeight) ) / 2,
+      width: this.relativeXValue(initialGameData.playerWidth),
+      height: this.relativeYValue(initialGameData.playerHeight),
       color: theme.playerColor,
     }
 
     this.p2 = {
-      xPosition: canvasWidth - this.relativeXValue(10),
-      yPosition: (canvasHeight - this.relativeYValue(100)) / 2,
-      width: this.relativeXValue(10),
-      height: this.relativeYValue(100),
+      xPosition: canvasWidth - this.relativeXValue(initialGameData.playerWidth),
+      yPosition: (canvasHeight - this.relativeYValue(initialGameData.playerHeight)) / 2,
+      width: this.relativeXValue(initialGameData.playerWidth),
+      height: this.relativeYValue(initialGameData.playerHeight),
       color: theme.playerColor,
     }
 
     this.ball = {
       xPosition: canvasWidth / 2,
       yPosition: canvasHeight / 2,
-      radius: this.relativeDiagonalValue(10),
+      radius: this.relativeDiagonalValue(initialGameData.ballRadius),
       color: theme.ballColor,
     }
 
