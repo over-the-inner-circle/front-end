@@ -11,7 +11,9 @@ module.exports = {
         'true-gray-600' : "#52525B",
         'true-green-600' : "#059669",
         'color-42' : "#1fbabc",
-        'color-kakao' : "#fce403"
+        'color-kakao' : "#fce403",
+        'hot-pink' : "#FF00E5",
+        'hot-green' : "#00FF38",
       },
       fontFamily: {
         pixel: ['PressStart2P', ...defaultTheme.fontFamily.mono],

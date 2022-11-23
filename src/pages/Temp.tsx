@@ -1,8 +1,8 @@
+import React, { useState } from 'react';
+
 import Nav from "@/organism/Nav";
-import Game from "@/organism/Game";
 import Chat from "@/organism/Chat";
 import Friends from "@/organism/Friends";
-import React, { useState } from 'react';
 import Directmsg from "@/organism/Directmsg";
 import GameContainer from "./GameContainer";
 

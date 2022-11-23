@@ -1,22 +1,7 @@
 import {atom} from "recoil";
+import {GameResultData} from "@/molecule/Game";
 
-interface GameResult {
-  loser: string,
-  lPlayer: {
-    user_id: string,
-    nickname: string,
-    prof_img: string,
-    mmr: string,
-  },
-  rPlayer: {
-    user_id: string,
-    nickname: string,
-    prof_img: string,
-    mmr: string,
-  }
-}
-
-export const gameResult = atom<GameResult | null>({
+export const gameResult = atom<GameResultData | null>({
   key: "gameResult",
   default: null
 });

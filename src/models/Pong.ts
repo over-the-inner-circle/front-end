@@ -1,3 +1,5 @@
+import {GameInitialData} from "@/molecule/GameMatched";
+
 interface Player {
   xPosition: number;
   yPosition: number;
@@ -28,13 +30,42 @@ export interface PongComponentsPositions {
   ballYPosition: number;
 }
 
-export interface PongConfig {
-  theme: {
-    backgroundColor: string;
-    playerColor: string;
-    ballColor: string;
+export interface PongTheme {
+  backgroundColor: string;
+  playerColor: string;
+  ballColor: string;
+  netColor: string;
+}
+
+export const availablePongThemes = (): PongTheme[] => {
+  const pongThemeDefault: PongTheme = {
+    backgroundColor: "#000000",
+    ballColor: "#FFFFFF",
+    playerColor: "#FFFFFF",
+    netColor: "#FFFFFF",
+  };
+
+  const pongTheme1: PongTheme = {
+    backgroundColor: "#000000",
+    ballColor: "#00FF38",
+    playerColor: "#00FF38",
+    netColor: "#00FF38",
   }
-  difficulty: string;
+
+  const pongTheme2: PongTheme = {
+    backgroundColor: "#000000",
+    ballColor: "#FF00E5",
+    playerColor: "#FF00E5",
+    netColor: "#FF00E5",
+  }
+
+  return (
+    [
+      pongThemeDefault,
+      pongTheme1,
+      pongTheme2,
+    ]
+  )
 }
 
 class Pong {
@@ -45,32 +76,34 @@ class Pong {
   protected ball: Ball;
   protected net: Net;
 
-  constructor(context: CanvasRenderingContext2D) {
+  constructor(context: CanvasRenderingContext2D,
+              theme: PongTheme,
+              initialGameData: GameInitialData) {
     this.canvasContext = context;
     const canvasHeight = this.canvasContext.canvas.height;
     const canvasWidth = this.canvasContext.canvas.width;
 
     this.p1 = {
       xPosition: 0,
-      yPosition: (canvasHeight - this.relativeYValue(100) ) / 2,
-      width: this.relativeXValue(10),
-      height: this.relativeYValue(100),
-      color: 'white',
+      yPosition: (canvasHeight - this.relativeYValue(initialGameData.playerHeight) ) / 2,
+      width: this.relativeXValue(initialGameData.playerWidth),
+      height: this.relativeYValue(initialGameData.playerHeight),
+      color: theme.playerColor,
     }
 
     this.p2 = {
-      xPosition: canvasWidth - this.relativeXValue(10),
-      yPosition: (canvasHeight - this.relativeYValue(100)) / 2,
-      width: this.relativeXValue(10),
-      height: this.relativeYValue(100),
-      color: 'white',
+      xPosition: canvasWidth - this.relativeXValue(initialGameData.playerWidth),
+      yPosition: (canvasHeight - this.relativeYValue(initialGameData.playerHeight)) / 2,
+      width: this.relativeXValue(initialGameData.playerWidth),
+      height: this.relativeYValue(initialGameData.playerHeight),
+      color: theme.playerColor,
     }
 
     this.ball = {
       xPosition: canvasWidth / 2,
       yPosition: canvasHeight / 2,
-      radius: this.relativeDiagonalValue(10),
-      color: 'white'
+      radius: this.relativeDiagonalValue(initialGameData.ballRadius),
+      color: theme.ballColor,
     }
 
     this.net = {
@@ -78,7 +111,7 @@ class Pong {
       yPosition: 0,
       width: this.relativeXValue(4),
       height: this.relativeYValue(10),
-      color: 'white'
+      color: theme.netColor,
     }
 
     this.render();
@@ -99,11 +132,11 @@ class Pong {
   }
 
   protected relativeDiagonalValue(value: number) {
-    const originalDiagonal = Math.sqrt(800 * 800 + 600 * 600);
-    const currentCanvasH = this.canvasContext.canvas.height;
-    const currentCanvasW = this.canvasContext.canvas.width;
-    const currentDiagonal = Math.sqrt(currentCanvasH * currentCanvasH + currentCanvasW * currentCanvasW);
-    const ratio = currentDiagonal / originalDiagonal;
+    const originalDiagonal  = Math.sqrt(800 * 800 + 600 * 600);
+    const currentCanvasH    = this.canvasContext.canvas.height;
+    const currentCanvasW    = this.canvasContext.canvas.width;
+    const currentDiagonal   = Math.sqrt(currentCanvasH * currentCanvasH + currentCanvasW * currentCanvasW);
+    const ratio             = currentDiagonal / originalDiagonal;
     return value * ratio;
   }
 
@@ -154,16 +187,16 @@ class Pong {
   }
 
   public updateCurrentPositions(positions: PongComponentsPositions) {
-    this.p1.yPosition = positions.p1YPosition;
-    this.p2.yPosition = positions.p2YPosition;
-    this.ball.xPosition = positions.ballXPosition;
-    this.ball.yPosition = positions.ballYPosition;
-    console.log("position updated");
+    this.p1.yPosition = this.relativeYValue(positions.p1YPosition);
+    this.p2.yPosition = this.relativeYValue(positions.p2YPosition);
+    this.ball.xPosition = this.relativeXValue(positions.ballXPosition);
+    this.ball.yPosition = this.relativeYValue(positions.ballYPosition);
   }
 
   public adjustAfterResize() {
 
     const canvasWidth = this.canvasContext.canvas.width;
+    const canvasHeight = this.canvasContext.canvas.height;
 
     this.p1.width = this.relativeXValue(10);
     this.p1.height = this.relativeYValue(100);
@@ -173,6 +206,8 @@ class Pong {
     this.p2.xPosition = canvasWidth - this.relativeXValue(10);
 
     this.ball.radius = this.relativeDiagonalValue(10);
+    // this.ball.xPosition = this.relativeXValue(this.ball.xPosition);
+    // this.ball.yPosition = this.relativeYValue(this.ball.yPosition);
 
     this.net = {...this.net, 
       xPosition: (canvasWidth - 4) / 2,

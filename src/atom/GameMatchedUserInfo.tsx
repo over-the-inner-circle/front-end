@@ -2,7 +2,7 @@ import Circle from "@/atom/Circle";
 
 export interface MatchedUserInfoProps {
   name: string;
-  eloScore: string;
+  eloScore: number;
   imgUri?: string;
   className?: string;
 }
