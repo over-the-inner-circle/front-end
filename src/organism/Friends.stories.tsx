@@ -2,7 +2,7 @@ import { ComponentMeta, ComponentStory } from '@storybook/react';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import Friends from './Friends';
-import { handlers, errorHandlers } from '@/mock/friend';
+import { handlers, errorHandlers } from '@/mocks/friend';
 
 export default {
   title: 'organism/Friends',

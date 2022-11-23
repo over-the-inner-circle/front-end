@@ -20,12 +20,12 @@ const Nav = ({ current, onChange }: NavProps) => {
             </div>
             <div className="">
               <button onClick={() => onChange('friend')}>
-                <FriendIcon isActive={current === 'friends'}/>
+                <FriendIcon isActive={current === 'friend'}/>
               </button>
             </div>
             <div className="">
               <button onClick={() => onChange('dm')}>
-                <DmIcon isActive={current === 'directMsg'}/>
+                <DmIcon isActive={current === 'dm'}/>
               </button>
             </div>
           </div>
