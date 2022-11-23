@@ -1,15 +1,38 @@
 import { useState } from 'react';
 import { fetcher } from '@/hooks/fetcher';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+function useAddFriend() {
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: async (nickname: string) => {
+      const res = await fetcher(`/friend/request/${nickname}`, {
+        method: 'POST',
+      });
+      if (res.ok) return res;
+      throw res;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['friend/request', 'sent'] });
+      console.log('add friend request success');
+    },
+    onError: () => {
+      console.log('add friend request failed');
+    },
+  });
+  return mutation;
+}
 
 function AddFriendForm() {
   const [query, setQuery] = useState<string>('');
+  const addFriend = useAddFriend();
+
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
 
     if (query) {
       console.log('request:', query);
-      // TODO: response를 받아 사용자에게 요청 결과 알려주기.
-      fetcher(`/friend/request/${query}`, { method: 'POST' });
+      addFriend.mutate(query);
       setQuery('');
     }
   };

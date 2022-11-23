@@ -1,7 +1,7 @@
 import Spinner from '@/atom/Spinner';
 import { fetcher } from '@/hooks/fetcher';
 import { RequestedFriend, useRequestedFriends } from '@/hooks/friends';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import SectionList from '@/molecule/SectionList';
 
 function RequestedFriendsList() {
@@ -42,37 +42,60 @@ interface RequestedFriendItemProps {
   type?: string;
 }
 
-function RequestedFriendItem({ data, type }: RequestedFriendItemProps) {
-  const accept = useMutation({
+function useFriendRequestAccept(requestData: RequestedFriend, type?: string) {
+  const queryClient = useQueryClient();
+  const acceptMutation = useMutation({
     mutationFn: () => {
-      return fetcher(`/friend/request/${data.request_id}/accept`, {
+      return fetcher(`/friend/request/${requestData.request_id}/accept`, {
         method: 'POST',
       });
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['friend/request', type] });
+      queryClient.invalidateQueries({ queryKey: ['friend/all'] });
+    },
   });
-  const reject = useMutation({
+
+  return acceptMutation;
+}
+
+function useFriendRequestReject(requestData: RequestedFriend, type?: string) {
+  const queryClient = useQueryClient();
+  const rejectMutation = useMutation({
     mutationFn: (type?: string) => {
       if (type === 'sent') {
-        return fetcher(`/friend/request/${data.request_id}`, {
+        return fetcher(`/friend/request/${requestData.request_id}`, {
           method: 'DELETE',
         });
       }
-      return fetcher(`/friend/request/${data.request_id}/reject`, {
+      return fetcher(`/friend/request/${requestData.request_id}/reject`, {
         method: 'POST',
       });
     },
     onError: () => console.log('reject is failed'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['friend/request', type] });
+    },
   });
 
+  return rejectMutation;
+}
+
+function RequestedFriendItem({ data, type }: RequestedFriendItemProps) {
+  const accept = useFriendRequestAccept(data, type);
+  const reject = useFriendRequestReject(data, type);
+
   return (
-    <div className="flex flex-row p-5">
-      <p>{type === 'sent' ? data.receiver : data.requester}</p>
-      {type === 'recv' ? (
-        <button onClick={() => accept.mutate()}>V</button>
-      ) : null}
-      <button onClick={() => reject.mutate(type)} className="pl-3">
-        X
-      </button>
+    <div className="flex flex-row justify-between p-5">
+      <p>{data.user_info.nickname}</p>
+      <div>
+        {type === 'recv' ? (
+          <button onClick={() => accept.mutate()}>V</button>
+        ) : null}
+        <button onClick={() => reject.mutate(type)} className="pl-3">
+          X
+        </button>
+      </div>
     </div>
   );
 }
