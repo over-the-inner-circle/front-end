@@ -29,7 +29,7 @@ interface SubscribeData {
 interface Message {
   room_msg_id: number;
   room_id: string;
-  sender_id: string;
+  sender: string;
   payload: string;
   created: Date;
 }
@@ -74,9 +74,9 @@ function useSocketRef(url: string) {
 }
 
 function useChat(roomId: string) {
-  const { data: messages } = useChatMessages(roomId);
   const queryClient = useQueryClient();
   const socketRef = useSocketRef(`ws://${import.meta.env.VITE_BASE_URL}:9999`);
+  const { data: messages } = useChatMessages(roomId);
 
   useEffect(() => {
     const socket = socketRef.current;
@@ -88,7 +88,7 @@ function useChat(roomId: string) {
           const newMessage: Message = {
             room_msg_id: prevMsg ? prevMsg.length + 1 : 1,
             room_id: roomId,
-            sender_id: data.sender?.nickname,
+            sender: data.sender?.nickname,
             payload: data.payload,
             created: new Date(),
           };
@@ -150,7 +150,7 @@ export default function ChatingRoom({ roomId, setRoom_Id }: ChatProps) {
             <li
               key={message.room_msg_id}
               className="p-1 px-5 h-fit w-full text-xs break-words"
-            >{`${message.sender_id}: ${message.payload}`}</li>
+            >{`${message.sender}: ${message.payload}`}</li>
           ))}
         </ul>
       </div>
