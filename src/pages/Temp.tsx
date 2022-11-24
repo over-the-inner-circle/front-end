@@ -22,9 +22,9 @@ function Temp() {
 	const [sideState, setSideState] = useState<SidebarItem>("chat");
 
 	return (
-		<div className="bg-neutral-600 flex flex-col w-full h-full relative mx-auto my-0" id="root">
+		<div className="bg-neutral-600 flex flex-col w-full h-full mx-auto my-0">
 			<Nav current={sideState} onChange={setSideState}></Nav>
-			<div className="content-start flex h-full w-full relative">
+			<div className="flex h-full w-full min-h-0">
 				<GameContainer />
 				{sidebarSelector(sideState)}
 			</div>
