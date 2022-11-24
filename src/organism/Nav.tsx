@@ -2,6 +2,7 @@ import DmIcon from '@/atom/DmIcon';
 import ChatIcon from '@/atom/ChatIcon';
 import FriendIcon from '@/atom/FriendIcon';
 import { SidebarItem } from '@/pages/Temp';
+import CurrentUserWidget from '@/molecule/CurrentUserWidget';
 
 interface NavProps {
   current: string;
@@ -14,7 +15,7 @@ const Nav = ({ current, onChange }: NavProps) => {
       className="bg-background/[0.87] flex h-[78px] w-full items-center justify-between"
       id="nav"
     >
-      navtext
+      <CurrentUserWidget />
       <div className="flex items-center gap-2">
         <div className="">
           <button onClick={() => onChange('chat')}>
