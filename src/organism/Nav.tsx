@@ -12,7 +12,8 @@ interface NavProps {
 const Nav = ({ current, onChange }: NavProps) => {
   return (
     <div
-      className="bg-background/[0.87] flex h-[78px] w-full items-center justify-between"
+      className="flex h-[78px] w-full items-center justify-between
+                 border-b border-neutral-400 bg-neutral-800"
       id="nav"
     >
       <CurrentUserWidget />
