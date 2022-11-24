@@ -5,6 +5,7 @@ import Spinner from '@/atom/Spinner';
 import SectionList from '@/molecule/SectionList';
 import { FloatingPortal } from '@floating-ui/react-dom-interactions';
 import { useOptionMenu } from '@/hooks/optionMenu';
+import OptionMenu, { Option } from '@/molecule/OptionMenu';
 
 function FriendsList() {
   const { friends, isLoading, isError } = useFriends();
@@ -84,9 +85,10 @@ function FriendItem({ friend }: FriendItemProps) {
               left: x ?? 0,
               width: 'max-content',
             }}
+            onClick={() => setOpen(false)}
             {...getFloatingProps()}
           >
-            <OptionsMenu friend={friend} onClick={() => setOpen(false)} />
+            <FriendOptionMenu friend={friend} />
           </div>
         )}
       </FloatingPortal>
@@ -94,14 +96,13 @@ function FriendItem({ friend }: FriendItemProps) {
   );
 }
 
-interface OptionMenu {
+interface FriendOptionMenuProps {
   friend: Friend;
-  onClick(): void;
 }
 
-function OptionsMenu({ friend, onClick }: OptionMenu) {
+function FriendOptionMenu({ friend }: FriendOptionMenuProps) {
   const deleteFriend = useDeleteFriend();
-  const options = [
+  const options: Option[] = [
     {
       label: 'Invite Game',
       onClick: () => {
@@ -130,26 +131,8 @@ function OptionsMenu({ friend, onClick }: OptionMenu) {
       },
     },
   ];
-  return (
-    <ul>
-      {options.map((option) => (
-        <li
-          key={option.label}
-          className="bg-neutral-800 p-3 font-pixel text-xs text-white"
-        >
-          <button
-            onClick={() => {
-              option.onClick();
-              onClick();
-            }}
-            className={`h-full w-full ${option.color ?? ''}`}
-          >
-            {option.label}
-          </button>
-        </li>
-      ))}
-    </ul>
-  );
+
+  return <OptionMenu options={options} />
 }
 
 export default FriendsList;
