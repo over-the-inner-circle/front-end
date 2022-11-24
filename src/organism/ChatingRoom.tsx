@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { fetcher } from '@/hooks/fetcher';
 
 export interface ChatProps {
   roomId: string;
@@ -25,15 +27,35 @@ interface SubscribeData {
 }
 
 interface Message {
-  nickname: string;
-  content: string;
+  room_msg_id: number;
+  room_id: string;
+  sender: string;
+  payload: string;
+  created: Date;
 }
 
-function useChat(roomId: string) {
-  const [messages, setMessages] = useState<Message[]>([]);
+function useChatMessages(roomId: string) {
+  const data = useQuery<Message[]>({
+    queryKey: ['chat/room/messages', roomId],
+    queryFn: async () => {
+      const res = await fetcher(`/chat/room/${roomId}/messages`);
+
+      if (res.ok) {
+        const data = await res.json();
+        return data.messages;
+      }
+      return [];
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  return data;
+}
+
+function useSocketRef(url: string) {
   const access_token = window.localStorage.getItem('access_token');
   const socketRef = useRef(
-    io(`ws://${import.meta.env.VITE_BASE_URL}:9999`, {
+    io(url, {
       auth: { access_token },
       autoConnect: false,
     }),
@@ -42,18 +64,43 @@ function useChat(roomId: string) {
   useEffect(() => {
     const socket = socketRef.current;
 
+    socket.connect();
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  return socketRef;
+}
+
+function useChat(roomId: string) {
+  const queryClient = useQueryClient();
+  const socketRef = useSocketRef(`ws://${import.meta.env.VITE_BASE_URL}:9999`);
+  const { data: messages } = useChatMessages(roomId);
+
+  useEffect(() => {
+    const socket = socketRef.current;
+
     const handleSub = (data: SubscribeData) => {
-      setMessages((msg) => [
-        ...msg,
-        { nickname: data.sender?.nickname, content: data.payload },
-      ]);
+      queryClient.setQueryData<Message[]>(
+        ['chat/room/messages', roomId],
+        (prevMsg) => {
+          const newMessage: Message = {
+            room_msg_id: prevMsg ? prevMsg.length + 1 : 1,
+            room_id: roomId,
+            sender: data.sender?.nickname,
+            payload: data.payload,
+            created: new Date(),
+          };
+          return prevMsg ? [...prevMsg, newMessage] : [newMessage];
+        },
+      );
     };
 
     const handleAnnounce = (data) => {
       console.log(data);
     };
 
-    socket.connect();
     socket.emit('join', { room: roomId });
 
     socket.on('subscribe', handleSub);
@@ -64,43 +111,54 @@ function useChat(roomId: string) {
       socket.off('subscribe', handleSub);
       socket.off('subscribe_self', handleSub);
       socket.off('announcement', handleAnnounce);
-      socket.disconnect();
     };
-  }, [roomId]);
+  }, [roomId, queryClient, socketRef]);
 
   return { messages, socket: socketRef.current };
+}
+
+function useAutoScroll(dependency: unknown) {
+  const autoScrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const scrollElement = autoScrollRef.current;
+    if (scrollElement) {
+      // FIX: 맨 아래를 보고 있을 때만 동작하게 하기
+      scrollElement.scrollTop = scrollElement.scrollHeight;
+    }
+  }, [dependency])
+
+  return autoScrollRef;
 }
 
 export default function ChatingRoom({ roomId, setRoom_Id }: ChatProps) {
   const [content, setContent] = useState('');
   const { messages, socket } = useChat(roomId);
+  const autoScrollRef = useAutoScroll(messages);
+
   const sendMessage = () => {
     socket.emit('publish', { room: roomId, payload: content });
     setContent('');
   }
 
-
   return (
-
-
-    <div
-      className="flex h-full w-full flex-col
-										items-start justify-start border-l border-neutral-400 bg-neutral-600 font-pixel
-										text-sm text-white"
-    >
-      <div className="flex h-10 w-full items-center justify-between border-b border-inherit bg-neutral-800 px-3">
+    <>
+      <div className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
         {roomId}
         <button onClick={() => setRoom_Id(null)} className="px-1">
           ⬅
         </button>
       </div>
-      <div className="flex h-full w-full flex-col items-start justify-end border-b border-inherit">
-        <div className="flex h-full w-full flex-col items-start justify-end border-b border-inherit">
-          {messages.map((message, idx) => (
-            <li key={idx}>{`${message.nickname}: ${message.content}`}</li>
+      <div ref={autoScrollRef} className="h-full w-full grow overflow-y-auto border-b border-inherit">
+        <ul className="flex h-fit w-full flex-col items-start justify-start">
+          {messages?.map((message) => (
+            <li
+              key={message.room_msg_id}
+              className="p-1 px-5 h-fit w-full text-xs break-words"
+            >{`${message.sender}: ${message.payload}`}</li>
           ))}
-        </div>
-        <div className="h-30 flex items-end justify-end">
+        </ul>
+        <div className="h-30 flex">
           <textarea
             placeholder="plase input here."
             className="h-20 w-full resize-none border-none bg-neutral-300 text-black"
@@ -123,6 +181,6 @@ export default function ChatingRoom({ roomId, setRoom_Id }: ChatProps) {
           </button>
         </div>
       </div>
-    </div>
+    </>
   );
 }

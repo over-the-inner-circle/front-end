@@ -1,30 +1,34 @@
-import {useSetRecoilState, useRecoilState} from "recoil";
+import {useSetRecoilState} from "recoil";
 
 import Button from "@/atom/Button";
 import {currentGameStatus} from "@/states/game/currentGameStatus";
-import {gameSocket} from "@/states/game/gameSocket";
 
-const GameIntro = () => {
+import {Socket} from "socket.io-client";
+import {useEffect} from "react";
+
+interface gameIntroProps {
+  gameSocket: Socket;
+}
+
+const GameIntro = ( props: gameIntroProps ) => {
   const setGameStatus = useSetRecoilState(currentGameStatus);
-  const [socket, setSocket] = useRecoilState(gameSocket);
+  const socket = props.gameSocket;
+
+  useEffect(() => {
+    return () => {
+      socket.removeAllListeners('user_is_in_queue');
+      console.log("GameIntro unmounted");
+    }
+  }, [])
 
   const startMatching = () => {
-
-    // TODO: 백엔드에 붙일 것
-    // const newSocket = io("");
-    // if (newSocket.connected) {
-    //   setSocket(newSocket);
-    // }
-    // if (!socket) {
-    //   //TODO: 에러처리
-    //   console.log("socket is not connected");
-    // } else {
-    //   socket.emit("user_join_queue");
-    //   // TODO: 유저가 큐에 들어갔다는 메시지가 필요할까?
-    //   setGameStatus("ON_MATCHING");
-    // }
-
-    setGameStatus("ON_MATCHING");
+    //TODO: 여러번 눌렸을 때 어떻게 되는지 체크하기
+    socket.emit("user_join_queue");
+    console.log("user_join_queue emitted");
+    socket.once("user_is_in_queue", () => {
+      console.log("user_is_in_queue received");
+      setGameStatus("ON_MATCHING");
+    });
   }
 
   return(
