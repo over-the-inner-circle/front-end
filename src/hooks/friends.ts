@@ -35,8 +35,7 @@ export function useFriends() {
 
 export interface RequestedFriend {
   request_id: number;
-  requester: string;
-  receiver: string;
+  user_info: Friend;
   created_date: Date;
 }
 

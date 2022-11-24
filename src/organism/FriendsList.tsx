@@ -16,6 +16,8 @@ import {
   shift,
   FloatingPortal,
 } from '@floating-ui/react-dom-interactions';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { fetcher } from '@/hooks/fetcher';
 
 function FriendsList() {
   const { friends, isLoading, isError } = useFriends();
@@ -122,7 +124,7 @@ function FriendItem({ friend }: FriendItemProps) {
             }}
             {...getFloatingProps()}
           >
-            <OptionsMenu onClick={() => setOpen(false)} />
+            <OptionsMenu friend={friend} onClick={() => setOpen(false)} />
           </div>
         )}
       </FloatingPortal>
@@ -131,10 +133,28 @@ function FriendItem({ friend }: FriendItemProps) {
 }
 
 interface OptionMenu {
+  friend: Friend;
   onClick(): void;
 }
 
-function OptionsMenu({ onClick }: OptionMenu) {
+function useDeleteFriend() {
+  const queryClient = useQueryClient();
+  const deleteMutation = useMutation({
+    mutationFn: (friend: Friend) => {
+      return fetcher(`/friend/${friend.nickname}`, {
+        method: 'DELETE',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['friend/all'] });
+    },
+  });
+
+  return deleteMutation;
+}
+
+function OptionsMenu({ friend, onClick }: OptionMenu) {
+  const deleteFriend = useDeleteFriend();
   const options = [
     {
       label: 'Invite Game',
@@ -158,7 +178,9 @@ function OptionsMenu({ onClick }: OptionMenu) {
       label: 'Delete',
       color: 'text-red-700',
       onClick: () => {
-        /**/
+        if (confirm('Are you sure?')) {
+          deleteFriend.mutate(friend);
+        }
       },
     },
   ];
