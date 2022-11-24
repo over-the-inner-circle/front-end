@@ -126,7 +126,7 @@ function useAutoScroll(dependency: unknown) {
       // FIX: 맨 아래를 보고 있을 때만 동작하게 하기
       scrollElement.scrollTop = scrollElement.scrollHeight;
     }
-  }, [dependency])
+  }, [dependency]);
 
   return autoScrollRef;
 }
@@ -136,6 +136,11 @@ export default function ChatingRoom({ roomId, setRoom_Id }: ChatProps) {
   const { messages, socket } = useChat(roomId);
   const autoScrollRef = useAutoScroll(messages);
 
+  const sendMessage = () => {
+    socket.emit('publish', { room: roomId, payload: content });
+    setContent('');
+  };
+
   return (
     <>
       <div className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
@@ -144,28 +149,35 @@ export default function ChatingRoom({ roomId, setRoom_Id }: ChatProps) {
           ⬅
         </button>
       </div>
-      <div ref={autoScrollRef} className="h-full w-full grow overflow-y-auto border-b border-inherit">
+      <div
+        ref={autoScrollRef}
+        className="h-full w-full grow overflow-y-auto border-b border-inherit"
+      >
         <ul className="flex h-fit w-full flex-col items-start justify-start">
           {messages?.map((message) => (
             <li
               key={message.room_msg_id}
-              className="p-1 px-5 h-fit w-full text-xs break-words"
+              className="h-fit w-full break-words p-1 px-5 text-xs"
             >{`${message.sender}: ${message.payload}`}</li>
           ))}
         </ul>
       </div>
-      <div className="flex">
+      <div className="h-30 flex">
         <textarea
           placeholder="plase input here."
           className="h-20 w-full resize-none border-none bg-neutral-300 text-black"
           value={content}
           onChange={(e) => setContent(e.target.value)}
+          onKeyUp={(e) => {
+            if (e.key === 'Enter') {
+              sendMessage();
+            }
+          }}
         />
         <button
           className="h-full border-b border-inherit bg-neutral-800 px-3"
           onClick={() => {
-            socket.emit('publish', { room: roomId, payload: content });
-            setContent('');
+            sendMessage();
           }}
         >
           send
