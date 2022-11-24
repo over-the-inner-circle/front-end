@@ -1,23 +1,10 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Friend, useFriends } from '@/hooks/friends';
+import { Friend, useDeleteFriend, useFriends } from '@/hooks/friends';
 import Circle from '@/atom/Circle';
 import Spinner from '@/atom/Spinner';
 import SectionList from '@/molecule/SectionList';
-import {
-  useFloating,
-  useInteractions,
-  useClick,
-  useDismiss,
-  useRole,
-  autoUpdate,
-  offset,
-  flip,
-  shift,
-  FloatingPortal,
-} from '@floating-ui/react-dom-interactions';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetcher } from '@/hooks/fetcher';
+import { FloatingPortal } from '@floating-ui/react-dom-interactions';
+import { useOptionMenu } from '@/hooks/optionMenu';
 
 function FriendsList() {
   const { friends, isLoading, isError } = useFriends();
@@ -32,31 +19,6 @@ function FriendsList() {
       keyExtractor={(friend) => friend.user_id}
     />
   );
-}
-
-function useOptionMenu() {
-  const [open, setOpen] = useState(false);
-
-  const data = useFloating({
-    open,
-    onOpenChange: setOpen,
-    whileElementsMounted: autoUpdate,
-    middleware: [offset(3), flip(), shift({ padding: 3 })],
-  });
-
-  const context = data.context;
-
-  const click = useClick(context);
-  const dismiss = useDismiss(context);
-  const role = useRole(context, { role: 'menu' });
-  const interactions = useInteractions([click, dismiss, role]);
-
-  return {
-    open,
-    setOpen,
-    ...data,
-    ...interactions,
-  };
 }
 
 interface FriendItemProps {
@@ -135,22 +97,6 @@ function FriendItem({ friend }: FriendItemProps) {
 interface OptionMenu {
   friend: Friend;
   onClick(): void;
-}
-
-function useDeleteFriend() {
-  const queryClient = useQueryClient();
-  const deleteMutation = useMutation({
-    mutationFn: (friend: Friend) => {
-      return fetcher(`/friend/${friend.nickname}`, {
-        method: 'DELETE',
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['friend/all'] });
-    },
-  });
-
-  return deleteMutation;
 }
 
 function OptionsMenu({ friend, onClick }: OptionMenu) {

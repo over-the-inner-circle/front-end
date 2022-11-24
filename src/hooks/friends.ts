@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetcher } from './fetcher';
 
 export interface Friend {
@@ -33,6 +33,22 @@ export function useFriends() {
   return { friends: data, error, isLoading, isError };
 }
 
+export function useDeleteFriend() {
+  const queryClient = useQueryClient();
+  const deleteMutation = useMutation({
+    mutationFn: (friend: Friend) => {
+      return fetcher(`/friend/${friend.nickname}`, {
+        method: 'DELETE',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['friend/all'] });
+    },
+  });
+
+  return deleteMutation;
+}
+
 export interface RequestedFriend {
   request_id: number;
   user_info: Friend;
@@ -40,7 +56,7 @@ export interface RequestedFriend {
 }
 
 export function useRequestedFriends(type: 'sent' | 'recv') {
-  const { data, isLoading, isError, error } = useQuery({
+  const data = useQuery({
     queryKey: ['friend/request', type],
     queryFn: async (): Promise<RequestedFriend[]> => {
       const res = await fetcher(`/friend/request/${type}`);
@@ -48,5 +64,5 @@ export function useRequestedFriends(type: 'sent' | 'recv') {
       return [];
     },
   });
-  return { data, isLoading, isError, error };
+  return data;
 }
