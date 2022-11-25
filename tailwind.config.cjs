@@ -16,7 +16,7 @@ module.exports = {
         'hot-green' : "#00FF38",
       },
       fontFamily: {
-        pixel: ['PressStart2P', ...defaultTheme.fontFamily.mono],
+        pixel: ['dalmoori', 'PressStart2P', ...defaultTheme.fontFamily.mono],
       },
     },
   },
