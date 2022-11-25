@@ -1,68 +1,36 @@
-import React from "react";
-import Button from "@/atom/Button";
-import Game from "@/molecule/Game";
+import { useState } from 'react';
 
-const Main = () => {
+import Nav from "@/organism/Nav";
+import Chat from "@/organism/Chat";
+import Friends from "@/organism/Friends";
+import Directmsg from "@/organism/Directmsg";
+import GameContainer from "./GameContainer";
 
-  const accessToken = window.localStorage.getItem("access_token");
-  const refreshToken = window.localStorage.getItem("refresh_token");
+export type SidebarItem = 'dm' | 'friend' | 'chat';
 
-  const REQUEST_URL = "http://146.56.153.237:80";
+function sidebarSelector(sidebarIndex: SidebarItem) {
+	return sidebarIndex === 'dm' ? (
+		<Directmsg />
+	) : sidebarIndex === 'friend' ? (
+		<Friends />
+	) : (
+		<Chat />
+	);
+}
 
-  const requestUserInfo = async () => {
-    const response = await fetch(`${REQUEST_URL}/user`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${accessToken}`,
-      },
-    });
-    if (response.ok) {
-      const data = await response.json();
-      console.log(data);
-    } else {
-      const error = await response.text();
-      console.log(error);
-    }
-  }
+function Main() {
+	const [sideState, setSideState] = useState<SidebarItem>("chat");
 
-  const deleteUser = async () => {
-    const response: Response = await fetch(
-      `${REQUEST_URL}/user`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${accessToken}`,
-        }
-      }
-    );
-    if (response.ok) {
-      const data = await response.json();
-      console.log(data);
-    } else {
-      const error = await response.text();
-      console.log(error);
-    }
-  }
+	return (
+		<div className="bg-neutral-600 flex flex-col w-full h-full mx-auto my-0">
+			<Nav current={sideState} onChange={setSideState}></Nav>
+			<div className="flex h-full w-full min-h-0">
+				<GameContainer />
+				{sidebarSelector(sideState)}
+			</div>
 
-  return (
-    <div>
-      <h1>Main</h1>
-      <div>
-        <button className="bg-sky-600 hover:bg-sky-700 active:bg-sky-800 m-5" onClick={deleteUser}>
-          Delete User
-        </button>
-      </div>
-      <div>
-        <button className={`bg-sky-600 hover:bg-sky-700 active:bg-sky-800 m-5`} onClick={requestUserInfo}>
-          Request User Info
-        </button>
-      </div>
-      <div>
-        <Game />
-      </div>
-    </div>
+
+		</div>
   );
 }
 
