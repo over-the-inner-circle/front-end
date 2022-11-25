@@ -137,7 +137,10 @@ export default function ChatingRoom({ roomId, setRoom_Id }: ChatProps) {
   const autoScrollRef = useAutoScroll(messages);
 
   const sendMessage = () => {
-    socket.emit('publish', { room: roomId, payload: content });
+    const msg = content.trim();
+    if (msg) {
+      socket.emit('publish', { room: roomId, payload: msg });
+    }
     setContent('');
   };
 
