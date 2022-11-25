@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import Nav from "@/organism/Nav";
 import Chat from "@/organism/Chat";
@@ -18,7 +18,7 @@ function sidebarSelector(sidebarIndex: SidebarItem) {
 	);
 }
 
-function Temp() {
+function Main() {
 	const [sideState, setSideState] = useState<SidebarItem>("chat");
 
 	return (
@@ -34,4 +34,4 @@ function Temp() {
   );
 }
 
-export default Temp;
+export default Main;
