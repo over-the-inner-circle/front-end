@@ -30,14 +30,6 @@ const SignUp = () => {
     }
   }, [signUpUserInfo, navigate]);
 
-  // const onUploadImage = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-  //   if (!e.target.files) {
-  //     return;
-  //   }
-  //   console.log(e.target.value);
-  //   // setImgUrl(e.target.value);
-  // }, []);
-
   const onUploadImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files;
 

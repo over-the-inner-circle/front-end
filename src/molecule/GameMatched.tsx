@@ -40,13 +40,16 @@ const GameMatched = (props: GameMatchedProps) => {
 
   const socket = props.gameSocket;
 
-  useEffect(() => {
+  /* use effect ===============================================================*/
 
+  useEffect(() => {
     // 에러처리
     if (!currentMatchInfo || !socket) {
       console.error("currentMatchInfo or socket is null");
       setGameStatus("INTRO");
     }
+
+    console.log(currentMatchInfo);
 
     socket.on('difficulty_changed', (changedDifficulty: number) => {
       console.log("difficulty_changed received");
@@ -54,9 +57,13 @@ const GameMatched = (props: GameMatchedProps) => {
       setGameDifficulty(changedDifficulty);
     });
 
-    socket.on('counterpart_ready', () => {
+    socket.on('counterpart_ready', (socketId) => {
       console.log("counterpart_ready received");
-      setIsCounterpartReady(true);
+      console.log(socketId);
+      console.log(socket.id);
+      if (!(socketId === socket.id)) {
+        setIsCounterpartReady(true);
+      }
     });
 
     socket.once('server_ready_to_start', (data: GameInitialData) => {
@@ -74,15 +81,17 @@ const GameMatched = (props: GameMatchedProps) => {
     }
   }, []);
 
-  const playerReady = () => {
+  /* ==========================================================================*/
 
+  /* event handlers ===========================================================*/
+
+  const playerReady = () => {
     setIsPlayerReady(true);
     socket.emit('player_ready');
-
   }
 
   const changeGameDifficulty = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-                             difficulty: string) => {
+                                difficulty: string) => {
     switch (difficulty) {
       case "EASY":
         socket.emit("player_change_difficulty", 1);
@@ -98,10 +107,34 @@ const GameMatched = (props: GameMatchedProps) => {
     }
   }
 
-  const setGameTheme = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  const changeGameTheme = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
                         themeNumber: number) => {
     setPongTheme(availablePongThemes()[themeNumber]);
   }
+
+  /* ==========================================================================*/
+
+  /* private functions ========================================================*/
+
+  // room owner === lPlayer
+
+  const lPlayerBorderColor = (): string => {
+    if (currentMatchInfo?.owner === socket.id) {
+      return isPlayerReady ? "border-green-600" : "border-neutral-600";
+    } else {
+      return isCounterpartReady ? "border-green-600" : "border-neutral-600";
+    }
+  }
+
+  const rPlayerBorderColor = (): string => {
+    if (currentMatchInfo?.owner !== socket.id) {
+      return isPlayerReady ? "border-green-600" : "border-neutral-600";
+    } else {
+      return isCounterpartReady ? "border-green-600" : "border-neutral-600";
+    }
+  }
+
+  /* render ===================================================================*/
 
   if (!currentMatchInfo) {
     return null;
@@ -110,35 +143,48 @@ const GameMatched = (props: GameMatchedProps) => {
     <div className="h-full w-full flex flex-col font-pixel text-white justify-center items-center stop-dragging">
       <div className="flex justify-center gap-52">
         <GameMatchedUserInfo name={currentMatchInfo.lPlayerInfo.nickname}
-                             eloScore={currentMatchInfo.lPlayerInfo.mmr}/>
+                             eloScore={currentMatchInfo.lPlayerInfo.mmr}
+                             imgUri={currentMatchInfo.lPlayerInfo.prof_img}
+                             borderColor={lPlayerBorderColor()}
+        />
         <GameMatchedUserInfo name={currentMatchInfo.rPlayerInfo.nickname}
-                             eloScore={currentMatchInfo.rPlayerInfo.mmr}/>
+                             eloScore={currentMatchInfo.rPlayerInfo.mmr}
+                             imgUri={currentMatchInfo.rPlayerInfo.prof_img}
+                             borderColor={rPlayerBorderColor()}
+        />
       </div>
       <div className="flex flex-col items-center">
         <span className="m-4 mt-10 text-xl">Game settings</span>
         <span className="m-2">Difficulty</span>
         <div className="flex flex-row gap-8">
           <Button onClick={(e) => {changeGameDifficulty(e, "EASY")}}
-                  className="bg-green-400 text-white font-pixel">
+                  className={`bg-green-400
+                             ${gameDifficulty === 1 ? "ring-4 ring-slate-100" : ""}
+                  `}
+          >
             easy
           </Button>
           <Button onClick={(e) => {changeGameDifficulty(e, "NORMAL")}}
-                  className="bg-yellow-500 text-white font-pixel">
+                  className={`bg-yellow-500
+                             ${gameDifficulty === 2 ? "ring-4 ring-slate-100" : ""}
+                  `}>
             normal
           </Button>
           <Button onClick={(e) => {changeGameDifficulty(e, "HARD")} }
-                  className="bg-red-500 text-white font-pixel">
+                  className={`bg-red-500
+                             ${gameDifficulty === 3 ? "ring-4 ring-slate-100" : ""}
+                  `}>
             hard
           </Button>
         </div>
         <span className="m-2 mt-6">Theme</span>
         <div className="flex flex-row gap-8">
-          <Button onClick={(e) => {setGameTheme(e, 0)}}
-                  className="bg-neutral-600"> theme1 </Button>
-          <Button onClick={(e) => {setGameTheme(e, 1)}}
-                  className="bg-neutral-600 text-hot-green"> theme2 </Button>
-          <Button onClick={(e) => {setGameTheme(e, 2)}}
-                  className="bg-neutral-600 text-hot-pink"> theme3 </Button>
+          <Button onClick={(e) => {changeGameTheme(e, 0)}}
+                  className="bg-neutral-600 focus:ring focus: ring-slate-100"> theme1 </Button>
+          <Button onClick={(e) => {changeGameTheme(e, 1)}}
+                  className="bg-neutral-600 text-hot-green focus:ring focus: ring-slate-100"> theme2 </Button>
+          <Button onClick={(e) => {changeGameTheme(e, 2)}}
+                  className="bg-neutral-600 text-hot-pink focus:ring focus: ring-slate-100"> theme3 </Button>
         </div>
         <Button className="bg-green-700 text-xl mt-10"
         onClick={playerReady}> READY </Button>

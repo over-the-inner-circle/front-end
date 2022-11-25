@@ -146,10 +146,6 @@ const Game = (props: GameProps) => {
       setGameStatus("FINISHED");
     })
 
-    socket.onAny((event, ...args) => {
-      console.log(event, args);
-    });
-
     return () => {
       socket.removeAllListeners('game_started');
       socket.removeAllListeners('game_finished');
@@ -206,7 +202,7 @@ const Game = (props: GameProps) => {
         ref={canvasRef}
         onKeyDown={(event) => handleKeyPress(event, 'keyDown')}
         onKeyUp={(event) => handleKeyPress(event, 'keyUp')}
-        />
+      />
     </div>
   );
 
