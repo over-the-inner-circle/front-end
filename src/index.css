@@ -7,6 +7,12 @@
   src: url('./assets/PressStart2P-Regular.ttf');
 }
 
+@font-face {
+  font-family: dalmoori;
+  src: url('./assets/dalmoori.ttf');
+  unicode-range: U+AC00-D7A3;
+}
+
 body, html, #root {
   height: 100%;
   width: 100%;
