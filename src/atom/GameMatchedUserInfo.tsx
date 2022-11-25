@@ -3,7 +3,8 @@ import Circle from "@/atom/Circle";
 export interface MatchedUserInfoProps {
   name: string;
   eloScore: number;
-  imgUri?: string;
+  borderColor: string;
+  imgUri: string | null;
   className?: string;
 }
 
@@ -11,7 +12,10 @@ const GameMatchedUserInfo = (info: MatchedUserInfoProps) =>
 {
   return (
     <div className={`flex flex-col items-center ${info.className}`}>
-      <Circle radius={72} className={"fill-white mb-4"}></Circle>
+      <img className={`w-36 h-36 object-fit rounded-full mb-4 border-solid border-8 ${info.borderColor}`}
+           src={info.imgUri ? info.imgUri : "src/assets/default_profile_image.png"}
+           alt={"user profile"}
+      />
       <span>{info.name}</span>
       <span>{info.eloScore}</span>
     </div>

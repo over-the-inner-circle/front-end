@@ -1,7 +1,7 @@
 import DmIcon from '@/atom/DmIcon';
 import ChatIcon from '@/atom/ChatIcon';
 import FriendIcon from '@/atom/FriendIcon';
-import { SidebarItem } from '@/pages/Temp';
+import { SidebarItem } from "@/pages/Main";
 import CurrentUserWidget from '@/molecule/CurrentUserWidget';
 
 interface NavProps {
