@@ -1,10 +1,9 @@
 import {useSetRecoilState} from "recoil";
+import {Socket} from "socket.io-client";
+import {useEffect} from "react";
 
 import Button from "@/atom/Button";
 import {currentGameStatus} from "@/states/game/currentGameStatus";
-
-import {Socket} from "socket.io-client";
-import {useEffect} from "react";
 
 interface gameIntroProps {
   gameSocket: Socket;

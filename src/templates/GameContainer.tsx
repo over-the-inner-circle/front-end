@@ -15,9 +15,7 @@ export type GameStatus = 'INTRO' | 'ON_MATCHING' | 'MATCHED' | 'PLAYING' | 'WATC
 const GameContainer = () => {
 
   const [currentStatus, setCurrentStatus] = useRecoilState(currentGameStatus);
-  //const [socket, setSocket] = useRecoilState(gameSocket);
 
-  const serverUrl = import.meta.env.VITE_REQUEST_URL;
   const gameSocketUri = `ws://54.164.253.231:9998`;
   const accessToken = window.localStorage.getItem("access_token");
 
@@ -40,9 +38,7 @@ const GameContainer = () => {
     socket.on("game_error", (error: any) => {
       console.log(error);
     });
-    // gameSocket.onAny((event, ...args) => {
-    //   console.log(event, args);
-    // });
+
   },[]);
 
   return (

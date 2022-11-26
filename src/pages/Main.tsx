@@ -4,7 +4,7 @@ import Nav from "@/organism/Nav";
 import Chat from "@/organism/Chat";
 import Friends from "@/organism/Friends";
 import Directmsg from "@/organism/Directmsg";
-import GameContainer from "./GameContainer";
+import GameContainer from "../templates/GameContainer";
 
 export type SidebarItem = 'dm' | 'friend' | 'chat';
 

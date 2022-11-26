@@ -2,15 +2,13 @@ import React, { useRef, useEffect, useState } from 'react';
 import {Socket} from "socket.io-client";
 import {useSetRecoilState, useRecoilValue } from "recoil";
 
-import Pong, { PongComponentsPositions } from "@/models/Pong";
-import {MatchedUserInfo} from "@/molecule/GameOnMatching";
-
 import {currentGameScore} from "@/states/game/currentGameScore";
 import {currentGameStatus} from "@/states/game/currentGameStatus";
 import {gameTheme} from "@/states/game/gameTheme";
 import {gameInitialData} from "@/states/game/gameInitialData";
 import {gameResult} from "@/states/game/gameResult";
 
+import Pong, { PongComponentsPositions } from "@/models/Pong";
 
 interface GameRenderData {
   lPlayerY: number;
@@ -67,7 +65,7 @@ const Game = (props: GameProps) => {
 
   const socket = props.gameSocket;
 
-  /* useEffects ---------------------------------------------------------------*/
+  /* useEffects ================================================================= */
 
   // 게임 초기화
   useEffect( () => {
@@ -109,10 +107,12 @@ const Game = (props: GameProps) => {
 
   // 소켓 리스너
   useEffect( () => {
+
     if (!socket || !socket.connected) {
       console.log("socket is not connected");
       return;
     }
+
     socket.once('game_started', () => {
       console.log("game_started");
       didGameStarted.current = true;
@@ -148,18 +148,18 @@ const Game = (props: GameProps) => {
 
     return () => {
       socket.removeAllListeners('game_started');
-      socket.removeAllListeners('game_finished');
       socket.removeAllListeners('game_render_data');
+      socket.removeAllListeners('game_finished');
       socket.removeAllListeners('game_saved_data');
       socket.removeAllListeners('game_result');
     }
 
   }, []);
 
-  /* -------------------------------------------------------------------------- */
+  /* ============================================================================ */
 
 
-  /* Event Handlers ----------------------------------------------------------- */
+  /* Event Handlers ============================================================= */
 
   const adjustGameSize = () => {
     const canvas = canvasRef.current;
@@ -174,10 +174,7 @@ const Game = (props: GameProps) => {
   }
 
   const handleKeyPress = (event: React.KeyboardEvent, type: string) => {
-    // TODO: 서버에 키보드 입력 쏴주기
-    // TODO: keyUP과 keyDown을 구분해서 보내기
     if (!socket || !socket.connected) {
-      // 소켓 연결 안되어있으면 에러처리
       return;
     }
     const key = event.key;
@@ -192,9 +189,9 @@ const Game = (props: GameProps) => {
     }
   }
 
-  /* -------------------------------------------------------------------------- */
+  /* ========================================================================== */
 
-  /* Render ------------------------------------------------------------------- */
+  /* Render =================================================================== */
 
   return (
     <div ref={containerRef} className="w-full h-full">
@@ -206,17 +203,6 @@ const Game = (props: GameProps) => {
     </div>
   );
 
-  /* -------------------------------------------------------------------------- */
 };
-
-// const socketUri = (): string => {
-//   const requestUri = import.meta.env.VITE_REQUEST_URL;
-//   // TODO: 소켓 요청하기
-//   // const soketUri = fetch(requestUri) {
-//   //
-//   // }
-//   const socketUri = '';
-//   return socketUri;
-// }
 
 export default Game;

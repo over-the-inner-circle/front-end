@@ -1,13 +1,16 @@
-import Button from "@/atom/Button";
-import GameMatchedUserInfo from "@/atom/GameMatchedUserInfo";
 import { useSetRecoilState, useRecoilValue } from "recoil";
+
 import { currentGameStatus } from "@/states/game/currentGameStatus";
 import { gameResult } from "@/states/game/gameResult";
+
+import Button from "@/atom/Button";
+import GameMatchedUserInfo from "@/atom/GameMatchedUserInfo";
 
 const GameFinished = () => {
   
   const result = useRecoilValue(gameResult);
   const setGameStatus = useSetRecoilState(currentGameStatus);
+
   const toIntro = () => {
     setGameStatus("INTRO");
   }

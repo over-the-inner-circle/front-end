@@ -149,7 +149,6 @@ class Pong {
     this.canvasContext.fillRect(x, y, w, h);
   }
 
-  //TODO: 위치 안맞으면 타원으로 변경 후  캔버스 너비와 높이 변화에 따라서 x,y값 변화하도록.
   protected drawCircle(x: number,
              y: number,
              r: number,
@@ -161,15 +160,6 @@ class Pong {
     this.canvasContext.fill();
   }
 
-  protected drawText(text: string,
-           x: number,
-           y: number,
-           color: string) {
-    this.canvasContext.fillStyle = color;
-    this.canvasContext.font = '75px fantasy';
-    this.canvasContext.fillText(text, x, y);
-  }
-
   protected drawNet() {
     for (let i = 0; i <= this.canvasContext.canvas.height; i += this.relativeYValue(15)) {
       this.drawRect(this.net.xPosition, this.net.yPosition + i, this.net.width, this.net.height, this.net.color);
@@ -177,13 +167,12 @@ class Pong {
   }
 
   public currentPositions(): PongComponentsPositions {
-    return ( {
+    return ({
       p1YPosition: this.p1.yPosition,
       p2YPosition: this.p2.yPosition,
       ballXPosition: this.ball.xPosition,
       ballYPosition: this.ball.yPosition,
-    }
-    );
+    });
   }
 
   public updateCurrentPositions(positions: PongComponentsPositions) {
