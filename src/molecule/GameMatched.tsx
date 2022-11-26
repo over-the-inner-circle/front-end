@@ -53,7 +53,7 @@ const GameMatched = (props: GameMatchedProps) => {
 
     socket.on('difficulty_changed', (changedDifficulty: number) => {
       console.log("difficulty_changed received");
-      console.log(changedDifficulty);
+      console.log("difficulty: " + changedDifficulty);
       setGameDifficulty(changedDifficulty);
     });
 
@@ -73,10 +73,18 @@ const GameMatched = (props: GameMatchedProps) => {
       setGameStatus("PLAYING");
     });
 
+    socket.once('user_exit_room', () => {
+      console.log("user_exit_room received");
+      socket.emit('user_checkout_room');
+      console.log('user_checkout_room emitted');
+      setGameStatus("INTRO");
+    });
+
     return () => {
       socket.removeAllListeners('difficulty_changed');
       socket.removeAllListeners('counterpart_ready');
       socket.removeAllListeners('server_ready_to_start');
+      socket.removeAllListeners('user_exit_room');
       console.log("GameMatched unmounted");
     }
   }, []);
@@ -187,7 +195,7 @@ const GameMatched = (props: GameMatchedProps) => {
                   className="bg-neutral-600 text-hot-pink focus:ring focus: ring-slate-100"> theme3 </Button>
         </div>
         <Button className="bg-green-700 text-xl mt-10"
-        onClick={playerReady}> READY </Button>
+                onClick={playerReady}> READY </Button>
       </div>
     </div>
   );

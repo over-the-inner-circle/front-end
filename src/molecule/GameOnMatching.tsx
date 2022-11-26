@@ -31,7 +31,7 @@ const GameOnMatching = (props: GameOnMatchingProps) => {
 
   useEffect(() => {
     //TODO: 에러처리
-    socket.on('player_matched', (data: string) => {
+    socket.once('player_matched', (data: string) => {
       console.log("player_matched received");
       console.log(data);
 
@@ -39,12 +39,17 @@ const GameOnMatching = (props: GameOnMatchingProps) => {
       console.log('user_join_room emitted');
     });
 
-    socket.on('user_joined_room', (data: MatchInfo) => {
+    socket.once('user_joined_room', (data: MatchInfo) => {
       console.log("user_joined_room received");
       console.log(data);
       setMatchedPlayerInfo(data);
       setGameStatus("MATCHED");
     });
+
+    socket.once('user_exit_room', () => {
+      console.log("user_exit_room received");
+      setGameStatus("INTRO");
+    })
 
     return () => {
       socket.removeAllListeners('player_matched');
