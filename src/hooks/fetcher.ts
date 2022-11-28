@@ -61,6 +61,8 @@ async function refreshAccessToken() {
     }
     throw res;
   } catch {
+    window.localStorage.removeItem('access_token');
+    window.localStorage.removeItem('refresh_token');
     return false;
   } finally {
     isPendingRefreshRequest = false;
