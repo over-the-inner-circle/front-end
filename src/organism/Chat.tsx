@@ -4,6 +4,7 @@ import { fetcher } from '@/hooks/fetcher';
 import SideBarLayout from '@/molecule/SideBarLayout';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import SectionList from '@/molecule/SectionList';
+import CreateChatForm from './CreateChatForm';
 
 export interface Room {
   room_id: string;
@@ -45,6 +46,7 @@ function useJoinedRooms() {
 
 const Chat = () => {
   const [room_id, setRoom_Id] = useState<string | null>(null);
+  const [isOpenForm, setIsOpenForm] = useState(false);
   const { data: allRooms } = useAllRooms();
   const { data: joinedRooms } = useJoinedRooms();
 
@@ -76,7 +78,20 @@ const Chat = () => {
         <ChatingRoom roomId={room_id} setRoom_Id={setRoom_Id} />
       ) : (
         <>
-          <AddChatRoom />
+          <div
+            className="flex h-12 w-full shrink-0 flex-row items-center justify-between
+                       border-b border-neutral-400 bg-neutral-800 px-5"
+          >
+            <button
+              className="flex flex-row items-center justify-start"
+              onClick={() => setIsOpenForm(!isOpenForm)}
+            >
+              <p className="text-lg">Chat</p>
+              <p className="px-1">{isOpenForm ? 'x' : '+'}</p>
+            </button>
+            <button className='text-xs'>All/Joined</button>
+          </div>
+          {isOpenForm ? <CreateChatForm /> : null}
           <SectionList
             sections={section}
             renderItem={(room) => (
@@ -91,70 +106,5 @@ const Chat = () => {
     </SideBarLayout>
   );
 };
-
-function AddChatRoom() {
-  const addChatRoom = useMutation({
-    mutationFn: (event: React.FormEvent<HTMLFormElement>) => {
-      const f = event.target;
-
-      event.preventDefault();
-      return fetcher('/chat/room', {
-        method: 'POST',
-        body: JSON.stringify({
-          room_name: f.room_name.value,
-          room_access: f.room_access.value,
-          room_password: f.room_password.value,
-        }),
-      });
-    },
-  });
-
-  return (
-    <form
-      className="flex h-fit w-full shrink-0 flex-row items-center border-b border-neutral-400 bg-neutral-800"
-      onSubmit={addChatRoom.mutate}
-    >
-      <button className="px-2" type="submit">
-        +
-      </button>
-      <div className="flex w-min flex-col items-center bg-neutral-800">
-        <input
-          className="w-min border-b-4 border-white bg-inherit"
-          name="room_name"
-          type="text"
-          required
-        />
-        <div className="flex flex-row space-y-3 text-xs">
-          <input
-            className="w-min border-b-4 border-white bg-inherit"
-            name="room_access"
-            value="public"
-            type="radio"
-          />
-          <label htmlFor="public">public</label>
-          <input
-            className="w-min border-b-4 border-white bg-inherit"
-            name="room_access"
-            value="protected"
-            type="radio"
-          />
-          <label htmlFor="protected">protected</label>
-          <input
-            className="w-min border-b-4 border-white bg-inherit"
-            name="room_access"
-            value="private"
-            type="radio"
-          />
-          <label htmlFor="private">private</label>
-        </div>
-        <input
-          className="w-min border-b-4 border-white bg-inherit"
-          name="room_password"
-          type="password"
-        />
-      </div>
-    </form>
-  );
-}
 
 export default Chat;
