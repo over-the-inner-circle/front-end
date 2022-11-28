@@ -31,31 +31,40 @@ export async function fetcher(url: string, options: RequestInit = {}) {
   }
 }
 
+let isPendingRefreshRequest = false;
+
 async function refreshAccessToken() {
   const refresh_token = window.localStorage.getItem('refresh_token');
 
-  if (!refresh_token) {
-    return null;
+  if (!refresh_token || isPendingRefreshRequest) {
+    return false;
   }
 
-  const res = await fetch(BASE_API_URL + '/auth/refresh', {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({ refresh_token }),
-  });
+  isPendingRefreshRequest = true;
 
-  if (!res.ok) {
-    return null;
+  try {
+    const res = await fetch(BASE_API_URL + '/auth/refresh', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({ refresh_token }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+
+      window.localStorage.setItem('access_token', data.access_token);
+      window.localStorage.setItem('refresh_token', data.refresh_token);
+
+      return true;
+    }
+    throw res;
+  } catch {
+    return false;
+  } finally {
+    isPendingRefreshRequest = false;
   }
-
-  const data = await res.json();
-
-  window.localStorage.setItem('access_token', data.access_token);
-  window.localStorage.setItem('refresh_token', data.refresh_token);
-
-  return data.refresh_token as string;
 }
 
 function appendAccessToken(options: RequestInit) {
