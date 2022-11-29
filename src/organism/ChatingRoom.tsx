@@ -30,7 +30,7 @@ interface SubscribeData {
 interface Message {
   room_msg_id: number;
   room_id: string;
-  sender: string;
+  sender: UserInfo;
   payload: string;
   created: Date;
 }
@@ -92,7 +92,7 @@ function useChat(roomId: string) {
                 ? prevMsg[prevMsg.length - 1].room_msg_id + 1
                 : 1,
             room_id: roomId,
-            sender: data.sender?.nickname,
+            sender: data.sender,
             payload: data.payload,
             created: new Date(),
           };
@@ -165,7 +165,7 @@ export default function ChatingRoom({ roomInfo, close }: ChatProps) {
             <li
               key={message.room_msg_id}
               className="h-fit w-full break-words p-1 px-5 text-xs"
-            >{`${message.sender}: ${message.payload}`}</li>
+            >{`${message.sender.nickname}: ${message.payload}`}</li>
           ))}
         </ul>
       </div>
