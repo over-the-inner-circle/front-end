@@ -28,8 +28,7 @@ function useAddChatRoom(
       });
     },
     onSuccess: async (data) => {
-      queryClient.invalidateQueries({ queryKey: ['chat/rooms/all'] });
-      queryClient.invalidateQueries({ queryKey: ['chat/rooms/joined'] });
+      queryClient.invalidateQueries({ queryKey: ['chat/rooms'] });
       try {
         const { room_id } = await data.json();
         setRoomInfo({

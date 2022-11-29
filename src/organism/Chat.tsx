@@ -6,28 +6,13 @@ import SideBarLayout from '@/molecule/SideBarLayout';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import SectionList from '@/molecule/SectionList';
 import CreateChatForm from './CreateChatForm';
-import {RoomInfo, roomInfoState} from "@/states/roomInfoState";
+import { RoomInfo, roomInfoState } from '@/states/roomInfoState';
 
-function useAllRooms() {
+function useRoomList(type: 'all' | 'joined') {
   const result = useQuery({
-    queryKey: ['chat/rooms/all'],
+    queryKey: ['chat/rooms', type],
     queryFn: async (): Promise<RoomInfo[]> => {
-      const res = await fetcher('/chat/rooms/all');
-      if (res.ok) {
-        const data = await res.json();
-        return data.rooms;
-      }
-      return [];
-    },
-  });
-  return result;
-}
-
-function useJoinedRooms() {
-  const result = useQuery({
-    queryKey: ['chat/rooms/joined'],
-    queryFn: async (): Promise<RoomInfo[]> => {
-      const res = await fetcher('/chat/rooms/joined');
+      const res = await fetcher(`/chat/rooms/${type}`);
       if (res.ok) {
         const data = await res.json();
         return data.rooms;
@@ -41,8 +26,8 @@ function useJoinedRooms() {
 const Chat = () => {
   const [isOpenForm, setIsOpenForm] = useState(false);
   const [roomInfo, setRoomInfo] = useRecoilState(roomInfoState); //room_id need to be null when user is not in any room
-  const { data: allRooms } = useAllRooms();
-  const { data: joinedRooms } = useJoinedRooms();
+  const { data: allRooms } = useRoomList('all');
+  const { data: joinedRooms } = useRoomList('joined');
 
   const section = [
     {
@@ -83,7 +68,7 @@ const Chat = () => {
               <p className="text-lg">Chat</p>
               <p className="px-1">{isOpenForm ? 'x' : '+'}</p>
             </button>
-            <button className='text-xs'>All/Joined</button>
+            <button className="text-xs">All/Joined</button>
           </div>
           {isOpenForm ? <CreateChatForm /> : null}
           <SectionList
