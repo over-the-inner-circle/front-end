@@ -1,5 +1,4 @@
 import { Friend, useDeleteFriend, useFriends } from '@/hooks/friends';
-import Circle from '@/atom/Circle';
 import Spinner from '@/atom/Spinner';
 import SectionList from '@/molecule/SectionList';
 import { FloatingPortal } from '@floating-ui/react-dom-interactions';
@@ -7,6 +6,7 @@ import { useOptionMenu } from '@/hooks/optionMenu';
 import OptionMenu, { Option } from '@/molecule/OptionMenu';
 import { useSetRecoilState } from 'recoil';
 import { profileUserState } from '@/states/user/profileUser';
+import StatusIndicator from '@/molecule/StatusIndicator';
 
 function FriendsList() {
   const { friends, isLoading, isError } = useFriends();
@@ -60,16 +60,7 @@ function FriendItem({ friend }: FriendItemProps) {
       <div className="flex h-16 min-w-0 flex-col justify-around px-5">
         <p className="truncate text-base">{friend.nickname}</p>
         <div className="flex flex-row items-center space-x-2">
-          <Circle
-            radius={9.5}
-            className={
-              friend.status === 'online'
-                ? 'fill-green-500'
-                : friend.status === 'ingame'
-                ? 'fill-amber-500'
-                : 'fill-neutral-500'
-            }
-          />
+          <StatusIndicator status={friend.status} />
           <p className="min-w-0 truncate text-xs">{friend.status}</p>
         </div>
       </div>
