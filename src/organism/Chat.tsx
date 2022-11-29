@@ -4,6 +4,7 @@ import { fetcher } from '@/hooks/fetcher';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { RoomInfo, roomInfoState } from '@/states/roomInfoState';
 import SideBarLayout from '@/molecule/SideBarLayout';
+import SideBarHeader from '@/molecule/SideBarHeader';
 import SectionList from '@/molecule/SectionList';
 import ChatingRoom from '@/organism/ChatingRoom';
 import CreateChatForm from '@/organism/CreateChatForm';
@@ -82,10 +83,7 @@ function ChattingRoomList() {
 
   return (
     <>
-      <div
-        className="flex h-12 w-full shrink-0 flex-row items-center justify-between
-                       border-b border-neutral-400 bg-neutral-800 px-5"
-      >
+      <SideBarHeader>
         <button
           className="flex flex-row items-center justify-start"
           onClick={() => setIsOpenForm(!isOpenForm)}
@@ -101,7 +99,7 @@ function ChattingRoomList() {
         >
           All/Joined
         </button>
-      </div>
+      </SideBarHeader>
       {isOpenForm ? <CreateChatForm /> : null}
       <SectionList
         sections={section}

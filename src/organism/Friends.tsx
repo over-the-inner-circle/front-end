@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import SideBarLayout from '@/molecule/SideBarLayout';
+import SideBarHeader from '@/molecule/SideBarHeader';
 import FriendsList from './FriendsList'
 import RequestedFriendsList from './RequestedFriendsList';
 import AddFriendForm from './AddFriendForm';
@@ -10,7 +11,7 @@ function Friends() {
 
   return (
     <SideBarLayout>
-      <div className="flex h-12 w-full shrink-0 flex-row items-center justify-between border-b border-neutral-400 bg-neutral-800 px-5">
+      <SideBarHeader>
         <button
           className="flex flex-row items-center justify-start"
           onClick={() => setIsOpenForm(!isOpenForm)}
@@ -21,7 +22,7 @@ function Friends() {
         <button onClick={() => setIsOpenRequest(!isOpenRequest)}>
           {isOpenRequest ? 'x' : '?'}
         </button>
-      </div>
+      </SideBarHeader>
       {isOpenForm ? <AddFriendForm /> : null}
       {isOpenRequest ? <RequestedFriendsList /> : <FriendsList />}
     </SideBarLayout>
