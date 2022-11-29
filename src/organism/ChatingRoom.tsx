@@ -86,7 +86,10 @@ function useChat(roomId: string) {
         ['chat/room/messages', roomId],
         (prevMsg) => {
           const newMessage: Message = {
-            room_msg_id: prevMsg ? prevMsg.length + 1 : 1,
+            room_msg_id:
+              prevMsg && prevMsg.length
+                ? prevMsg[prevMsg.length - 1].room_msg_id + 1
+                : 1,
             room_id: roomId,
             sender: data.sender?.nickname,
             payload: data.payload,
@@ -137,7 +140,10 @@ export default function ChatingRoom({ roomId, setRoom_Id }: ChatProps) {
   const autoScrollRef = useAutoScroll(messages);
 
   const sendMessage = () => {
-    socket.emit('publish', { room: roomId, payload: content });
+    const msg = content.trim();
+    if (msg) {
+      socket.emit('publish', { room: roomId, payload: msg });
+    }
     setContent('');
   };
 
