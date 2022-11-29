@@ -1,6 +1,8 @@
 import { useCurrentUser, useLogOut, UserInfo } from '@/hooks/user';
 import { useOptionMenu } from '@/hooks/optionMenu';
 import OptionMenu, { Option } from '@/molecule/OptionMenu';
+import { useSetRecoilState } from 'recoil';
+import { profileUserState } from '@/states/user/profileUser';
 
 function CurrentUserWidget() {
   const { data, isLoading, isError } = useCurrentUser();
@@ -63,12 +65,13 @@ interface OptionMenuProps {
 
 function UserOptionMenu({ currentUser }: OptionMenuProps) {
   const logOut = useLogOut();
+  const setProfileUser = useSetRecoilState(profileUserState);
 
   const options: Option[] = [
     {
       label: 'My Profile',
       onClick: () => {
-        console.log(currentUser.nickname);
+        setProfileUser(currentUser.nickname);
       },
     },
     {
