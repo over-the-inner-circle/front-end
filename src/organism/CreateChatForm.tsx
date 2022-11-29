@@ -98,7 +98,11 @@ function CreateChatForm() {
           />
         </div>
       ) : null}
-      <Button className="w-full bg-green-600" type="submit">
+      <Button
+        className="w-full bg-green-600"
+        type="submit"
+        disabled={addChatRoom.isLoading}
+      >
         Create Room
       </Button>
     </form>
