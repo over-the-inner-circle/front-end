@@ -1,18 +1,24 @@
-import { fetcher } from "@/hooks/fetcher";
-import { useMutation } from "@tanstack/react-query";
+import Button from '@/atom/Button';
+import { fetcher } from '@/hooks/fetcher';
+import { useMutation } from '@tanstack/react-query';
+import { useState } from 'react';
+
+type ChatAccessType = 'public' | 'protected' | 'private';
 
 function CreateChatForm() {
+  const [name, setName] = useState('');
+  const [accessType, setAccessType] = useState<ChatAccessType>('public');
+  const [password, setPassword] = useState('');
+
   const addChatRoom = useMutation({
     mutationFn: (event: React.FormEvent<HTMLFormElement>) => {
-      const f = event.target;
-
       event.preventDefault();
       return fetcher('/chat/room', {
         method: 'POST',
         body: JSON.stringify({
-          room_name: f.room_name.value,
-          room_access: f.room_access.value,
-          room_password: f.room_password.value,
+          room_name: name,
+          room_access: accessType,
+          room_password: password,
         }),
       });
     },
@@ -20,48 +26,51 @@ function CreateChatForm() {
 
   return (
     <form
-      className="flex h-fit w-full shrink-0 flex-row items-center border-b border-neutral-400 bg-neutral-800"
+      className="flex h-fit w-full shrink-0 flex-col items-center
+                 gap-3 border-b border-neutral-400 bg-neutral-800 p-3"
       onSubmit={addChatRoom.mutate}
+      method="POST"
     >
-      <button className="px-2" type="submit">
-        +
-      </button>
-      <div className="flex w-min flex-col items-center bg-neutral-800">
+      <div className="flex w-full flex-row items-center justify-start">
+        <label htmlFor="room_name">name: </label>
         <input
-          className="w-min border-b-4 border-white bg-inherit"
+          className="w-full border-b-4 border-white bg-inherit"
           name="room_name"
           type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           required
         />
-        <div className="flex flex-row space-y-3 text-xs">
-          <input
-            className="w-min border-b-4 border-white bg-inherit"
-            name="room_access"
-            value="public"
-            type="radio"
-          />
-          <label htmlFor="public">public</label>
-          <input
-            className="w-min border-b-4 border-white bg-inherit"
-            name="room_access"
-            value="protected"
-            type="radio"
-          />
-          <label htmlFor="protected">protected</label>
-          <input
-            className="w-min border-b-4 border-white bg-inherit"
-            name="room_access"
-            value="private"
-            type="radio"
-          />
-          <label htmlFor="private">private</label>
-        </div>
-        <input
-          className="w-min border-b-4 border-white bg-inherit"
-          name="room_password"
-          type="password"
-        />
       </div>
+      <div className="flex w-full flex-row items-center justify-start">
+        <label htmlFor="room_access">type: </label>
+        <select
+          name="room_access"
+          className="w-full bg-neutral-500 p-1"
+          value={accessType}
+          onChange={(e) => setAccessType(e.target.value as ChatAccessType)}
+        >
+          <option value="public">Public</option>
+          <option value="protected">Protected</option>
+          <option value="private">Private</option>
+        </select>
+      </div>
+      {accessType === 'protected' ? (
+        <div className="flex w-full flex-row items-center justify-start">
+          <label htmlFor="room_password">password: </label>
+          <input
+            className="w-full border-b-4 border-white bg-inherit"
+            name="room_password"
+            type="password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+      ) : null}
+      <Button className="w-full bg-green-600" type="submit">
+        Create Room
+      </Button>
     </form>
   );
 }
