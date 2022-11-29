@@ -1,14 +1,19 @@
+import { useState } from 'react';
 import Button from '@/atom/Button';
 import { fetcher } from '@/hooks/fetcher';
-import { useMutation } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSetRecoilState } from 'recoil';
+import { roomInfoState } from '@/states/roomInfoState';
 
 type ChatAccessType = 'public' | 'protected' | 'private';
 
-function CreateChatForm() {
-  const [name, setName] = useState('');
-  const [accessType, setAccessType] = useState<ChatAccessType>('public');
-  const [password, setPassword] = useState('');
+function useAddChatRoom(
+  name: string,
+  accessType: ChatAccessType,
+  password: string,
+) {
+  const queryClient = useQueryClient();
+  const setRoomInfo = useSetRecoilState(roomInfoState);
 
   const addChatRoom = useMutation({
     mutationFn: (event: React.FormEvent<HTMLFormElement>) => {
@@ -22,19 +27,44 @@ function CreateChatForm() {
         }),
       });
     },
+    onSuccess: async (data) => {
+      queryClient.invalidateQueries({ queryKey: ['chat/rooms/all'] });
+      queryClient.invalidateQueries({ queryKey: ['chat/rooms/joined'] });
+      try {
+        const { room_id } = await data.json();
+        setRoomInfo({
+          room_id,
+          room_name: name,
+          room_access: accessType,
+          room_owner_id: 'my id',
+          created: new Date(),
+        });
+      } catch (error) {
+        return error;
+      }
+    },
   });
+
+  return addChatRoom;
+}
+
+function CreateChatForm() {
+  const [name, setName] = useState('');
+  const [accessType, setAccessType] = useState<ChatAccessType>('public');
+  const [password, setPassword] = useState('');
+  const addChatRoom = useAddChatRoom(name, accessType, password);
 
   return (
     <form
-      className="flex h-fit w-full shrink-0 flex-col items-center
-                 gap-3 border-b border-neutral-400 bg-neutral-800 p-3"
+      className="flex h-fit w-full shrink-0 flex-col items-center gap-3
+                 border-b border-neutral-400 bg-neutral-800 p-3 text-sm"
       onSubmit={addChatRoom.mutate}
       method="POST"
     >
       <div className="flex w-full flex-row items-center justify-start">
-        <label htmlFor="room_name">name: </label>
+        <label htmlFor="room_name">name:</label>
         <input
-          className="w-full border-b-4 border-white bg-inherit"
+          className="ml-2 w-full border-b-4 border-white bg-inherit"
           name="room_name"
           type="text"
           value={name}
@@ -43,10 +73,10 @@ function CreateChatForm() {
         />
       </div>
       <div className="flex w-full flex-row items-center justify-start">
-        <label htmlFor="room_access">type: </label>
+        <label htmlFor="room_access">type:</label>
         <select
           name="room_access"
-          className="w-full bg-neutral-500 p-1"
+          className="ml-2 w-full bg-neutral-500 p-1"
           value={accessType}
           onChange={(e) => setAccessType(e.target.value as ChatAccessType)}
         >
@@ -57,9 +87,9 @@ function CreateChatForm() {
       </div>
       {accessType === 'protected' ? (
         <div className="flex w-full flex-row items-center justify-start">
-          <label htmlFor="room_password">password: </label>
+          <label htmlFor="room_password">password:</label>
           <input
-            className="w-full border-b-4 border-white bg-inherit"
+            className="ml-2 w-full border-b-4 border-white bg-inherit"
             name="room_password"
             type="password"
             required
