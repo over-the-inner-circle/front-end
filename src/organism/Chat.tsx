@@ -1,14 +1,16 @@
 import { useState } from 'react';
-import { useRecoilState } from 'recoil';
-import ChatingRoom from '@/organism/ChatingRoom';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import { fetcher } from '@/hooks/fetcher';
-import SideBarLayout from '@/molecule/SideBarLayout';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import SectionList from '@/molecule/SectionList';
-import CreateChatForm from './CreateChatForm';
 import { RoomInfo, roomInfoState } from '@/states/roomInfoState';
+import SideBarLayout from '@/molecule/SideBarLayout';
+import SectionList from '@/molecule/SectionList';
+import ChatingRoom from '@/organism/ChatingRoom';
+import CreateChatForm from '@/organism/CreateChatForm';
 
-function useRoomList(type: 'all' | 'joined') {
+export type RoomListType = 'all' | 'joined';
+
+function useRoomList(type: RoomListType) {
   const result = useQuery({
     queryKey: ['chat/rooms', type],
     queryFn: async (): Promise<RoomInfo[]> => {
@@ -24,21 +26,21 @@ function useRoomList(type: 'all' | 'joined') {
 }
 
 const Chat = () => {
-  const [isOpenForm, setIsOpenForm] = useState(false);
   const [roomInfo, setRoomInfo] = useRecoilState(roomInfoState); //room_id need to be null when user is not in any room
-  const { data: allRooms } = useRoomList('all');
-  const { data: joinedRooms } = useRoomList('joined');
 
-  const section = [
-    {
-      title: 'all',
-      list: allRooms ?? [],
-    },
-    {
-      title: 'joined',
-      list: joinedRooms ?? [],
-    },
-  ];
+  return (
+    <SideBarLayout>
+      {roomInfo ? (
+        <ChatingRoom roomInfo={roomInfo} close={() => setRoomInfo(null)} />
+      ) : (
+        <ChattingRoomList />
+      )}
+    </SideBarLayout>
+  );
+};
+
+function useJoinRoom() {
+  const setRoomInfo = useSetRecoilState(roomInfoState);
   const mutation = useMutation({
     mutationFn: async (room: RoomInfo) => {
       return fetcher(`/chat/room/${room.room_id}/join`, {
@@ -46,44 +48,70 @@ const Chat = () => {
         body: JSON.stringify({ room_password: '' }),
       });
     },
-    onSettled: (_data, _error, variables) => {
-      setRoomInfo(variables ?? null);
+    onSuccess: (data, variables) => {
+      if (data.ok) {
+        setRoomInfo(variables ?? null);
+      }
     },
   });
+  return mutation;
+}
+
+function ChattingRoomList() {
+  const [isOpenForm, setIsOpenForm] = useState(false);
+  const [roomListFilter, setRoomListFilter] = useState<RoomListType>('joined');
+
+  const joinRoom = useJoinRoom();
+  const setRoomInfo = useSetRecoilState(roomInfoState);
+  const handleClick = (room: RoomInfo) => {
+    if (roomListFilter == 'joined') {
+      setRoomInfo(room);
+    } else {
+      joinRoom.mutate(room);
+    }
+  };
+
+  const { data: roomList } = useRoomList(roomListFilter);
+
+  const section = [
+    {
+      title: roomListFilter,
+      list: roomList ?? [],
+    },
+  ];
 
   return (
-    <SideBarLayout>
-      {roomInfo ? (
-        <ChatingRoom roomInfo={roomInfo} close={() => setRoomInfo(null)} />
-      ) : (
-        <>
-          <div
-            className="flex h-12 w-full shrink-0 flex-row items-center justify-between
+    <>
+      <div
+        className="flex h-12 w-full shrink-0 flex-row items-center justify-between
                        border-b border-neutral-400 bg-neutral-800 px-5"
-          >
-            <button
-              className="flex flex-row items-center justify-start"
-              onClick={() => setIsOpenForm(!isOpenForm)}
-            >
-              <p className="text-lg">Chat</p>
-              <p className="px-1">{isOpenForm ? 'x' : '+'}</p>
-            </button>
-            <button className="text-xs">All/Joined</button>
-          </div>
-          {isOpenForm ? <CreateChatForm /> : null}
-          <SectionList
-            sections={section}
-            renderItem={(room) => (
-              <button onClick={() => mutation.mutate(room)}>
-                {room.room_name}
-              </button>
-            )}
-            keyExtractor={(room) => room.room_id}
-          />
-        </>
-      )}
-    </SideBarLayout>
+      >
+        <button
+          className="flex flex-row items-center justify-start"
+          onClick={() => setIsOpenForm(!isOpenForm)}
+        >
+          <p className="text-lg">Chat</p>
+          <p className="px-1">{isOpenForm ? 'x' : '+'}</p>
+        </button>
+        <button
+          className="text-xs"
+          onClick={() =>
+            setRoomListFilter(roomListFilter === 'all' ? 'joined' : 'all')
+          }
+        >
+          All/Joined
+        </button>
+      </div>
+      {isOpenForm ? <CreateChatForm /> : null}
+      <SectionList
+        sections={section}
+        renderItem={(room) => (
+          <button onClick={() => handleClick(room)}>{room.room_name}</button>
+        )}
+        keyExtractor={(room) => room.room_id}
+      />
+    </>
   );
-};
+}
 
 export default Chat;
