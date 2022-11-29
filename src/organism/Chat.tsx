@@ -1,22 +1,16 @@
 import { useState } from 'react';
+import { useRecoilState } from 'recoil';
 import ChatingRoom from '@/organism/ChatingRoom';
 import { fetcher } from '@/hooks/fetcher';
 import SideBarLayout from '@/molecule/SideBarLayout';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import SectionList from '@/molecule/SectionList';
-
-export interface Room {
-  room_id: string;
-  room_name: string;
-  room_owner_id: string;
-  room_access: 'public' | 'protected' | 'private';
-  created: Date;
-}
+import {RoomInfo, roomInfoState} from "@/states/roomInfoState";
 
 function useAllRooms() {
   const result = useQuery({
     queryKey: ['chat/rooms/all'],
-    queryFn: async (): Promise<Room[]> => {
+    queryFn: async (): Promise<RoomInfo[]> => {
       const res = await fetcher('/chat/rooms/all');
       if (res.ok) {
         const data = await res.json();
@@ -31,7 +25,7 @@ function useAllRooms() {
 function useJoinedRooms() {
   const result = useQuery({
     queryKey: ['chat/rooms/joined'],
-    queryFn: async (): Promise<Room[]> => {
+    queryFn: async (): Promise<RoomInfo[]> => {
       const res = await fetcher('/chat/rooms/joined');
       if (res.ok) {
         const data = await res.json();
@@ -44,43 +38,43 @@ function useJoinedRooms() {
 }
 
 const Chat = () => {
-  const [room_id, setRoom_Id] = useState<string | null>(null);
+  const [roomInfo, setRoomInfo] = useRecoilState(roomInfoState); //room_id need to be null when user is not in any room
   const { data: allRooms } = useAllRooms();
   const { data: joinedRooms } = useJoinedRooms();
 
   const section = [
     {
       title: 'all',
-      list: allRooms,
+      list: allRooms ?? [],
     },
     {
       title: 'joined',
-      list: joinedRooms,
+      list: joinedRooms ?? [],
     },
   ];
   const mutation = useMutation({
-    mutationFn: async (id: string) => {
-      return fetcher(`/chat/room/${id}/join`, {
+    mutationFn: async (room: RoomInfo) => {
+      return fetcher(`/chat/room/${room.room_id}/join`, {
         method: 'POST',
         body: JSON.stringify({ room_password: '' }),
       });
     },
     onSettled: (_data, _error, variables) => {
-      setRoom_Id(variables ?? null);
+      setRoomInfo(variables ?? null);
     },
   });
 
   return (
     <SideBarLayout>
-      {room_id ? (
-        <ChatingRoom roomId={room_id} setRoom_Id={setRoom_Id} />
+      {roomInfo ? (
+        <ChatingRoom roomInfo={roomInfo} close={() => setRoomInfo(null)} />
       ) : (
         <>
           <AddChatRoom />
           <SectionList
             sections={section}
             renderItem={(room) => (
-              <button onClick={() => mutation.mutate(room.room_id)}>
+              <button onClick={() => mutation.mutate(room)}>
                 {room.room_name}
               </button>
             )}
