@@ -5,6 +5,7 @@ import Chat from "@/organism/Chat";
 import Friends from "@/organism/Friends";
 import Directmsg from "@/organism/Directmsg";
 import GameContainer from "./GameContainer";
+import UserProfileModal from '@/organism/UserProfileModal';
 
 export type SidebarItem = 'dm' | 'friend' | 'chat';
 
@@ -28,8 +29,7 @@ function Main() {
 				<GameContainer />
 				{sidebarSelector(sideState)}
 			</div>
-
-
+      <UserProfileModal />
 		</div>
   );
 }

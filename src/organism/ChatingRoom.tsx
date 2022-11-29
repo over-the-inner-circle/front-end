@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetcher } from '@/hooks/fetcher';
+import {RoomInfo} from "@/states/roomInfoState";
 
 export interface ChatProps {
-  roomId: string;
-  setRoom_Id: (room_id: string | null) => void;
+  roomInfo: RoomInfo;
+  close(): void;
 }
 
 interface UserInfo {
@@ -86,7 +87,10 @@ function useChat(roomId: string) {
         ['chat/room/messages', roomId],
         (prevMsg) => {
           const newMessage: Message = {
-            room_msg_id: prevMsg ? prevMsg.length + 1 : 1,
+            room_msg_id:
+              prevMsg && prevMsg.length
+                ? prevMsg[prevMsg.length - 1].room_msg_id + 1
+                : 1,
             room_id: roomId,
             sender: data.sender?.nickname,
             payload: data.payload,
@@ -118,7 +122,7 @@ function useChat(roomId: string) {
 }
 
 function useAutoScroll(dependency: unknown) {
-  const autoScrollRef = useRef<HTMLDivElement>(null);
+  const autoScrollRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const scrollElement = autoScrollRef.current;
@@ -131,21 +135,24 @@ function useAutoScroll(dependency: unknown) {
   return autoScrollRef;
 }
 
-export default function ChatingRoom({ roomId, setRoom_Id }: ChatProps) {
+export default function ChatingRoom({ roomInfo, close }: ChatProps) {
   const [content, setContent] = useState('');
-  const { messages, socket } = useChat(roomId);
+  const { messages, socket } = useChat(roomInfo.room_id);
   const autoScrollRef = useAutoScroll(messages);
 
   const sendMessage = () => {
-    socket.emit('publish', { room: roomId, payload: content });
+    const msg = content.trim();
+    if (msg) {
+      socket.emit('publish', { room: roomInfo.room_id, payload: msg });
+    }
     setContent('');
   };
 
   return (
     <>
       <div className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
-        {roomId}
-        <button onClick={() => setRoom_Id(null)} className="px-1">
+        {roomInfo.room_name}
+        <button onClick={close} className="px-1">
           ⬅
         </button>
       </div>

@@ -1,8 +1,9 @@
 import DmIcon from '@/atom/DmIcon';
 import ChatIcon from '@/atom/ChatIcon';
 import FriendIcon from '@/atom/FriendIcon';
-import { SidebarItem } from "@/pages/Main";
+import { SidebarItem } from '@/pages/Main';
 import CurrentUserWidget from '@/molecule/CurrentUserWidget';
+import SearchUserProfileForm from './SearchUserProfileForm';
 
 interface NavProps {
   current: string;
@@ -18,6 +19,7 @@ const Nav = ({ current, onChange }: NavProps) => {
     >
       <CurrentUserWidget />
       <div className="flex items-center gap-2">
+        <SearchUserProfileForm />
         <div className="">
           <button onClick={() => onChange('chat')}>
             <ChatIcon isActive={current === 'chat'} />

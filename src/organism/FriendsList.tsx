@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { Friend, useDeleteFriend, useFriends } from '@/hooks/friends';
 import Circle from '@/atom/Circle';
 import Spinner from '@/atom/Spinner';
@@ -6,6 +5,8 @@ import SectionList from '@/molecule/SectionList';
 import { FloatingPortal } from '@floating-ui/react-dom-interactions';
 import { useOptionMenu } from '@/hooks/optionMenu';
 import OptionMenu, { Option } from '@/molecule/OptionMenu';
+import { useSetRecoilState } from 'recoil';
+import { profileUserState } from '@/states/user/profileUser';
 
 function FriendsList() {
   const { friends, isLoading, isError } = useFriends();
@@ -40,10 +41,14 @@ function FriendItem({ friend }: FriendItemProps) {
     y,
     strategy,
   } = useOptionMenu();
+  const setProfileUser = useSetRecoilState(profileUserState);
 
   return (
     <div className="flex h-full w-full flex-row items-center justify-start px-5 py-4">
-      <Link to={`/user/${friend.nickname}`} className="min-w-fit">
+      <button
+        className="min-w-fit"
+        onClick={() => setProfileUser(friend.nickname)}
+      >
         <img
           src={friend.prof_img}
           alt="profile"
@@ -51,7 +56,7 @@ function FriendItem({ friend }: FriendItemProps) {
           height={65}
           className="rounded-full"
         />
-      </Link>
+      </button>
       <div className="flex h-16 min-w-0 flex-col justify-around px-5">
         <p className="truncate text-base">{friend.nickname}</p>
         <div className="flex flex-row items-center space-x-2">
@@ -132,7 +137,7 @@ function FriendOptionMenu({ friend }: FriendOptionMenuProps) {
     },
   ];
 
-  return <OptionMenu options={options} />
+  return <OptionMenu options={options} />;
 }
 
 export default FriendsList;
