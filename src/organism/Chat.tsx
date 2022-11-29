@@ -1,32 +1,20 @@
 import { useState } from 'react';
-import { useRecoilState } from 'recoil';
-import ChatingRoom from '@/organism/ChatingRoom';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import { fetcher } from '@/hooks/fetcher';
-import SideBarLayout from '@/molecule/SideBarLayout';
 import { useQuery, useMutation } from '@tanstack/react-query';
+import { RoomInfo, roomInfoState } from '@/states/roomInfoState';
+import SideBarLayout from '@/molecule/SideBarLayout';
 import SectionList from '@/molecule/SectionList';
-import {RoomInfo, roomInfoState} from "@/states/roomInfoState";
+import ChatingRoom from '@/organism/ChatingRoom';
+import CreateChatForm from '@/organism/CreateChatForm';
 
-function useAllRooms() {
-  const result = useQuery({
-    queryKey: ['chat/rooms/all'],
-    queryFn: async (): Promise<RoomInfo[]> => {
-      const res = await fetcher('/chat/rooms/all');
-      if (res.ok) {
-        const data = await res.json();
-        return data.rooms;
-      }
-      return [];
-    },
-  });
-  return result;
-}
+export type RoomListType = 'all' | 'joined';
 
-function useJoinedRooms() {
+function useRoomList(type: RoomListType) {
   const result = useQuery({
-    queryKey: ['chat/rooms/joined'],
+    queryKey: ['chat/rooms', type],
     queryFn: async (): Promise<RoomInfo[]> => {
-      const res = await fetcher('/chat/rooms/joined');
+      const res = await fetcher(`/chat/rooms/${type}`);
       if (res.ok) {
         const data = await res.json();
         return data.rooms;
@@ -39,19 +27,20 @@ function useJoinedRooms() {
 
 const Chat = () => {
   const [roomInfo, setRoomInfo] = useRecoilState(roomInfoState); //room_id need to be null when user is not in any room
-  const { data: allRooms } = useAllRooms();
-  const { data: joinedRooms } = useJoinedRooms();
 
-  const section = [
-    {
-      title: 'all',
-      list: allRooms ?? [],
-    },
-    {
-      title: 'joined',
-      list: joinedRooms ?? [],
-    },
-  ];
+  return (
+    <SideBarLayout>
+      {roomInfo ? (
+        <ChatingRoom roomInfo={roomInfo} close={() => setRoomInfo(null)} />
+      ) : (
+        <ChattingRoomList />
+      )}
+    </SideBarLayout>
+  );
+};
+
+function useJoinRoom() {
+  const setRoomInfo = useSetRecoilState(roomInfoState);
   const mutation = useMutation({
     mutationFn: async (room: RoomInfo) => {
       return fetcher(`/chat/room/${room.room_id}/join`, {
@@ -59,95 +48,69 @@ const Chat = () => {
         body: JSON.stringify({ room_password: '' }),
       });
     },
-    onSettled: (_data, _error, variables) => {
-      setRoomInfo(variables ?? null);
+    onSuccess: (data, variables) => {
+      if (data.ok) {
+        setRoomInfo(variables ?? null);
+      }
     },
   });
+  return mutation;
+}
 
-  return (
-    <SideBarLayout>
-      {roomInfo ? (
-        <ChatingRoom roomInfo={roomInfo} close={() => setRoomInfo(null)} />
-      ) : (
-        <>
-          <AddChatRoom />
-          <SectionList
-            sections={section}
-            renderItem={(room) => (
-              <button onClick={() => mutation.mutate(room)}>
-                {room.room_name}
-              </button>
-            )}
-            keyExtractor={(room) => room.room_id}
-          />
-        </>
-      )}
-    </SideBarLayout>
-  );
-};
+function ChattingRoomList() {
+  const [isOpenForm, setIsOpenForm] = useState(false);
+  const [roomListFilter, setRoomListFilter] = useState<RoomListType>('joined');
 
-function AddChatRoom() {
-  const addChatRoom = useMutation({
-    mutationFn: (event: React.FormEvent<HTMLFormElement>) => {
-      const f = event.target;
+  const joinRoom = useJoinRoom();
+  const setRoomInfo = useSetRecoilState(roomInfoState);
+  const handleClick = (room: RoomInfo) => {
+    if (roomListFilter == 'joined') {
+      setRoomInfo(room);
+    } else {
+      joinRoom.mutate(room);
+    }
+  };
 
-      event.preventDefault();
-      return fetcher('/chat/room', {
-        method: 'POST',
-        body: JSON.stringify({
-          room_name: f.room_name.value,
-          room_access: f.room_access.value,
-          room_password: f.room_password.value,
-        }),
-      });
+  const { data: roomList } = useRoomList(roomListFilter);
+
+  const section = [
+    {
+      title: roomListFilter,
+      list: roomList ?? [],
     },
-  });
+  ];
 
   return (
-    <form
-      className="flex h-fit w-full shrink-0 flex-row items-center border-b border-neutral-400 bg-neutral-800"
-      onSubmit={addChatRoom.mutate}
-    >
-      <button className="px-2" type="submit">
-        +
-      </button>
-      <div className="flex w-min flex-col items-center bg-neutral-800">
-        <input
-          className="w-min border-b-4 border-white bg-inherit"
-          name="room_name"
-          type="text"
-          required
-        />
-        <div className="flex flex-row space-y-3 text-xs">
-          <input
-            className="w-min border-b-4 border-white bg-inherit"
-            name="room_access"
-            value="public"
-            type="radio"
-          />
-          <label htmlFor="public">public</label>
-          <input
-            className="w-min border-b-4 border-white bg-inherit"
-            name="room_access"
-            value="protected"
-            type="radio"
-          />
-          <label htmlFor="protected">protected</label>
-          <input
-            className="w-min border-b-4 border-white bg-inherit"
-            name="room_access"
-            value="private"
-            type="radio"
-          />
-          <label htmlFor="private">private</label>
-        </div>
-        <input
-          className="w-min border-b-4 border-white bg-inherit"
-          name="room_password"
-          type="password"
-        />
+    <>
+      <div
+        className="flex h-12 w-full shrink-0 flex-row items-center justify-between
+                       border-b border-neutral-400 bg-neutral-800 px-5"
+      >
+        <button
+          className="flex flex-row items-center justify-start"
+          onClick={() => setIsOpenForm(!isOpenForm)}
+        >
+          <p className="text-lg">Chat</p>
+          <p className="px-1">{isOpenForm ? 'x' : '+'}</p>
+        </button>
+        <button
+          className="text-xs"
+          onClick={() =>
+            setRoomListFilter(roomListFilter === 'all' ? 'joined' : 'all')
+          }
+        >
+          All/Joined
+        </button>
       </div>
-    </form>
+      {isOpenForm ? <CreateChatForm /> : null}
+      <SectionList
+        sections={section}
+        renderItem={(room) => (
+          <button onClick={() => handleClick(room)}>{room.room_name}</button>
+        )}
+        keyExtractor={(room) => room.room_id}
+      />
+    </>
   );
 }
 
