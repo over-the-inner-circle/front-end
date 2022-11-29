@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
-import { io } from 'socket.io-client';
+import { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetcher } from '@/hooks/fetcher';
 import {RoomInfo} from "@/states/roomInfoState";
+import { useAutoScroll, useSocketRef } from '@/hooks/chat';
 
 export interface ChatProps {
   roomInfo: RoomInfo;
@@ -53,27 +53,6 @@ function useChatMessages(roomId: string) {
   return data;
 }
 
-function useSocketRef(url: string) {
-  const access_token = window.localStorage.getItem('access_token');
-  const socketRef = useRef(
-    io(url, {
-      auth: { access_token },
-      autoConnect: false,
-    }),
-  );
-
-  useEffect(() => {
-    const socket = socketRef.current;
-
-    socket.connect();
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
-  return socketRef;
-}
-
 function useChat(roomId: string) {
   const queryClient = useQueryClient();
   const socketRef = useSocketRef(`ws://${import.meta.env.VITE_BASE_URL}:9999`);
@@ -119,20 +98,6 @@ function useChat(roomId: string) {
   }, [roomId, queryClient, socketRef]);
 
   return { messages, socket: socketRef.current };
-}
-
-function useAutoScroll(dependency: unknown) {
-  const autoScrollRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const scrollElement = autoScrollRef.current;
-    if (scrollElement) {
-      // FIX: 맨 아래를 보고 있을 때만 동작하게 하기
-      scrollElement.scrollTop = scrollElement.scrollHeight;
-    }
-  }, [dependency]);
-
-  return autoScrollRef;
 }
 
 export default function ChatingRoom({ roomInfo, close }: ChatProps) {
