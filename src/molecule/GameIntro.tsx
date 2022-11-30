@@ -6,12 +6,12 @@ import Button from "@/atom/Button";
 import {currentGameStatus} from "@/states/game/currentGameStatus";
 
 interface gameIntroProps {
-  gameSocket: Socket;
+  gameSocket: React.MutableRefObject<Socket>;
 }
 
 const GameIntro = ( props: gameIntroProps ) => {
   const setGameStatus = useSetRecoilState(currentGameStatus);
-  const socket = props.gameSocket;
+  const socket = props.gameSocket.current;
 
   useEffect(() => {
     return () => {
@@ -22,10 +22,12 @@ const GameIntro = ( props: gameIntroProps ) => {
 
   const startMatching = () => {
     //TODO: 여러번 눌렸을 때 어떻게 되는지 체크하기
+    console.log(socket.id);
     socket.emit("user_join_queue");
     console.log("user_join_queue emitted");
     socket.once("user_is_in_queue", () => {
       console.log("user_is_in_queue received");
+      console.log(socket.id);
       setGameStatus("ON_MATCHING");
     });
   }

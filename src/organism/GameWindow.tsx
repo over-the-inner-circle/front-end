@@ -3,7 +3,7 @@ import Game from '@/molecule/Game';
 import GamePlayerInfoBar from "@/molecule/GamePlayerInfoBar";
 
 interface GameWindowProps {
-  gameSocket: Socket;
+  gameSocket: React.MutableRefObject<Socket>;
 }
 
 const GameWindow = (props: GameWindowProps) => {

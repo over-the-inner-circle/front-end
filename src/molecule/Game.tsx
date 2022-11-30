@@ -43,7 +43,7 @@ export interface GameResultData {
 }
 
 interface GameProps {
-  gameSocket: Socket;
+  gameSocket: React.MutableRefObject<Socket>;
 }
 
 const Game = (props: GameProps) => {
@@ -63,7 +63,7 @@ const Game = (props: GameProps) => {
 
   const [positions, setPositions] = useState<PongComponentsPositions | null>(null);
 
-  const socket = props.gameSocket;
+  const socket = props.gameSocket.current;
 
   /* useEffects ================================================================= */
 

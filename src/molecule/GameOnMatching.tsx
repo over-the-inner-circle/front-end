@@ -21,17 +21,19 @@ export interface MatchInfo {
 }
 
 interface GameOnMatchingProps {
-  gameSocket: Socket;
+  gameSocket: React.MutableRefObject<Socket>;
 }
 
 const GameOnMatching = (props: GameOnMatchingProps) => {
 
-  const socket = props.gameSocket;
+  const socket = props.gameSocket.current;
   const setGameStatus = useSetRecoilState(currentGameStatus);
   const setMatchedPlayerInfo = useSetRecoilState(matchInfo);
 
   useEffect(() => {
     //TODO: 에러처리
+    console.log("GameOnMatching mounted");
+    console.log(socket.id);
     socket.once('player_matched', (data: string) => {
       console.log("player_matched received");
       console.log(data);
@@ -39,6 +41,7 @@ const GameOnMatching = (props: GameOnMatchingProps) => {
       socket.emit('user_join_room', data);
       console.log('user_join_room emitted');
     });
+    console.log(socket.id);
 
     socket.once('user_joined_room', (data: MatchInfo) => {
       console.log("user_joined_room received");
@@ -46,11 +49,13 @@ const GameOnMatching = (props: GameOnMatchingProps) => {
       setMatchedPlayerInfo(data);
       setGameStatus("MATCHED");
     });
+    console.log(socket.id);
 
     socket.once('user_exit_room', () => {
       console.log("user_exit_room received");
       setGameStatus("INTRO");
     })
+    console.log(socket.id);
 
     return () => {
       socket.removeAllListeners('player_matched');

@@ -24,7 +24,7 @@ export interface GameInitialData {
 }
 
 interface GameMatchedProps {
-  gameSocket: Socket;
+  gameSocket: React.MutableRefObject<Socket>;
 }
 
 const GameMatched = (props: GameMatchedProps) => {
@@ -39,7 +39,7 @@ const GameMatched = (props: GameMatchedProps) => {
   const [isCounterpartReady, setIsCounterpartReady] = useState<boolean>(false);
   const [gameDifficulty, setGameDifficulty ] = useState<number>(2);
 
-  const socket = props.gameSocket;
+  const socket = props.gameSocket.current;
 
   /* useEffects ===============================================================*/
 
