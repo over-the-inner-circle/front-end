@@ -34,10 +34,10 @@ function useFriendsStatusSocket() {
 
     const socket = socketRef.current;
 
-    socket.on('subscribe', handleNoti);
+    socket.on('update', handleNoti);
 
     return () => {
-      socket.off('subscribe', handleNoti);
+      socket.off('update', handleNoti);
     };
   }, [setQueryData, socketRef]);
 }
