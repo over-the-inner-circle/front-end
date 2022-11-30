@@ -13,19 +13,19 @@ import { useSocketRef } from '@/hooks/chat';
 
 function useFriendsStatusSocket() {
   const socketRef = useSocketRef(`ws://${import.meta.env.VITE_BASE_URL}:9994`);
-  const { setQueryData } = useQueryClient();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const handleNoti = (data: {
-      userId: string;
-      status: 'online' | 'offline' | 'ingame';
+      user: string;
+      state: 'online' | 'offline' | 'ingame';
     }) => {
       console.log(data);
-      setQueryData(['friends/all'], (prevFriends?: Friend[]) => {
+      queryClient.setQueryData(['friend/all'], (prevFriends?: Friend[]) => {
         return prevFriends
           ? prevFriends.map((friend) =>
-              friend.user_id === data.userId
-                ? { ...friend, status: data.status }
+              friend.user_id === data.user
+                ? { ...friend, status: data.state }
                 : friend,
             )
           : undefined;
@@ -39,7 +39,7 @@ function useFriendsStatusSocket() {
     return () => {
       socket.off('update', handleNoti);
     };
-  }, [setQueryData, socketRef]);
+  }, [socketRef]);
 }
 
 function FriendsList() {
