@@ -7,9 +7,44 @@ import OptionMenu, { Option } from '@/molecule/OptionMenu';
 import { useSetRecoilState } from 'recoil';
 import { profileUserState } from '@/states/user/profileUser';
 import StatusIndicator from '@/molecule/StatusIndicator';
+import { useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useSocketRef } from '@/hooks/chat';
+
+function useFriendsStatusSocket() {
+  const socketRef = useSocketRef(`ws://${import.meta.env.VITE_BASE_URL}:9994`);
+  const { setQueryData } = useQueryClient();
+
+  useEffect(() => {
+    const handleNoti = (data: {
+      userId: string;
+      status: 'online' | 'offline' | 'ingame';
+    }) => {
+      console.log(data);
+      setQueryData(['friends/all'], (prevFriends?: Friend[]) => {
+        return prevFriends
+          ? prevFriends.map((friend) =>
+              friend.user_id === data.userId
+                ? { ...friend, status: data.status }
+                : friend,
+            )
+          : undefined;
+      });
+    };
+
+    const socket = socketRef.current;
+
+    socket.on('subscribe', handleNoti);
+
+    return () => {
+      socket.off('subscribe', handleNoti);
+    };
+  }, [setQueryData, socketRef]);
+}
 
 function FriendsList() {
   const { friends, isLoading, isError } = useFriends();
+  useFriendsStatusSocket();
 
   if (isLoading) return <Spinner />;
   if (isError) return null;
