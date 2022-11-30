@@ -41,7 +41,7 @@ function useDirectMessages(opponent: string) {
 
 function useDirectMessage(opponent: string) {
   const queryClient = useQueryClient();
-  const socketRef = useSocketRef(`ws://${import.meta.env.VITE_BASE_URL}:9999`);
+  const socketRef = useSocketRef(`ws://${import.meta.env.VITE_BASE_URL}:9992`);
   const { data: messages } = useDirectMessages(opponent);
 
   useEffect(() => {
