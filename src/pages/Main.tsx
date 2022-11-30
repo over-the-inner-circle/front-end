@@ -5,7 +5,7 @@ import Chat from "@/organism/Chat";
 import Friends from "@/organism/Friends";
 import Directmsg from "@/organism/Directmsg";
 import UserProfileModal from '@/organism/UserProfileModal';
-import GameContainer from "../templates/GameContainer";
+import GameContainer from "@/templates/GameContainer";
 
 export type SidebarItem = 'dm' | 'friend' | 'chat';
 
