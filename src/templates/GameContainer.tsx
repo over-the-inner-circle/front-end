@@ -15,45 +15,46 @@ export type GameStatus = 'INTRO' | 'ON_MATCHING' | 'MATCHED' | 'PLAYING' | 'WATC
 const GameContainer = () => {
 
   const [currentStatus, setCurrentStatus] = useRecoilState(currentGameStatus);
-  //const [socket, setSocket] = useRecoilState(gameSocket);
 
-  const serverUrl = import.meta.env.VITE_REQUEST_URL;
   const gameSocketUri = `ws://54.164.253.231:9998`;
   const accessToken = window.localStorage.getItem("access_token");
 
+  const isFirstMount = useRef(true);
   const gameSocketRef = useRef<Socket>(io(gameSocketUri, {
-    auth: { access_token: accessToken }}
-  ));
+    auth: { access_token: accessToken },
+    autoConnect: false,
+    }));
 
   //최초 소켓연결
   useEffect(() => {
-    const socket = gameSocketRef.current;
-
-    socket.on("connect", () => {
+    if (!isFirstMount.current) {
+      return;
+    }
+    gameSocketRef.current.connect();
+    gameSocketRef.current.on("connect", () => {
       console.log("connected");
+      console.log(gameSocketRef.current.id);
     });
 
-    socket.on("disconnect", () => {
+    gameSocketRef.current.on("disconnect", () => {
       console.log("disconnected");
+      console.log(gameSocketRef.current.id);
     });
 
-    socket.on("game_error", (error: any) => {
+    gameSocketRef.current.on("game_error", (error: any) => {
       console.log(error);
     });
-    // gameSocket.onAny((event, ...args) => {
-    //   console.log(event, args);
-    // });
   },[]);
 
   return (
     <div className="flex flex-col h-full w-full bg-neutral-900">
       {
         {
-          "INTRO"       : <GameIntro gameSocket={gameSocketRef.current} />,
-          "ON_MATCHING" : <GameOnMatching gameSocket={gameSocketRef.current}/>,
-          "MATCHED"     : <GameMatched gameSocket={gameSocketRef.current}/>,
-          "PLAYING"     : <GameWindow gameSocket={gameSocketRef.current}/>,
-          "WATCHING"    : <GameWindow gameSocket={gameSocketRef.current}/>,
+          "INTRO"       : <GameIntro gameSocket={gameSocketRef} />,
+          "ON_MATCHING" : <GameOnMatching gameSocket={gameSocketRef}/>,
+          "MATCHED"     : <GameMatched gameSocket={gameSocketRef}/>,
+          "PLAYING"     : <GameWindow gameSocket={gameSocketRef}/>,
+          "WATCHING"    : <GameWindow gameSocket={gameSocketRef}/>,
           "FINISHED"    : <GameFinished />
         }[currentStatus]
       }

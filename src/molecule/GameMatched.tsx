@@ -1,16 +1,17 @@
 import {useSetRecoilState, useRecoilValue} from "recoil";
 import React, {useEffect, useState} from "react";
-
-import {PongTheme, availablePongThemes} from "@/models/Pong";
-
-import GameMatchedUserInfo from "@/atom/GameMatchedUserInfo";
-import Button from "@/atom/Button";
+import {Socket} from "socket.io-client";
 
 import {currentGameStatus} from "@/states/game/currentGameStatus";
 import {matchInfo} from "@/states/game/matchInfo";
 import {gameTheme} from "@/states/game/gameTheme";
 import {gameInitialData} from "@/states/game/gameInitialData";
-import {Socket} from "socket.io-client";
+
+import GameMatchedUserInfo from "@/atom/GameMatchedUserInfo";
+import Button from "@/atom/Button";
+
+import {availablePongThemes} from "@/models/Pong";
+
 
 export interface GameInitialData {
     width: number,
@@ -23,7 +24,7 @@ export interface GameInitialData {
 }
 
 interface GameMatchedProps {
-  gameSocket: Socket;
+  gameSocket: React.MutableRefObject<Socket>;
 }
 
 const GameMatched = (props: GameMatchedProps) => {
@@ -38,9 +39,9 @@ const GameMatched = (props: GameMatchedProps) => {
   const [isCounterpartReady, setIsCounterpartReady] = useState<boolean>(false);
   const [gameDifficulty, setGameDifficulty ] = useState<number>(2);
 
-  const socket = props.gameSocket;
+  const socket = props.gameSocket.current;
 
-  /* use effect ===============================================================*/
+  /* useEffects ===============================================================*/
 
   useEffect(() => {
     // 에러처리
@@ -142,7 +143,47 @@ const GameMatched = (props: GameMatchedProps) => {
     }
   }
 
-  /* render ===================================================================*/
+  /* sub components ========================================================== */
+
+  const DifficultyButtons = () => {
+    return (
+      <div className="flex flex-row gap-8">
+        <Button onClick={(e) => {changeGameDifficulty(e, "EASY")}}
+                className={`bg-green-400
+                           ${gameDifficulty === 1 ? "ring-4 ring-slate-100" : ""}`}
+        >
+          easy
+        </Button>
+        <Button onClick={(e) => {changeGameDifficulty(e, "NORMAL")}}
+                className={`bg-yellow-500
+                           ${gameDifficulty === 2 ? "ring-4 ring-slate-100" : ""}`}>
+          normal
+        </Button>
+        <Button onClick={(e) => {changeGameDifficulty(e, "HARD")} }
+                className={`bg-red-500
+                           ${gameDifficulty === 3 ? "ring-4 ring-slate-100" : ""}`}>
+          hard
+        </Button>
+      </div>
+    )
+  }
+
+  const ThemeButtons = () => {
+    return (
+      <div className="flex flex-row gap-8">
+        <Button onClick={(e) => {changeGameTheme(e, 0)}}
+                className="bg-neutral-600 focus:ring focus: ring-slate-100"> theme1 </Button>
+        <Button onClick={(e) => {changeGameTheme(e, 1)}}
+                className="bg-neutral-600 text-hot-green focus:ring focus: ring-slate-100"> theme2 </Button>
+        <Button onClick={(e) => {changeGameTheme(e, 2)}}
+                className="bg-neutral-600 text-hot-pink focus:ring focus: ring-slate-100"> theme3 </Button>
+      </div>
+    )
+  }
+
+  /* ==========================================================================*/
+
+  /* render ================================================================== */
 
   if (!currentMatchInfo) {
     return null;
@@ -162,40 +203,21 @@ const GameMatched = (props: GameMatchedProps) => {
         />
       </div>
       <div className="flex flex-col items-center">
-        <span className="m-4 mt-10 text-xl">Game settings</span>
-        <span className="m-2">Difficulty</span>
-        <div className="flex flex-row gap-8">
-          <Button onClick={(e) => {changeGameDifficulty(e, "EASY")}}
-                  className={`bg-green-400
-                             ${gameDifficulty === 1 ? "ring-4 ring-slate-100" : ""}
-                  `}
-          >
-            easy
-          </Button>
-          <Button onClick={(e) => {changeGameDifficulty(e, "NORMAL")}}
-                  className={`bg-yellow-500
-                             ${gameDifficulty === 2 ? "ring-4 ring-slate-100" : ""}
-                  `}>
-            normal
-          </Button>
-          <Button onClick={(e) => {changeGameDifficulty(e, "HARD")} }
-                  className={`bg-red-500
-                             ${gameDifficulty === 3 ? "ring-4 ring-slate-100" : ""}
-                  `}>
-            hard
-          </Button>
-        </div>
-        <span className="m-2 mt-6">Theme</span>
-        <div className="flex flex-row gap-8">
-          <Button onClick={(e) => {changeGameTheme(e, 0)}}
-                  className="bg-neutral-600 focus:ring focus: ring-slate-100"> theme1 </Button>
-          <Button onClick={(e) => {changeGameTheme(e, 1)}}
-                  className="bg-neutral-600 text-hot-green focus:ring focus: ring-slate-100"> theme2 </Button>
-          <Button onClick={(e) => {changeGameTheme(e, 2)}}
-                  className="bg-neutral-600 text-hot-pink focus:ring focus: ring-slate-100"> theme3 </Button>
-        </div>
+        <span className="m-4 mt-10 text-xl">
+          Game settings
+        </span>
+        <span className="m-2">
+          Difficulty
+        </span>
+        <DifficultyButtons />
+        <span className="m-2 mt-6">
+          Theme
+        </span>
+        <ThemeButtons />
         <Button className="bg-green-700 text-xl mt-10"
-                onClick={playerReady}> READY </Button>
+                onClick={playerReady}>
+          READY
+        </Button>
       </div>
     </div>
   );
