@@ -57,7 +57,7 @@ const Game = (props: GameProps) => {
   const currentGameTheme = useRecoilValue(gameTheme);
   const initialGameData = useRecoilValue(gameInitialData);
 
-  const setGameScore = useSetRecoilState(currentGameScore);
+  const [gameScore, setGameScore] = useRecoilState(currentGameScore);
   const setGameResult = useSetRecoilState(gameResult);
 
   const [gameStatus, setGameStatus] = useRecoilState(currentGameStatus);
@@ -130,7 +130,9 @@ const Game = (props: GameProps) => {
         ballXPosition: data.ballX,
         ballYPosition: data.bally,
       })
-      setGameScore({ p1Score: data.lPlayerScore, p2Score: data.rPlayerScore });
+      if (data.lPlayerScore !== gameScore.p1Score || data.rPlayerScore !== gameScore.p2Score) {
+        setGameScore({ p1Score: data.lPlayerScore, p2Score: data.rPlayerScore });
+      }
     });
 
     socket.once('game_finished', () => {
