@@ -4,6 +4,7 @@ import { useSetRecoilState } from 'recoil';
 import { useMutation } from '@tanstack/react-query';
 import { fetcher } from '@/hooks/fetcher';
 import { SignUpUserInfo, signUpUserInfoState } from '@/states/user/signUp';
+import { toast } from 'react-toastify';
 
 interface LoginParams {
   provider: string;
@@ -62,7 +63,6 @@ function useLogin() {
     mutate({ provider, code });
   }, [params, mutate]);
 
-  // FIX: error 메시지를 recoil을 통해 이동한 페이지에서 보여주기
   useEffect(() => {
     if (isError) {
       setError('login request failed');
@@ -72,6 +72,7 @@ function useLogin() {
   useEffect(() => {
     if (error) {
       console.log(error);
+      toast.error(<div className="font-pixel text-xs">{error}</div>);
       navigate('/', { replace: true });
     }
   }, [error, navigate]);
