@@ -1,16 +1,20 @@
-import { RoomInfo } from '@/states/roomInfoState';
-import { ToastContentProps } from 'react-toastify';
+import { useSetRecoilState } from 'recoil';
+import { currentSideBarItemState } from '@/states/currentSideBarItemState';
+import type { ToastContentProps } from 'react-toastify';
+import type { RoomInfo } from '@/states/roomInfoState';
 
 export interface NotificationChatData {
   roomInfo: RoomInfo;
 }
 
-function NotificationGame({
+function NotificationChat({
   data,
   closeToast,
 }: ToastContentProps<NotificationChatData>) {
+  const setCurrentSideBarItem = useSetRecoilState(currentSideBarItemState);
+
   const handleClick = () => {
-    // 채팅 화면으로 이동
+    setCurrentSideBarItem('chat');
     if (closeToast) closeToast();
   };
 
@@ -24,4 +28,4 @@ function NotificationGame({
   );
 }
 
-export default NotificationGame;
+export default NotificationChat;

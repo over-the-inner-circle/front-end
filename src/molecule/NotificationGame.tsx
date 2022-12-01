@@ -1,5 +1,5 @@
 import Button from '@/atom/Button';
-import { ToastContentProps } from 'react-toastify';
+import type { ToastContentProps } from 'react-toastify';
 
 export interface NotificationGameData {
   nickname: string;

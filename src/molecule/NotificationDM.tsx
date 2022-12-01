@@ -1,4 +1,6 @@
-import { ToastContentProps } from 'react-toastify';
+import { useSetRecoilState } from 'recoil';
+import { currentSideBarItemState } from '@/states/currentSideBarItemState';
+import type { ToastContentProps } from 'react-toastify';
 
 export interface NotificationDMData {
   sender: string;
@@ -9,8 +11,10 @@ function NotificationDM({
   data,
   closeToast,
 }: ToastContentProps<NotificationDMData>) {
+  const setCurrentSideBarItem = useSetRecoilState(currentSideBarItemState);
+
   const handleClick = () => {
-    // DM 화면으로 이동
+    setCurrentSideBarItem('dm');
     if (closeToast) closeToast();
   };
 
