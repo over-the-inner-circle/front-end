@@ -1,47 +1,54 @@
 import { useEffect } from 'react';
-import { toast } from 'react-toastify';
+import { useQueryClient } from '@tanstack/react-query';
 import { useSocketRef } from '@/hooks/chat';
+import { toast, ToastContentProps } from 'react-toastify';
+import NotificationGame from '@/molecule/NotificationGame';
+import NotificationChat from '@/molecule/NotificationChat';
+import NotificationDM from '@/molecule/NotificationDM';
+import type { NotificationGameData } from '@/molecule/NotificationGame';
+import type { NotificationChatData } from '@/molecule/NotificationChat';
+import type { NotificationDMData } from '@/molecule/NotificationDM';
 
 export function useNotification() {
   const socketRef = useSocketRef(`ws://${import.meta.env.VITE_BASE_URL}:1234`);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const socket = socketRef.current;
 
-    const handleGame = (data: any) => {
-      const toastId = `invite-game-${data.nickname}`;
-      toast.info(
-        <div className="flex justify-between font-pixel text-xs">
-          <p>Play game with {data.nickname}</p>
-          <div className="flex flex-row gap-3">
-            <button
-              className="text-green-500"
-              onClick={() => {
-                console.log('play');
-                toast.dismiss(toastId);
-              }}
-            >
-              O
-            </button>
-            <button
-              className="text-red-500"
-              onClick={() => toast.dismiss(toastId)}
-            >
-              X
-            </button>
-          </div>
-        </div>,
+    const handleGame = (data: NotificationGameData) => {
+      toast(
+        (props: ToastContentProps<NotificationGameData>) => (
+          <NotificationGame {...props} />
+        ),
         {
           autoClose: false,
-          toastId,
+          toastId: `invite-game-${data.nickname}`,
+          data,
         },
       );
     };
-    const handleChat = (data: unknown) => {
-      toast(<div className="font-pixel text-xs">{JSON.stringify(data)}</div>);
+    const handleChat = (data: NotificationChatData) => {
+      queryClient.invalidateQueries({ queryKey: ['friend/joined'] });
+      toast(
+        (props: ToastContentProps<NotificationChatData>) => (
+          <NotificationChat {...props} />
+        ),
+        {
+          data,
+        },
+      );
     };
-    const handleDM = (data: unknown) => {
-      toast(<div className="font-pixel text-xs">{JSON.stringify(data)}</div>);
+    const handleDM = (data: NotificationDMData) => {
+      // 최근 DM목록 업데이트
+      toast(
+        (props: ToastContentProps<NotificationDMData>) => (
+          <NotificationDM {...props} />
+        ),
+        {
+          data,
+        },
+      );
     };
 
     socket.on('notification-game', handleGame);

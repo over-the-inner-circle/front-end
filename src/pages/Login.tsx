@@ -71,8 +71,7 @@ function useLogin() {
 
   useEffect(() => {
     if (error) {
-      console.log(error);
-      toast.error(<div className="font-pixel text-xs">{error}</div>);
+      toast.error(error);
       navigate('/', { replace: true });
     }
   }, [error, navigate]);
