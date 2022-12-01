@@ -9,7 +9,7 @@ import GameMatched from "@/molecule/GameMatched";
 import GameIntro from "@/molecule/GameIntro";
 import GameFinished from '@/molecule/GameFinished';
 
-import {GameSocketManager} from "@/models/gameSocket";
+import {GameSocketManager} from "@/models/GameSocketManager";
 
 export type GameStatus = 'INTRO' | 'ON_MATCHING' | 'MATCHED' | 'PLAYING' | 'WATCHING' | 'FINISHED';
 

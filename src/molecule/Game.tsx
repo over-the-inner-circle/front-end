@@ -8,7 +8,7 @@ import {gameInitialData} from "@/states/game/gameInitialData";
 import {gameResult} from "@/states/game/gameResult";
 
 import Pong, { PongComponentsPositions } from "@/models/Pong";
-import {GameSocketManager} from "@/models/gameSocket";
+import {GameSocketManager} from "@/models/GameSocketManager";
 
 interface GameRenderData {
   lPlayerY: number;

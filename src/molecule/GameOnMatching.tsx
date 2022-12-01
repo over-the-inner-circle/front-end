@@ -5,7 +5,7 @@ import Button from "@/atom/Button";
 
 import {currentGameStatus} from "@/states/game/currentGameStatus";
 import {matchInfo} from "@/states/game/matchInfo";
-import {GameSocketManager} from "@/models/gameSocket";
+import {GameSocketManager} from "@/models/GameSocketManager";
 
 export interface MatchedUserInfo {
   "user_id": string,

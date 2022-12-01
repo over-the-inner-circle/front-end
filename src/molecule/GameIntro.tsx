@@ -3,7 +3,7 @@ import {useEffect} from "react";
 
 import Button from "@/atom/Button";
 import {currentGameStatus} from "@/states/game/currentGameStatus";
-import {GameSocketManager} from "@/models/gameSocket";
+import {GameSocketManager} from "@/models/GameSocketManager";
 
 const GameIntro = () => {
   const setGameStatus = useSetRecoilState(currentGameStatus);

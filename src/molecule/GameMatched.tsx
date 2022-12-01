@@ -10,7 +10,7 @@ import GameMatchedUserInfo from "@/atom/GameMatchedUserInfo";
 import Button from "@/atom/Button";
 
 import {availablePongThemes} from "@/models/Pong";
-import {GameSocketManager} from "@/models/gameSocket";
+import {GameSocketManager} from "@/models/GameSocketManager";
 
 export interface GameInitialData {
     width: number,
