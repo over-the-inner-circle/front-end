@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
+import { useSetRecoilState } from 'recoil';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAutoScroll, useSocketRef } from '@/hooks/chat';
 import { fetcher } from '@/hooks/fetcher';
-import { type Friend } from '@/hooks/friends';
 import StatusIndicator from '@/molecule/StatusIndicator';
+import { dmHistoryState, type DmInfo } from '@/states/dmHistoryState';
+import { type Friend } from '@/hooks/friends';
 
 interface DirectmsgRoomProps {
   opponent: string;
@@ -43,6 +45,7 @@ function useDirectMessage(opponent: string) {
   const queryClient = useQueryClient();
   const socketRef = useSocketRef(`ws://${import.meta.env.VITE_BASE_URL}:9992`);
   const { data: messages } = useDirectMessages(opponent);
+  const setDmHistory = useSetRecoilState(dmHistoryState);
 
   useEffect(() => {
     const socket = socketRef.current;
@@ -58,6 +61,14 @@ function useDirectMessage(opponent: string) {
           };
           return prevMsg ? [...prevMsg, newMessage] : [newMessage];
         },
+      );
+      setDmHistory((currHistory) =>
+        currHistory.map((dmInfo) => {
+          if (dmInfo.opponent.nickname === opponent) {
+            return { ...dmInfo, last_dm: new Date(), last_read: new Date() };
+          }
+          return dmInfo;
+        }),
       );
     };
 
@@ -76,7 +87,7 @@ function useDirectMessage(opponent: string) {
       socket.off('subscribe_self', handleSub);
       socket.off('announcement', handleAnnounce);
     };
-  }, [opponent, queryClient, socketRef]);
+  }, [opponent, queryClient, socketRef, setDmHistory]);
 
   return { messages, socket: socketRef.current };
 }
@@ -99,6 +110,29 @@ function DirectmsgRoom({ opponent, close }: DirectmsgRoomProps) {
   const { data: opponentInfo } = useOpponent(opponent);
   const autoScrollRef = useAutoScroll(messages);
 
+  const setDmHistory = useSetRecoilState(dmHistoryState);
+  useEffect(() => {
+    if (opponentInfo) {
+      setDmHistory((currHistory) => {
+        const newHistory: DmInfo = {
+          opponent: opponentInfo,
+          last_read: new Date(),
+          last_dm: new Date(),
+        };
+        const idx = currHistory.findIndex(
+          (dmInfo) => dmInfo.opponent.user_id === opponentInfo.user_id,
+        );
+        return idx !== -1
+          ? [
+              ...currHistory.slice(0, idx),
+              newHistory,
+              ...currHistory.slice(idx + 1),
+            ]
+          : [...currHistory, newHistory];
+      });
+    }
+  }, [opponentInfo, setDmHistory]);
+
   const sendMessage = () => {
     const msg = content.trim();
     if (msg) {
@@ -111,7 +145,7 @@ function DirectmsgRoom({ opponent, close }: DirectmsgRoomProps) {
     <>
       <div className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
         {opponentInfo ? (
-          <div className="flex flex-row p-2 gap-2">
+          <div className="flex flex-row gap-2 p-2">
             <div className="m-1 flex h-10 w-10 items-center justify-center overflow-hidden rounded-full">
               <img
                 src={opponentInfo.prof_img}
@@ -128,7 +162,7 @@ function DirectmsgRoom({ opponent, close }: DirectmsgRoomProps) {
                 </p>
               </div>
             </div>
-              <button className='px-3'>:</button>
+            <button className="px-3">:</button>
           </div>
         ) : (
           opponent
