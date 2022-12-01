@@ -1,14 +1,16 @@
 import Spacer from "@/atom/Spacer"
 
-import {useRecoilValue} from "recoil";
+import {useRecoilState, useRecoilValue} from "recoil";
 
 import {currentGameScore} from "@/states/game/currentGameScore";
 import {matchInfo} from "@/states/game/matchInfo";
+import {currentGameStatus} from "@/states/game/currentGameStatus";
 
 const GamePlayerInfoBar = () => {
 
 	const gameScore = useRecoilValue(currentGameScore);
 	const playerInfo = useRecoilValue(matchInfo);
+	const [gameStatus, setGameStatus] = useRecoilState(currentGameStatus);
 
 	const lPlayerProfileImg = playerInfo?.lPlayerInfo.prof_img;
 	const rPlayerProfileImg = playerInfo?.rPlayerInfo.prof_img;

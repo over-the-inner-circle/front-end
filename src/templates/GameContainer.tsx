@@ -39,6 +39,7 @@ const GameContainer = () => {
     gameSocketRef.current.on("disconnect", () => {
       console.log("disconnected");
       console.log(gameSocketRef.current.id);
+      setCurrentStatus("INTRO");
     });
 
     gameSocketRef.current.on("game_error", (error: any) => {

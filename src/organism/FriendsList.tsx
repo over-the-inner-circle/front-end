@@ -7,6 +7,7 @@ import OptionMenu, { Option } from '@/molecule/OptionMenu';
 import { useSetRecoilState } from 'recoil';
 import { profileUserState } from '@/states/user/profileUser';
 import StatusIndicator from '@/molecule/StatusIndicator';
+import {currentGameStatus} from "@/states/game/currentGameStatus";
 
 function FriendsList() {
   const { friends, isLoading, isError } = useFriends();
@@ -98,12 +99,21 @@ interface FriendOptionMenuProps {
 
 function FriendOptionMenu({ friend }: FriendOptionMenuProps) {
   const deleteFriend = useDeleteFriend();
+
+  const setGameStatus = useSetRecoilState(currentGameStatus);
+
   const options: Option[] = [
     {
       label: 'Invite Game',
       onClick: () => {
         /**/
       },
+    },
+    {
+      label: 'Watch Game',
+      onClick: () => {
+        setGameStatus("WATCHING");
+      }
     },
     {
       label: 'DM',

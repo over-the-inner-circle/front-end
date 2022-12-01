@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import {Socket} from "socket.io-client";
-import {useSetRecoilState, useRecoilValue } from "recoil";
+import {useSetRecoilState, useRecoilValue, useRecoilState} from "recoil";
 
 import {currentGameScore} from "@/states/game/currentGameScore";
 import {currentGameStatus} from "@/states/game/currentGameStatus";
@@ -57,11 +57,13 @@ const Game = (props: GameProps) => {
   const currentGameTheme = useRecoilValue(gameTheme);
   const initialGameData = useRecoilValue(gameInitialData);
 
-  const setGameScore = useSetRecoilState(currentGameScore);
-  const setGameStatus = useSetRecoilState(currentGameStatus);
+  const [gameScore, setGameScore] = useRecoilState(currentGameScore);
   const setGameResult = useSetRecoilState(gameResult);
 
+  const [gameStatus, setGameStatus] = useRecoilState(currentGameStatus);
+
   const [positions, setPositions] = useState<PongComponentsPositions | null>(null);
+
 
   const socket = props.gameSocket.current;
 
@@ -110,6 +112,8 @@ const Game = (props: GameProps) => {
 
     if (!socket || !socket.connected) {
       console.log("socket is not connected");
+      alert("socket is not connected");
+      setGameStatus("INTRO");
       return;
     }
 
@@ -126,7 +130,9 @@ const Game = (props: GameProps) => {
         ballXPosition: data.ballX,
         ballYPosition: data.bally,
       })
-      setGameScore({ p1Score: data.lPlayerScore, p2Score: data.rPlayerScore });
+      if (data.lPlayerScore !== gameScore.p1Score || data.rPlayerScore !== gameScore.p2Score) {
+        setGameScore({ p1Score: data.lPlayerScore, p2Score: data.rPlayerScore });
+      }
     });
 
     socket.once('game_finished', () => {
@@ -174,7 +180,7 @@ const Game = (props: GameProps) => {
   }
 
   const handleKeyPress = (event: React.KeyboardEvent, type: string) => {
-    if (!socket || !socket.connected) {
+    if (!socket || !socket.connected || gameStatus !== 'PLAYING') {
       return;
     }
     const key = event.key;
