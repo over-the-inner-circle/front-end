@@ -7,7 +7,7 @@ import Friends from '@/organism/Friends';
 import Directmsg from '@/organism/Directmsg';
 import UserProfileModal from '@/organism/UserProfileModal';
 import GameContainer from '../templates/GameContainer';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
 
 export type SidebarItem = 'dm' | 'friend' | 'chat';
@@ -64,12 +64,6 @@ function Main() {
         {sidebarSelector(sideState)}
       </div>
       <UserProfileModal />
-      <ToastContainer
-        position="top-center"
-        theme="dark"
-        closeOnClick={false}
-        closeButton={true}
-      />
     </div>
   );
 }
