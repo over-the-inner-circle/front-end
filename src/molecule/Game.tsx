@@ -78,7 +78,12 @@ const Game = () => {
       pongRef.current = new Pong(context, currentGameTheme, initialGameData);
       setPositions(pongRef.current.currentPositions()); // 포지션 초기화
       setGameScore({ p1Score: 0,  p2Score: 0});
-      socketManager.socket?.emit('client_ready_to_start');
+      if (gameStatus === "PLAYING") {
+        socketManager.socket?.emit('client_ready_to_start');
+      } else if (gameStatus === "WATCHING") {
+        socketManager.socket?.emit('client_ready_to_watch');
+        didGameStarted.current = true;
+      }
     }
   }, []);
 

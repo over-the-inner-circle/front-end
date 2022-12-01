@@ -39,7 +39,7 @@ const GameMatched = () => {
   /* useEffects ===============================================================*/
 
   useEffect(() => {
-    // 에러처리
+    // TODO: 에러처리
     if (!currentMatchInfo) {
       console.error("currentMatchInfo is null");
       setGameStatus("INTRO");
