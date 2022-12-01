@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useSocketRef } from '@/hooks/chat';
+import { useState } from 'react';
+import { useNotification } from '@/hooks/notification';
 
 import Nav from '@/organism/Nav';
 import Chat from '@/organism/Chat';
@@ -7,8 +7,6 @@ import Friends from '@/organism/Friends';
 import Directmsg from '@/organism/Directmsg';
 import UserProfileModal from '@/organism/UserProfileModal';
 import GameContainer from '../templates/GameContainer';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.min.css';
 
 export type SidebarItem = 'dm' | 'friend' | 'chat';
 
@@ -20,36 +18,6 @@ function sidebarSelector(sidebarIndex: SidebarItem) {
   ) : (
     <Chat />
   );
-}
-
-function useNotification() {
-  const socketRef = useSocketRef(`ws://${import.meta.env.VITE_BASE_URL}:1234`);
-
-  useEffect(() => {
-    const socket = socketRef.current;
-
-    const handleGame = (data: unknown) => {
-      toast(<div className="font-pixel text-xs">{JSON.stringify(data)}</div>, {
-        autoClose: false,
-      });
-    };
-    const handleChat = (data: unknown) => {
-      toast(<div className="font-pixel text-xs">{JSON.stringify(data)}</div>);
-    };
-    const handleDM = (data: unknown) => {
-      toast(<div className="font-pixel text-xs">{JSON.stringify(data)}</div>);
-    };
-
-    socket.on('notification-game', handleGame);
-    socket.on('notification-chat', handleChat);
-    socket.on('notification-dm', handleDM);
-
-    return () => {
-      socket.off('notification-game', handleGame);
-      socket.off('notification-chat', handleChat);
-      socket.off('notification-dm', handleDM);
-    };
-  }, [socketRef]);
 }
 
 function Main() {

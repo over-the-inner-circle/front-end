@@ -8,6 +8,8 @@ import Login from '@/pages/Login';
 import SignUp from '@/pages/SignUp';
 import Main from '@/pages/Main';
 
+import 'react-toastify/dist/ReactToastify.min.css';
+
 const queryClient = new QueryClient();
 
 function App() {
