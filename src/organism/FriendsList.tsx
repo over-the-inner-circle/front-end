@@ -102,6 +102,10 @@ function FriendOptionMenu({ friend }: FriendOptionMenuProps) {
 
   const setGameStatus = useSetRecoilState(currentGameStatus);
 
+  const requestWatch = (player: string) => {
+    setGameStatus("WATCHING");
+  }
+
   const options: Option[] = [
     {
       label: 'Invite Game',
@@ -112,7 +116,7 @@ function FriendOptionMenu({ friend }: FriendOptionMenuProps) {
     {
       label: 'Watch Game',
       onClick: () => {
-        setGameStatus("WATCHING");
+        requestWatch(friend.nickname);
       }
     },
     {

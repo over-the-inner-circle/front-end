@@ -1,6 +1,5 @@
 import {useRecoilState} from "recoil";
 import {useEffect, useRef} from "react";
-import {io, Socket} from "socket.io-client";
 
 import {currentGameStatus} from "@/states/game/currentGameStatus";
 
@@ -9,6 +8,8 @@ import GameOnMatching from "@/molecule/GameOnMatching";
 import GameMatched from "@/molecule/GameMatched";
 import GameIntro from "@/molecule/GameIntro";
 import GameFinished from '@/molecule/GameFinished';
+
+import {GameSocketManager} from "@/models/gameSocket";
 
 export type GameStatus = 'INTRO' | 'ON_MATCHING' | 'MATCHED' | 'PLAYING' | 'WATCHING' | 'FINISHED';
 
@@ -20,29 +21,32 @@ const GameContainer = () => {
   const accessToken = window.localStorage.getItem("access_token");
 
   const isFirstMount = useRef(true);
-  const gameSocketRef = useRef<Socket>(io(gameSocketUri, {
-    auth: { access_token: accessToken },
-    autoConnect: false,
-    }));
+  const gameSocketManager = GameSocketManager.getInstance();
 
   //최초 소켓연결
   useEffect(() => {
-    if (!isFirstMount.current) {
-      return;
-    }
-    gameSocketRef.current.connect();
-    gameSocketRef.current.on("connect", () => {
+    if (!isFirstMount.current) { return; }
+    if (!accessToken) { return; }
+
+    // socket should be initiated before using;
+    gameSocketManager.initSocket(gameSocketUri, accessToken);
+    
+    const gameSocket = gameSocketManager.socket;
+    if (!gameSocket) { return; }
+
+    gameSocket.connect();
+    gameSocket.on("connect", () => {
       console.log("connected");
-      console.log(gameSocketRef.current.id);
+      console.log(gameSocket.id);
     });
 
-    gameSocketRef.current.on("disconnect", () => {
+    gameSocket.on("disconnect", () => {
       console.log("disconnected");
-      console.log(gameSocketRef.current.id);
+      console.log(gameSocket.id);
       setCurrentStatus("INTRO");
     });
 
-    gameSocketRef.current.on("game_error", (error: any) => {
+    gameSocket.on("game_error", (error: any) => {
       console.log(error);
     });
   },[]);
@@ -51,11 +55,11 @@ const GameContainer = () => {
     <div className="flex flex-col h-full w-full bg-neutral-900">
       {
         {
-          "INTRO"       : <GameIntro gameSocket={gameSocketRef} />,
-          "ON_MATCHING" : <GameOnMatching gameSocket={gameSocketRef}/>,
-          "MATCHED"     : <GameMatched gameSocket={gameSocketRef}/>,
-          "PLAYING"     : <GameWindow gameSocket={gameSocketRef}/>,
-          "WATCHING"    : <GameWindow gameSocket={gameSocketRef}/>,
+          "INTRO"       : <GameIntro />,
+          "ON_MATCHING" : <GameOnMatching />,
+          "MATCHED"     : <GameMatched />,
+          "PLAYING"     : <GameWindow />,
+          "WATCHING"    : <GameWindow />,
           "FINISHED"    : <GameFinished />
         }[currentStatus]
       }

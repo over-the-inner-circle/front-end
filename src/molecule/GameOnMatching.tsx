@@ -1,11 +1,11 @@
 import {useSetRecoilState, useRecoilValue} from "recoil";
-import React, {useEffect} from "react";
-import {Socket} from "socket.io-client";
+import {useEffect} from "react";
 
 import Button from "@/atom/Button";
 
 import {currentGameStatus} from "@/states/game/currentGameStatus";
 import {matchInfo} from "@/states/game/matchInfo";
+import {GameSocketManager} from "@/models/gameSocket";
 
 export interface MatchedUserInfo {
   "user_id": string,
@@ -20,17 +20,20 @@ export interface MatchInfo {
   "rPlayerInfo": MatchedUserInfo,
 }
 
-interface GameOnMatchingProps {
-  gameSocket: React.MutableRefObject<Socket>;
-}
+const GameOnMatching = () => {
 
-const GameOnMatching = (props: GameOnMatchingProps) => {
-
-  const socket = props.gameSocket.current;
+  const socketManager = GameSocketManager.getInstance();
   const setGameStatus = useSetRecoilState(currentGameStatus);
   const setMatchedPlayerInfo = useSetRecoilState(matchInfo);
 
   useEffect(() => {
+
+    const socket = socketManager.socket;
+    if (!socket) {
+      console.log("socket is null");
+      return;
+    }
+
     //TODO: 에러처리
     console.log("GameOnMatching mounted");
     socket.once('player_matched', (data: string) => {
@@ -63,7 +66,7 @@ const GameOnMatching = (props: GameOnMatchingProps) => {
   }, []);
 
   const cancelMatching = () => {
-    socket.emit("user_left_queue");
+    socketManager.socket?.emit("user_left_queue");
     console.log("user_left_queue emitted");
     setGameStatus("INTRO");
   }

@@ -1,10 +1,12 @@
-import Spacer from "@/atom/Spacer"
-
 import {useRecoilState, useRecoilValue} from "recoil";
 
 import {currentGameScore} from "@/states/game/currentGameScore";
 import {matchInfo} from "@/states/game/matchInfo";
 import {currentGameStatus} from "@/states/game/currentGameStatus";
+
+import Button from "@/atom/Button";
+import Spacer from "@/atom/Spacer"
+
 
 const GamePlayerInfoBar = () => {
 
@@ -61,21 +63,42 @@ const GamePlayerInfoBar = () => {
 		)
 	}
 
+	const LeaveWatchingButton = () => {
+		if (gameStatus === "WATCHING") {
+			return (
+				<div className="flex flex-row bg-neutral-800">
+					<Spacer />
+					<Button className="bg-red-400 text-xs m-2"
+									onClick={() => {
+										setGameStatus("INTRO");
+									}}
+					>
+						LEAVE
+					</Button>
+					<Spacer />
+				</div>
+			)
+		} else {
+			return null
+		}
+	}
+
   /* ========================================================================== */
 
 	/* render =================================================================== */
 
 	return (
-		<>
-		<div className="flex flex-row bg-neutral-800 font-pixel text-white">
-			<LeftPlayerInfo />
-			<Spacer />
-			<ScoreBoard />
-			<Spacer />
-			<RightPlayerInfo />
+		<div className="flex flex-col">
+			<div className="flex flex-row bg-neutral-800 font-pixel text-white">
+				<LeftPlayerInfo />
+				<Spacer />
+				<ScoreBoard />
+				<Spacer />
+				<RightPlayerInfo />
+			</div>
+			<LeaveWatchingButton />
+			<div className="bg-white w-full h-4"></div>
 		</div>
-		<div className="bg-white w-full h-4"></div>
-		</>
 	)
 }
 
