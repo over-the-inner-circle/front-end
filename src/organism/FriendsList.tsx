@@ -11,6 +11,8 @@ import {currentGameStatus} from "@/states/game/currentGameStatus";
 import {GameSocketManager} from "@/models/GameSocketManager";
 import {GameInitialData} from "@/molecule/GameMatched";
 import {gameInitialData} from "@/states/game/gameInitialData";
+import {matchInfo} from "@/states/game/matchInfo";
+import {useRequestWatchGame} from "@/hooks/game";
 
 function FriendsList() {
   const { friends, isLoading, isError } = useFriends();
@@ -102,24 +104,7 @@ interface FriendOptionMenuProps {
 
 function FriendOptionMenu({ friend }: FriendOptionMenuProps) {
   const deleteFriend = useDeleteFriend();
-
-  const setGameStatus = useSetRecoilState(currentGameStatus);
-  const setGameInitialData = useSetRecoilState(gameInitialData);
-
-  const requestWatch = (player: string) => {
-    const socket = GameSocketManager.getInstance().socket;
-    if (!socket) {return}
-    console.log(typeof player);
-    socket.emit('watch_game', player);
-    socket.once("watch_game_ready_to_start", (data: GameInitialData) => {
-      if (data) {
-        setGameInitialData(data);
-        setGameStatus("WATCHING");
-      } else {
-        console.log("watch_game_ready_to_start: data is null");
-      }
-    })
-  }
+  const requestWatchGame = useRequestWatchGame();
 
   const options: Option[] = [
     {
@@ -131,8 +116,7 @@ function FriendOptionMenu({ friend }: FriendOptionMenuProps) {
     {
       label: 'Watch Game',
       onClick: () => {
-        console.log(friend.nickname)
-        requestWatch(friend.nickname);
+        requestWatchGame(friend.nickname)
       }
     },
     {
