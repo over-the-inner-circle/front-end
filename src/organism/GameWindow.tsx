@@ -5,22 +5,27 @@ import GamePlayerInfoBar from "@/molecule/GamePlayerInfoBar";
 import Spacer from "@/atom/Spacer";
 import Button from "@/atom/Button";
 import {currentGameStatus} from "@/states/game/currentGameStatus";
+import {GameSocketManager} from "@/models/GameSocketManager";
 
 
 const GameWindow = () => {
 
   const [gameStatus, setGameStatus] = useRecoilState(currentGameStatus);
 
+  const leaveWatch = () => {
+    const socket = GameSocketManager.getInstance().socket;
+    if (!socket) return;
+    socket.emit('leave_watching_game');
+    setGameStatus("INTRO");
+  }
+
   const LeaveWatchingButton = () => {
     if (gameStatus === "WATCHING") {
       return (
-        <div className="flex flex-row bg-neutral-800">
+        <div className="flex flex-row bg-neutral-900">
           <Spacer />
           <Button className="bg-red-400 text-xs m-2"
-                  onClick={() => {
-                    setGameStatus("INTRO");
-                  }}
-          >
+                  onClick={leaveWatch}>
             LEAVE
           </Button>
           <Spacer />
