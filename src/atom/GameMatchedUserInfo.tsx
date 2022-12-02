@@ -11,7 +11,7 @@ export interface MatchedUserInfoProps {
 const GameMatchedUserInfo = (info: MatchedUserInfoProps) =>
 {
   return (
-    <div className={`flex flex-col items-center ${info.className}`}>
+    <div className={`flex flex-col items-center shrink-0 ${info.className} `}>
       <img className={`w-36 h-36 object-fit rounded-full mb-4 border-solid border-8 ${info.borderColor}`}
            src={info.imgUri ? info.imgUri : "src/assets/default_profile_image.png"}
            alt={"user profile"}

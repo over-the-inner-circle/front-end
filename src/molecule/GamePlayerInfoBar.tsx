@@ -1,10 +1,12 @@
-import Spacer from "@/atom/Spacer"
-
 import {useRecoilState, useRecoilValue} from "recoil";
 
 import {currentGameScore} from "@/states/game/currentGameScore";
 import {matchInfo} from "@/states/game/matchInfo";
 import {currentGameStatus} from "@/states/game/currentGameStatus";
+
+import Button from "@/atom/Button";
+import Spacer from "@/atom/Spacer"
+
 
 const GamePlayerInfoBar = () => {
 
@@ -23,7 +25,7 @@ const GamePlayerInfoBar = () => {
 		}
 		return (
 			<div className="flex my-6 ml-6">
-				<img className={`shrink-0 w-14 h-14 rounded-full`}
+				<img className={`shrink-0 w-14 h-14 rounded-full shrink-0`}
 						 src={lPlayerProfileImg ? lPlayerProfileImg : "src/assets/default_profile_image.png"}
 						 alt={"user profile"}
 				/>
@@ -45,7 +47,7 @@ const GamePlayerInfoBar = () => {
 					<span>{playerInfo.rPlayerInfo.nickname}</span>
 					<span>{playerInfo.rPlayerInfo.mmr}</span>
 				</div>
-				<img className={`shrink-0 w-14 h-14 rounded-full`}
+				<img className={`shrink-0 w-14 h-14 rounded-full shrink-0`}
 						 src={rPlayerProfileImg ? rPlayerProfileImg : "src/assets/default_profile_image.png"}
 						 alt={"user profile"}
 				/>
@@ -66,16 +68,16 @@ const GamePlayerInfoBar = () => {
 	/* render =================================================================== */
 
 	return (
-		<>
-		<div className="flex flex-row bg-neutral-800 font-pixel text-white">
-			<LeftPlayerInfo />
-			<Spacer />
-			<ScoreBoard />
-			<Spacer />
-			<RightPlayerInfo />
+		<div className="flex flex-col">
+			<div className="flex flex-row bg-neutral-800 font-pixel text-white">
+				<LeftPlayerInfo />
+				<Spacer />
+				<ScoreBoard />
+				<Spacer />
+				<RightPlayerInfo />
+			</div>
+			<div className="bg-white w-full h-4"></div>
 		</div>
-		<div className="bg-white w-full h-4"></div>
-		</>
 	)
 }
 

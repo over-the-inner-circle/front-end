@@ -8,6 +8,11 @@ import { useSetRecoilState } from 'recoil';
 import { profileUserState } from '@/states/user/profileUser';
 import StatusIndicator from '@/molecule/StatusIndicator';
 import {currentGameStatus} from "@/states/game/currentGameStatus";
+import {GameSocketManager} from "@/models/GameSocketManager";
+import {GameInitialData} from "@/molecule/GameMatched";
+import {gameInitialData} from "@/states/game/gameInitialData";
+import {matchInfo} from "@/states/game/matchInfo";
+import {useRequestWatchGame} from "@/hooks/game";
 
 function FriendsList() {
   const { friends, isLoading, isError } = useFriends();
@@ -99,8 +104,7 @@ interface FriendOptionMenuProps {
 
 function FriendOptionMenu({ friend }: FriendOptionMenuProps) {
   const deleteFriend = useDeleteFriend();
-
-  const setGameStatus = useSetRecoilState(currentGameStatus);
+  const requestWatchGame = useRequestWatchGame();
 
   const options: Option[] = [
     {
@@ -112,7 +116,7 @@ function FriendOptionMenu({ friend }: FriendOptionMenuProps) {
     {
       label: 'Watch Game',
       onClick: () => {
-        setGameStatus("WATCHING");
+        requestWatchGame(friend.nickname)
       }
     },
     {
