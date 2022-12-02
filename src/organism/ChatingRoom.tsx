@@ -4,10 +4,32 @@ import { fetcher } from '@/hooks/fetcher';
 import {RoomInfo} from "@/states/roomInfoState";
 import { useAutoScroll, useSocketRef } from '@/hooks/chat';
 
+export type ChattingSideBarState = 'chatting' | 'configChattingRoom';
+
 export interface ChatProps {
+  sidebarState: ChattingSideBarState;
   roomInfo: RoomInfo;
   close(): void;
 }
+
+const ChattingSideBarSelector = ( { sidebarState, roomInfo, close }: ChatProps) => {
+  // switch (sidebarState) {
+  //   case 'chatting':
+      return <ChattingSideBar sidebarState= {sidebarState} roomInfo={roomInfo} close={close} />;
+    // case 'configChattingRoom':
+    //   return <ConfigChattingRoomSideBar />;
+  // }
+}
+
+export default function ChatingRoom({ roomInfo, close }: ChatProps) {
+  const [sidebarState, setSidebarState] = useState<ChattingSideBarState>(
+    'chatting');
+  return (
+    <ChattingSideBarSelector sidebarState={sidebarState} roomInfo={roomInfo} close={close} />
+);
+}
+
+
 
 interface UserInfo {
   user_id: string;
@@ -100,7 +122,20 @@ function useChat(roomId: string) {
   return { messages, socket: socketRef.current };
 }
 
-export default function ChatingRoom({ roomInfo, close }: ChatProps) {
+/*
+  config function that ChatingRoom component use
+ */
+function ConfigChattingRoomSideBar(roomInfo: RoomInfo) {
+
+
+  return {
+  <div>
+
+  </div>
+  };
+}
+
+function ChattingSideBar({sidebarState, roomInfo, close }: ChatProps) {
   const [content, setContent] = useState('');
   const { messages, socket } = useChat(roomInfo.room_id);
   const autoScrollRef = useAutoScroll(messages);
@@ -158,3 +193,6 @@ export default function ChatingRoom({ roomInfo, close }: ChatProps) {
     </>
   );
 }
+
+
+
