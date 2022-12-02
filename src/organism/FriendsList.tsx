@@ -7,12 +7,7 @@ import OptionMenu, { Option } from '@/molecule/OptionMenu';
 import { useSetRecoilState } from 'recoil';
 import { profileUserState } from '@/states/user/profileUser';
 import StatusIndicator from '@/molecule/StatusIndicator';
-import {currentGameStatus} from "@/states/game/currentGameStatus";
-import {GameSocketManager} from "@/models/GameSocketManager";
-import {GameInitialData} from "@/molecule/GameMatched";
-import {gameInitialData} from "@/states/game/gameInitialData";
-import {matchInfo} from "@/states/game/matchInfo";
-import {useRequestWatchGame} from "@/hooks/game";
+import {useRequestNormalGame, useRequestWatchGame} from "@/hooks/game";
 
 function FriendsList() {
   const { friends, isLoading, isError } = useFriends();
@@ -105,12 +100,13 @@ interface FriendOptionMenuProps {
 function FriendOptionMenu({ friend }: FriendOptionMenuProps) {
   const deleteFriend = useDeleteFriend();
   const requestWatchGame = useRequestWatchGame();
+  const requestNormalGame = useRequestNormalGame();
 
   const options: Option[] = [
     {
       label: 'Invite Game',
       onClick: () => {
-        /**/
+        requestNormalGame(friend.nickname);
       },
     },
     {
