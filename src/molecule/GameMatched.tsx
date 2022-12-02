@@ -1,6 +1,5 @@
 import {useSetRecoilState, useRecoilValue} from "recoil";
 import React, {useEffect, useState} from "react";
-import {Socket} from "socket.io-client";
 
 import {currentGameStatus} from "@/states/game/currentGameStatus";
 import {matchInfo} from "@/states/game/matchInfo";
@@ -11,7 +10,7 @@ import GameMatchedUserInfo from "@/atom/GameMatchedUserInfo";
 import Button from "@/atom/Button";
 
 import {availablePongThemes} from "@/models/Pong";
-
+import {GameSocketManager} from "@/models/GameSocketManager";
 
 export interface GameInitialData {
     width: number,
@@ -23,11 +22,7 @@ export interface GameInitialData {
     rPlayerX: number,
 }
 
-interface GameMatchedProps {
-  gameSocket: React.MutableRefObject<Socket>;
-}
-
-const GameMatched = (props: GameMatchedProps) => {
+const GameMatched = () => {
 
   const setGameStatus = useSetRecoilState(currentGameStatus);
   const setPongTheme = useSetRecoilState(gameTheme);
@@ -39,18 +34,23 @@ const GameMatched = (props: GameMatchedProps) => {
   const [isCounterpartReady, setIsCounterpartReady] = useState<boolean>(false);
   const [gameDifficulty, setGameDifficulty ] = useState<number>(2);
 
-  const socket = props.gameSocket.current;
+  const socketManager = GameSocketManager.getInstance();
 
   /* useEffects ===============================================================*/
 
   useEffect(() => {
-    // 에러처리
-    if (!currentMatchInfo || !socket) {
-      console.error("currentMatchInfo or socket is null");
+    // TODO: 에러처리
+    if (!currentMatchInfo) {
+      console.error("currentMatchInfo is null");
       setGameStatus("INTRO");
     }
 
-    console.log(currentMatchInfo);
+    const socket = socketManager.socket;
+    if (!socket) {
+      console.log("socket is null");
+      setGameStatus("INTRO");
+      return;
+    }
 
     socket.on('difficulty_changed', (changedDifficulty: number) => {
       console.log("difficulty_changed received");
@@ -96,11 +96,13 @@ const GameMatched = (props: GameMatchedProps) => {
 
   const playerReady = () => {
     setIsPlayerReady(true);
-    socket.emit('player_ready');
+    socketManager.socket?.emit('player_ready');
   }
 
   const changeGameDifficulty = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
                                 difficulty: string) => {
+    const socket = socketManager.socket;
+    if (!socket) { return; }
     switch (difficulty) {
       case "EASY":
         socket.emit("player_change_difficulty", 1);
@@ -128,7 +130,7 @@ const GameMatched = (props: GameMatchedProps) => {
   // room owner === lPlayer
 
   const lPlayerBorderColor = (): string => {
-    if (currentMatchInfo?.owner === socket.id) {
+    if (currentMatchInfo?.owner === socketManager.socket?.id) {
       return isPlayerReady ? "border-green-600" : "border-neutral-600";
     } else {
       return isCounterpartReady ? "border-green-600" : "border-neutral-600";
@@ -136,7 +138,7 @@ const GameMatched = (props: GameMatchedProps) => {
   }
 
   const rPlayerBorderColor = (): string => {
-    if (currentMatchInfo?.owner !== socket.id) {
+    if (currentMatchInfo?.owner !== socketManager.socket?.id) {
       return isPlayerReady ? "border-green-600" : "border-neutral-600";
     } else {
       return isCounterpartReady ? "border-green-600" : "border-neutral-600";
