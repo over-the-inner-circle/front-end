@@ -3,7 +3,7 @@ import type { ToastContentProps } from 'react-toastify';
 
 export interface NotificationGameData {
   nickname: string;
-  gameId: string;
+  game_id: string;
 }
 
 function NotificationGame({
@@ -19,7 +19,7 @@ function NotificationGame({
       <Button
         className="break-keep bg-green-500 text-xs"
         onClick={() => {
-          console.log(data?.gameId);
+          console.log(data?.game_id);
           if (closeToast) closeToast();
         }}
       >
