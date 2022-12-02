@@ -1,4 +1,4 @@
-import React, {useCallback, useRef, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import {useRecoilState, useSetRecoilState} from "recoil";
 import {
   FloatingFocusManager,
@@ -10,6 +10,27 @@ import {
 
 import isEditAccountModalOpenState from "@/states/user/isEditAccountModalOpen";
 import Button from "@/atom/Button";
+import {useCurrentUser} from "@/hooks/user";
+
+// interface UserInfo {
+//   "user_id": string,
+//   "nickname": string,
+//   "provider": string,
+//   "third_party_id": string,
+//   "prof_img": string,
+//   "mmr": number,
+//   "two_factor_authentication_type": string,
+//   "two_factor_authentication_key": string,
+//   "created": string,
+//   "deleted": string
+// }
+
+interface UserInfo {
+  nickname: string;
+  prof_img: string;
+  two_factor_authentication_type: string;
+  two_factor_authentication_key: string;
+}
 
 interface ImageInfo {
   file: File;
@@ -23,9 +44,17 @@ const EditAccountForm = () => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const [imageInfo, setImageInfo] = useState<ImageInfo | null>(null);
-  const [userInfo, setUserInfo] = useState();
   const [nickname, setNickname] = useState("");
   const [is2faOn, setIs2faOn] = useState(false);
+  const currentUser = useCurrentUser().data;
+
+  useEffect(() => {
+    setNickname(currentUser?.nickname || "");
+    if (currentUser?.two_factor_authentication_key) {
+      setIs2faOn(true);
+    }
+
+  }, [currentUser]);
 
   const onUploadImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files;
@@ -58,14 +87,13 @@ const EditAccountForm = () => {
 
   const currentProfileImageUrl = () => {
     const DEFAULT_PROFILE_IMAGE_URL = '/src/assets/default_profile_image.png';
-    // if (imageInfo) {
-    //   return imageInfo.url;
-    // } else if (signUpUserInfo?.prof_img) {
-    //   return signUpUserInfo.prof_img;
-    // } else {
-    //   return DEFAULT_PROFILE_IMAGE_URL;
-    // }
-    return DEFAULT_PROFILE_IMAGE_URL;
+    if (imageInfo) {
+      return imageInfo.url;
+    } else if (currentUser?.prof_img) {
+      return currentUser.prof_img;
+    } else {
+      return DEFAULT_PROFILE_IMAGE_URL;
+    }
   }
 
   const saveAccountInfo = () => {
