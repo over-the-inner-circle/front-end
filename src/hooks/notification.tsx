@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { useQueryClient } from '@tanstack/react-query';
 import { useSocketRef } from '@/hooks/chat';
 import { toast, ToastContentProps } from 'react-toastify';
@@ -10,6 +10,7 @@ import NotificationDM from '@/molecule/NotificationDM';
 import type { NotificationGameData } from '@/molecule/NotificationGame';
 import type { NotificationChatData } from '@/molecule/NotificationChat';
 import type { NotificationDMData } from '@/molecule/NotificationDM';
+import { currentDMOpponentState } from '@/states/currentDMOpponent';
 
 interface NotificationResponse<T extends object> {
   type: string;
@@ -20,6 +21,7 @@ export function useNotification() {
   const socketRef = useSocketRef(`ws://${import.meta.env.VITE_BASE_URL}:1234`);
   const queryClient = useQueryClient();
   const setDmHistory = useSetRecoilState(dmHistoryState);
+  const currentOpponent = useRecoilValue(currentDMOpponentState);
 
   useEffect(() => {
     const socket = socketRef.current;
@@ -60,14 +62,17 @@ export function useNotification() {
           ? currHistory
           : [...currHistory, { opponent: data.sender, last_dm: new Date() }],
       );
-      toast(
-        (props: ToastContentProps<NotificationDMData>) => (
-          <NotificationDM {...props} />
-        ),
-        {
-          data,
-        },
-      );
+
+      if (currentOpponent !== data.sender.nickname) {
+        toast(
+          (props: ToastContentProps<NotificationDMData>) => (
+            <NotificationDM {...props} />
+          ),
+          {
+            data,
+          },
+        );
+      }
     };
 
     socket.on('notification-game', handleGame);
@@ -79,5 +84,5 @@ export function useNotification() {
       socket.off('notification-chat', handleChat);
       socket.off('notification-dm', handleDM);
     };
-  }, [socketRef, setDmHistory]);
+  }, [socketRef, setDmHistory, currentOpponent]);
 }
