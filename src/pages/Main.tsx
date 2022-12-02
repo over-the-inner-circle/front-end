@@ -6,6 +6,7 @@ import Friends from "@/organism/Friends";
 import Directmsg from "@/organism/Directmsg";
 import UserProfileModal from '@/organism/UserProfileModal';
 import GameContainer from "@/templates/GameContainer";
+import EditAccountInfoModal from "@/organism/EditAccountInfoModal";
 
 export type SidebarItem = 'dm' | 'friend' | 'chat';
 
@@ -30,6 +31,7 @@ function Main() {
 				{sidebarSelector(sideState)}
 			</div>
       <UserProfileModal />
+			<EditAccountInfoModal />
 		</div>
   );
 }
