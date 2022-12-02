@@ -5,20 +5,14 @@ import { signUpUserInfoState } from '@/states/user/signUp';
 import Button from '@/atom/Button';
 import {getOAuthUrl, providers} from "@/pages/Intro";
 
-interface ImageInfo {
-  file: File;
-  url: string;
-  type: string;
-}
+
 
 const SignUp = () => {
 
   const REQUEST_URL = import.meta.env.VITE_REQUEST_URL;
-  const DEFAULT_PROFILE_IMAGE_URL = '/src/assets/default_profile_image.png';
 
   const [is2faOn, setIs2faOn] = useState(false);
   const [nickname, setNickname] = useState("");
-  const [imageInfo, setImageInfo] = useState<ImageInfo | null>(null);
 
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -29,37 +23,6 @@ const SignUp = () => {
       navigate('/');
     }
   }, [signUpUserInfo, navigate]);
-
-  const onUploadImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const fileList = e.target.files;
-
-    if (fileList && fileList[0]) {
-      const fileUrl = URL.createObjectURL(fileList[0]);
-      setImageInfo({
-        file: fileList[0],
-        url: fileUrl,
-        type: fileList[0].type
-      })
-    }
-    console.log(imageInfo);
-  }
-
-  const onUploadImageButtonClick = useCallback(() => {
-    if (!inputRef.current) {
-      return;
-    }
-    inputRef.current.click();
-  }, []);
-
-  const currentProfileImageUrl = () => {
-    if (imageInfo) {
-      return imageInfo.url;
-    } else if (signUpUserInfo?.prof_img) {
-      return signUpUserInfo.prof_img;
-    } else {
-      return DEFAULT_PROFILE_IMAGE_URL;
-    }
-  }
 
   const signUpNewUser = async () => {
     // TODO : 회원가입 API POST 요청
