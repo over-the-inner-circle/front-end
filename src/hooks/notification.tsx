@@ -11,6 +11,11 @@ import type { NotificationGameData } from '@/molecule/NotificationGame';
 import type { NotificationChatData } from '@/molecule/NotificationChat';
 import type { NotificationDMData } from '@/molecule/NotificationDM';
 
+interface NotificationResponse<T extends object> {
+  type: string;
+  data: T;
+}
+
 export function useNotification() {
   const socketRef = useSocketRef(`ws://${import.meta.env.VITE_BASE_URL}:1234`);
   const queryClient = useQueryClient();
@@ -19,7 +24,9 @@ export function useNotification() {
   useEffect(() => {
     const socket = socketRef.current;
 
-    const handleGame = (data: NotificationGameData) => {
+    const handleGame = ({
+      data,
+    }: NotificationResponse<NotificationGameData>) => {
       toast(
         (props: ToastContentProps<NotificationGameData>) => (
           <NotificationGame {...props} />
@@ -31,7 +38,9 @@ export function useNotification() {
         },
       );
     };
-    const handleChat = (data: NotificationChatData) => {
+    const handleChat = ({
+      data,
+    }: NotificationResponse<NotificationChatData>) => {
       queryClient.invalidateQueries({ queryKey: ['friend/joined'] });
       toast(
         (props: ToastContentProps<NotificationChatData>) => (
@@ -42,7 +51,7 @@ export function useNotification() {
         },
       );
     };
-    const handleDM = (data: NotificationDMData) => {
+    const handleDM = ({ data }: NotificationResponse<NotificationDMData>) => {
       // 최근 DM목록 업데이트
       setDmHistory((currHistory) =>
         currHistory.find(
