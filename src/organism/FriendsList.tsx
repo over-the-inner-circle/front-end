@@ -1,21 +1,51 @@
+import { useEffect } from 'react';
+import { useSetRecoilState } from 'recoil';
+import { useQueryClient } from '@tanstack/react-query';
+import { useSocketRef } from '@/hooks/chat';
+import { FloatingPortal } from '@floating-ui/react-dom-interactions';
+import { profileUserState } from '@/states/user/profileUser';
 import { Friend, useDeleteFriend, useFriends } from '@/hooks/friends';
+import { useOptionMenu } from '@/hooks/optionMenu';
+import { useRequestWatchGame } from '@/hooks/game';
 import Spinner from '@/atom/Spinner';
 import SectionList from '@/molecule/SectionList';
-import { FloatingPortal } from '@floating-ui/react-dom-interactions';
-import { useOptionMenu } from '@/hooks/optionMenu';
 import OptionMenu, { Option } from '@/molecule/OptionMenu';
-import { useSetRecoilState } from 'recoil';
-import { profileUserState } from '@/states/user/profileUser';
 import StatusIndicator from '@/molecule/StatusIndicator';
-import {currentGameStatus} from "@/states/game/currentGameStatus";
-import {GameSocketManager} from "@/models/GameSocketManager";
-import {GameInitialData} from "@/molecule/GameMatched";
-import {gameInitialData} from "@/states/game/gameInitialData";
-import {matchInfo} from "@/states/game/matchInfo";
-import {useRequestWatchGame} from "@/hooks/game";
+
+function useFriendsStatusSocket() {
+  const socketRef = useSocketRef(`ws://${import.meta.env.VITE_BASE_URL}:9994`);
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const handleNoti = (data: {
+      user: string;
+      state: 'online' | 'offline' | 'ingame';
+    }) => {
+      console.log(data);
+      queryClient.setQueryData(['friend/all'], (prevFriends?: Friend[]) => {
+        return prevFriends
+          ? prevFriends.map((friend) =>
+              friend.user_id === data.user
+                ? { ...friend, status: data.state }
+                : friend,
+            )
+          : undefined;
+      });
+    };
+
+    const socket = socketRef.current;
+
+    socket.on('update', handleNoti);
+
+    return () => {
+      socket.off('update', handleNoti);
+    };
+  }, [socketRef]);
+}
 
 function FriendsList() {
   const { friends, isLoading, isError } = useFriends();
+  useFriendsStatusSocket();
 
   if (isLoading) return <Spinner />;
   if (isError) return null;
@@ -116,8 +146,8 @@ function FriendOptionMenu({ friend }: FriendOptionMenuProps) {
     {
       label: 'Watch Game',
       onClick: () => {
-        requestWatchGame(friend.nickname)
-      }
+        requestWatchGame(friend.nickname);
+      },
     },
     {
       label: 'DM',
