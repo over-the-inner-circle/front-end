@@ -1,13 +1,13 @@
+import { useRecoilValue } from 'recoil';
 import { useNotification } from '@/hooks/notification';
+import { currentSideBarItemState } from '@/states/currentSideBarItemState';
 
 import Nav from '@/organism/Nav';
 import Chat from '@/organism/Chat';
 import Friends from '@/organism/Friends';
 import Directmsg from '@/organism/Directmsg';
 import UserProfileModal from '@/organism/UserProfileModal';
-import GameContainer from '../templates/GameContainer';
-import { useRecoilValue } from 'recoil';
-import { currentSideBarItemState } from '@/states/currentSideBarItemState';
+import GameContainer from "@/templates/GameContainer";
 
 function SidebarSelector() {
   const currentSideBarItem = useRecoilValue(currentSideBarItemState);

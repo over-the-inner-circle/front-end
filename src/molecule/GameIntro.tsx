@@ -1,26 +1,25 @@
 import {useSetRecoilState} from "recoil";
-import {Socket} from "socket.io-client";
 import {useEffect} from "react";
 
 import Button from "@/atom/Button";
 import {currentGameStatus} from "@/states/game/currentGameStatus";
+import {GameSocketManager} from "@/models/GameSocketManager";
 
-interface gameIntroProps {
-  gameSocket: React.MutableRefObject<Socket>;
-}
-
-const GameIntro = ( props: gameIntroProps ) => {
+const GameIntro = () => {
   const setGameStatus = useSetRecoilState(currentGameStatus);
-  const socket = props.gameSocket.current;
+  const socketManager = GameSocketManager.getInstance();
 
   useEffect(() => {
     return () => {
-      socket.removeAllListeners('user_is_in_queue');
+      socketManager.socket?.removeAllListeners('user_is_in_queue');
       console.log("GameIntro unmounted");
     }
   }, [])
 
   const startMatching = () => {
+
+    const socket = socketManager.socket;
+    if (!socket) { return; }
     //TODO: 여러번 눌렸을 때 어떻게 되는지 체크하기
     console.log(socket.id);
     socket.emit("user_join_queue");

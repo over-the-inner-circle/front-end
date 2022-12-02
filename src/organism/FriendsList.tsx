@@ -1,15 +1,16 @@
-import { Friend, useDeleteFriend, useFriends } from '@/hooks/friends';
-import Spinner from '@/atom/Spinner';
-import SectionList from '@/molecule/SectionList';
-import { FloatingPortal } from '@floating-ui/react-dom-interactions';
-import { useOptionMenu } from '@/hooks/optionMenu';
-import OptionMenu, { Option } from '@/molecule/OptionMenu';
-import { useSetRecoilState } from 'recoil';
-import { profileUserState } from '@/states/user/profileUser';
-import StatusIndicator from '@/molecule/StatusIndicator';
 import { useEffect } from 'react';
+import { useSetRecoilState } from 'recoil';
 import { useQueryClient } from '@tanstack/react-query';
 import { useSocketRef } from '@/hooks/chat';
+import { FloatingPortal } from '@floating-ui/react-dom-interactions';
+import { profileUserState } from '@/states/user/profileUser';
+import { Friend, useDeleteFriend, useFriends } from '@/hooks/friends';
+import { useOptionMenu } from '@/hooks/optionMenu';
+import { useRequestWatchGame } from '@/hooks/game';
+import Spinner from '@/atom/Spinner';
+import SectionList from '@/molecule/SectionList';
+import OptionMenu, { Option } from '@/molecule/OptionMenu';
+import StatusIndicator from '@/molecule/StatusIndicator';
 
 function useFriendsStatusSocket() {
   const socketRef = useSocketRef(`ws://${import.meta.env.VITE_BASE_URL}:9994`);
@@ -133,11 +134,19 @@ interface FriendOptionMenuProps {
 
 function FriendOptionMenu({ friend }: FriendOptionMenuProps) {
   const deleteFriend = useDeleteFriend();
+  const requestWatchGame = useRequestWatchGame();
+
   const options: Option[] = [
     {
       label: 'Invite Game',
       onClick: () => {
         /**/
+      },
+    },
+    {
+      label: 'Watch Game',
+      onClick: () => {
+        requestWatchGame(friend.nickname);
       },
     },
     {

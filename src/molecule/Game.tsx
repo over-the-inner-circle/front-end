@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import {Socket} from "socket.io-client";
-import {useSetRecoilState, useRecoilValue } from "recoil";
+import {useSetRecoilState, useRecoilValue, useRecoilState} from "recoil";
 
 import {currentGameScore} from "@/states/game/currentGameScore";
 import {currentGameStatus} from "@/states/game/currentGameStatus";
@@ -9,6 +8,7 @@ import {gameInitialData} from "@/states/game/gameInitialData";
 import {gameResult} from "@/states/game/gameResult";
 
 import Pong, { PongComponentsPositions } from "@/models/Pong";
+import {GameSocketManager} from "@/models/GameSocketManager";
 
 interface GameRenderData {
   lPlayerY: number;
@@ -42,11 +42,7 @@ export interface GameResultData {
   }
 }
 
-interface GameProps {
-  gameSocket: React.MutableRefObject<Socket>;
-}
-
-const Game = (props: GameProps) => {
+const Game = () => {
   const isInitialMount = useRef(true);
   const didGameStarted = useRef(false);
 
@@ -57,13 +53,15 @@ const Game = (props: GameProps) => {
   const currentGameTheme = useRecoilValue(gameTheme);
   const initialGameData = useRecoilValue(gameInitialData);
 
-  const setGameScore = useSetRecoilState(currentGameScore);
-  const setGameStatus = useSetRecoilState(currentGameStatus);
+  const [gameScore, setGameScore] = useRecoilState(currentGameScore);
   const setGameResult = useSetRecoilState(gameResult);
+
+  const [gameStatus, setGameStatus] = useRecoilState(currentGameStatus);
 
   const [positions, setPositions] = useState<PongComponentsPositions | null>(null);
 
-  const socket = props.gameSocket.current;
+
+  const socketManager = GameSocketManager.getInstance();
 
   /* useEffects ================================================================= */
 
@@ -80,9 +78,14 @@ const Game = (props: GameProps) => {
       pongRef.current = new Pong(context, currentGameTheme, initialGameData);
       setPositions(pongRef.current.currentPositions()); // 포지션 초기화
       setGameScore({ p1Score: 0,  p2Score: 0});
-      socket.emit('client_ready_to_start');
+      if (gameStatus === "PLAYING") {
+        socketManager.socket?.emit('client_ready_to_start');
+      } else if (gameStatus === "WATCHING") {
+        socketManager.socket?.emit('client_ready_to_watch');
+        didGameStarted.current = true;
+      }
     }
-  }, [socket]);
+  }, []);
 
   // 포지션 데이터 받아올 때 마다 실행, Pong 객체의 포지션 데이터를 업데이트하고 렌더링
   useEffect(() => {
@@ -108,8 +111,12 @@ const Game = (props: GameProps) => {
   // 소켓 리스너
   useEffect( () => {
 
+    const socket = socketManager.socket;
+
     if (!socket || !socket.connected) {
       console.log("socket is not connected");
+      alert("socket is not connected");
+      setGameStatus("INTRO");
       return;
     }
 
@@ -126,7 +133,9 @@ const Game = (props: GameProps) => {
         ballXPosition: data.ballX,
         ballYPosition: data.bally,
       })
-      setGameScore({ p1Score: data.lPlayerScore, p2Score: data.rPlayerScore });
+      if (data.lPlayerScore !== gameScore.p1Score || data.rPlayerScore !== gameScore.p2Score) {
+        setGameScore({ p1Score: data.lPlayerScore, p2Score: data.rPlayerScore });
+      }
     });
 
     socket.once('game_finished', () => {
@@ -174,7 +183,10 @@ const Game = (props: GameProps) => {
   }
 
   const handleKeyPress = (event: React.KeyboardEvent, type: string) => {
-    if (!socket || !socket.connected) {
+
+    const socket = socketManager.socket;
+
+    if (!socket || !socket.connected || gameStatus !== 'PLAYING') {
       return;
     }
     const key = event.key;

@@ -1,11 +1,11 @@
 import {useSetRecoilState, useRecoilValue} from "recoil";
 import {useEffect} from "react";
-import {Socket} from "socket.io-client";
 
 import Button from "@/atom/Button";
 
 import {currentGameStatus} from "@/states/game/currentGameStatus";
 import {matchInfo} from "@/states/game/matchInfo";
+import {GameSocketManager} from "@/models/GameSocketManager";
 
 export interface MatchedUserInfo {
   "user_id": string,
@@ -20,20 +20,22 @@ export interface MatchInfo {
   "rPlayerInfo": MatchedUserInfo,
 }
 
-interface GameOnMatchingProps {
-  gameSocket: React.MutableRefObject<Socket>;
-}
+const GameOnMatching = () => {
 
-const GameOnMatching = (props: GameOnMatchingProps) => {
-
-  const socket = props.gameSocket.current;
+  const socketManager = GameSocketManager.getInstance();
   const setGameStatus = useSetRecoilState(currentGameStatus);
   const setMatchedPlayerInfo = useSetRecoilState(matchInfo);
 
   useEffect(() => {
+
+    const socket = socketManager.socket;
+    if (!socket) {
+      console.log("socket is null");
+      return;
+    }
+
     //TODO: 에러처리
     console.log("GameOnMatching mounted");
-    console.log(socket.id);
     socket.once('player_matched', (data: string) => {
       console.log("player_matched received");
       console.log(data);
@@ -41,7 +43,6 @@ const GameOnMatching = (props: GameOnMatchingProps) => {
       socket.emit('user_join_room', data);
       console.log('user_join_room emitted');
     });
-    console.log(socket.id);
 
     socket.once('user_joined_room', (data: MatchInfo) => {
       console.log("user_joined_room received");
@@ -49,13 +50,11 @@ const GameOnMatching = (props: GameOnMatchingProps) => {
       setMatchedPlayerInfo(data);
       setGameStatus("MATCHED");
     });
-    console.log(socket.id);
 
     socket.once('user_exit_room', () => {
       console.log("user_exit_room received");
       setGameStatus("INTRO");
     })
-    console.log(socket.id);
 
     return () => {
       socket.removeAllListeners('player_matched');
@@ -67,7 +66,7 @@ const GameOnMatching = (props: GameOnMatchingProps) => {
   }, []);
 
   const cancelMatching = () => {
-    socket.emit("user_left_queue");
+    socketManager.socket?.emit("user_left_queue");
     console.log("user_left_queue emitted");
     setGameStatus("INTRO");
   }
