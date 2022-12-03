@@ -126,18 +126,6 @@ const EditAccountForm = () => {
     )
   }
 
-  const NicknameContainer = () => {
-    return (
-      <>
-        <div className="mb-2 stop-dragging"> Username </div>
-        <input className="w-48 h-10 bg-white text-true-gray mb-8"
-               type="text"
-               value={nickname}
-               onChange={onChangeUsernameInput}/>
-      </>
-    )
-  }
-
   const TwoFactorAuthContainer = () => {
     return (
       <div className="stop-dragging">
@@ -173,7 +161,11 @@ const EditAccountForm = () => {
         <div className="flex flex-row gap-20 mb-16">
           <ProfileContainer />
           <div className="flex flex-col">
-            <NicknameContainer />
+            <div className="mb-2 stop-dragging"> Username </div>
+            <input className="w-48 h-10 bg-white text-true-gray mb-8"
+                   type="text"
+                   value={nickname}
+                   onChange={onChangeUsernameInput}/>
             <TwoFactorAuthContainer />
           </div>
         </div>
@@ -201,7 +193,9 @@ const EditAccountInfoModal = () => {
       {isModalOpen && (
         <FloatingOverlay lockScroll
                          className="flex items-center justify-center bg-neutral-800/80">
-          <FloatingFocusManager context={context}>
+          <FloatingFocusManager context={context}
+                                order={['floating', 'content']}
+          >
             <div className="h-3/4 w-2/3" ref={floating} {...getFloatingProps()}>
               <EditAccountForm/>
             </div>
