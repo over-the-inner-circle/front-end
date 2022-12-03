@@ -156,8 +156,8 @@ const EditAccountForm = () => {
       <div className="flex w-full items-start">
         <button onClick={closeModal}>X</button>
       </div>
-      <span className={`text-xl`}>Edit Account Info</span>
       <div className="flex flex-col items-center justify-center bg-neutral-900 font-pixel text-white">
+        <span className={`text-xl mb-10`}>Edit Account Info</span>
         <div className="flex flex-row gap-20 mb-16">
           <ProfileContainer />
           <div className="flex flex-col">
