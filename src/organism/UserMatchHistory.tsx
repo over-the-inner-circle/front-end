@@ -1,3 +1,4 @@
+import Spinner from '@/atom/Spinner';
 import {
   HistoryUser,
   MatchHistory,
@@ -9,56 +10,62 @@ interface UserMatchHistoryProps {
 }
 
 function getPlayTime(matchInfo: MatchHistory) {
-  const sec =
+  const playTime =
     (Date.parse(matchInfo.game_end) - Date.parse(matchInfo.game_start)) / 1000;
-
-  return `${Math.floor(sec / 60)
+  const min = Math.floor(playTime / 60)
     .toString()
-    .padStart(2, '0')}:${(sec % 60).toString().padStart(2, '0')}`;
+    .padStart(2, '0');
+  const sec = (playTime % 60).toString().padStart(2, '0');
+
+  return `${min}:${sec}`;
 }
 
 function UserMatchHistory({ nickname }: UserMatchHistoryProps) {
   const { data: history, isError, isLoading } = useMatchHistory(nickname);
 
-  if (isError || isLoading) return null;
-
   return (
-    <>
-      <div>최근 전적</div>
-      <ul className="w-full">
-        {history.map((matchInfo) => (
-          <li key={matchInfo.game_id} className="flex w-full flex-col pb-8">
-            <div className="flex w-full flex-row gap-3 text-xs">
-              <p>{new Date(matchInfo.game_start).toLocaleDateString()}</p>
-              <p>({getPlayTime(matchInfo)})</p>
-            </div>
-            <div className="flex flex-row items-center justify-center py-3">
-              <div className="flex w-full flex-row items-center justify-between">
-                <UserLabel
-                  user={matchInfo.l_player}
-                  winner={matchInfo.winner}
-                  isLeft={true}
-                />
-                <p className="flex w-14 items-center justify-end pr-5 text-2xl">
-                  {matchInfo.l_player.score}
-                </p>
+    <div className="pt-8">
+      <div className="py-5">최근 전적</div>
+      {isError || isLoading ? (
+        <div className="pb-8">
+          <Spinner />
+        </div>
+      ) : (
+        <ul className="w-full">
+          {history.map((matchInfo) => (
+            <li key={matchInfo.game_id} className="flex w-full flex-col pb-8">
+              <div className="flex w-full flex-row gap-3 text-xs">
+                <p>{new Date(matchInfo.game_start).toLocaleDateString()}</p>
+                <p>({getPlayTime(matchInfo)})</p>
               </div>
-              <p className="flex items-center justify-center">:</p>
-              <div className="flex w-full flex-row items-center justify-between">
-                <p className="flex w-14 items-center justify-start pl-5 text-2xl">
-                  {matchInfo.r_player.score}
-                </p>
-                <UserLabel
-                  user={matchInfo.r_player}
-                  winner={matchInfo.winner}
-                  isLeft={false}
-                />
+              <div className="flex flex-row items-center justify-center py-3">
+                <div className="flex w-full flex-row items-center justify-between">
+                  <UserLabel
+                    user={matchInfo.l_player}
+                    winner={matchInfo.winner}
+                    isLeft={true}
+                  />
+                  <p className="flex w-14 items-center justify-end pr-5 text-2xl">
+                    {matchInfo.l_player.score}
+                  </p>
+                </div>
+                <p className="flex items-center justify-center">:</p>
+                <div className="flex w-full flex-row items-center justify-between">
+                  <p className="flex w-14 items-center justify-start pl-5 text-2xl">
+                    {matchInfo.r_player.score}
+                  </p>
+                  <UserLabel
+                    user={matchInfo.r_player}
+                    winner={matchInfo.winner}
+                    isLeft={false}
+                  />
+                </div>
               </div>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
 
