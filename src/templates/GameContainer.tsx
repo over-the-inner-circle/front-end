@@ -1,7 +1,8 @@
-import {useRecoilState} from "recoil";
+import {useRecoilState, useRecoilValue} from "recoil";
 import {useEffect, useRef} from "react";
 
 import {currentGameStatus} from "@/states/game/currentGameStatus";
+import {accessTokenState} from "@/states/user/auth";
 
 import GameWindow from '@/organism/GameWindow';
 import GameOnMatching from "@/molecule/GameOnMatching";
@@ -18,7 +19,7 @@ const GameContainer = () => {
   const [currentStatus, setCurrentStatus] = useRecoilState(currentGameStatus);
 
   const gameSocketUri = `ws://54.164.253.231:9998`;
-  const accessToken = window.localStorage.getItem("access_token");
+  const accessToken = useRecoilValue(accessTokenState);
 
   const isFirstMount = useRef(true);
   const gameSocketManager = GameSocketManager.getInstance();

@@ -1,5 +1,7 @@
+import { accessTokenState } from '@/states/user/auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetcher } from './fetcher';
+import { useRecoilValue } from 'recoil';
+import { useFetcher } from './fetcher';
 
 export interface Friend {
   user_id: string;
@@ -12,6 +14,9 @@ export interface Friend {
 }
 
 export function useFriends() {
+  const fetcher = useFetcher();
+  const accessToken = useRecoilValue(accessTokenState);
+
   const { data, error, isLoading, isError } = useQuery({
     queryKey: ['friend/all'],
     queryFn: async (): Promise<Friend[]> => {
@@ -29,11 +34,13 @@ export function useFriends() {
         list: friends.filter((friend) => friend.status === 'offline'),
       },
     ],
+    enabled: !!accessToken,
   });
   return { friends: data, error, isLoading, isError };
 }
 
 export function useDeleteFriend() {
+  const fetcher = useFetcher();
   const queryClient = useQueryClient();
   const deleteMutation = useMutation({
     mutationFn: (friend: Friend) => {
@@ -56,6 +63,7 @@ export interface RequestedFriend {
 }
 
 export function useRequestedFriends(type: 'sent' | 'recv') {
+  const fetcher = useFetcher();
   const data = useQuery({
     queryKey: ['friend/request', type],
     queryFn: async (): Promise<RequestedFriend[]> => {
