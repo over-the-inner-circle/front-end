@@ -1,12 +1,14 @@
-import { useCurrentUser, useLogOut, UserInfo } from '@/hooks/user';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useLogOut } from '@/hooks/user';
 import { useOptionMenu } from '@/hooks/optionMenu';
 import OptionMenu, { Option } from '@/molecule/OptionMenu';
-import {useRecoilState, useSetRecoilState} from 'recoil';
 import { profileUserState } from '@/states/user/profileUser';
 import isEditAccountModalOpenState from "@/states/user/isEditAccountModalOpen";
+import { currentUserInfoState, UserInfo } from '@/states/user/auth';
+import Button from '@/atom/Button';
 
 function CurrentUserWidget() {
-  const { data, isLoading, isError } = useCurrentUser();
+  const data = useRecoilValue(currentUserInfoState);
   const {
     open,
     setOpen,
@@ -18,10 +20,15 @@ function CurrentUserWidget() {
     y,
     strategy,
   } = useOptionMenu();
+  const logOut = useLogOut();
 
-  // render skeleton ui
-  if (isLoading) return <div />;
-  if (isError) return <div />;
+  if (!data) {
+    return (
+      <Button onClick={logOut} className="bg-red-700">
+        Sign in
+      </Button>
+    );
+  }
 
   return (
     <div className="px-2 font-pixel text-sm text-white">

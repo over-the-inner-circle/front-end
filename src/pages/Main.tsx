@@ -9,6 +9,7 @@ import Directmsg from '@/organism/Directmsg';
 import UserProfileModal from '@/organism/UserProfileModal';
 import GameContainer from "@/templates/GameContainer";
 import EditAccountInfoModal from "@/organism/EditAccountInfoModal";
+import { useRefreshToken } from '@/hooks/user';
 
 function SidebarSelector() {
   const currentSideBarItem = useRecoilValue(currentSideBarItemState);
@@ -23,6 +24,7 @@ function SidebarSelector() {
 }
 
 function Main() {
+  useRefreshToken();
   useNotification();
 
   return (
