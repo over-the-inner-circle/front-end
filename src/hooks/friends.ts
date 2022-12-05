@@ -7,7 +7,7 @@ export interface Friend {
   user_id: string;
   nickname: string;
   prof_img: string;
-  status?: 'online' | 'offline' | 'ingame';
+  state?: 'online' | 'offline' | 'ingame';
   mmr?: number;
   created?: Date;
   deleted?: Date;
@@ -27,14 +27,15 @@ export function useFriends() {
     select: (friends) => [
       {
         title: 'online',
-        list: friends.filter((friend) => friend.status !== 'offline'),
+        list: friends.filter((friend) => friend.state !== 'offline'),
       },
       {
         title: 'offline',
-        list: friends.filter((friend) => friend.status === 'offline'),
+        list: friends.filter((friend) => friend.state === 'offline'),
       },
     ],
     enabled: !!accessToken,
+    refetchOnWindowFocus: false,
   });
   return { friends: data, error, isLoading, isError };
 }
