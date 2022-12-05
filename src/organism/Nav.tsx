@@ -1,16 +1,16 @@
+import { useRecoilState } from 'recoil';
+import { currentSideBarItemState } from '@/states/currentSideBarItemState';
 import DmIcon from '@/atom/DmIcon';
 import ChatIcon from '@/atom/ChatIcon';
 import FriendIcon from '@/atom/FriendIcon';
-import { SidebarItem } from '@/pages/Main';
 import CurrentUserWidget from '@/molecule/CurrentUserWidget';
 import SearchUserProfileForm from './SearchUserProfileForm';
 
-interface NavProps {
-  current: string;
-  onChange(n: SidebarItem): void;
-}
+const Nav = () => {
+  const [currentSideBarItem, setCurrentSideBarItem] = useRecoilState(
+    currentSideBarItemState,
+  );
 
-const Nav = ({ current, onChange }: NavProps) => {
   return (
     <div
       className="flex h-[78px] w-full items-center justify-between
@@ -21,18 +21,18 @@ const Nav = ({ current, onChange }: NavProps) => {
       <div className="flex items-center gap-2">
         <SearchUserProfileForm />
         <div className="">
-          <button onClick={() => onChange('chat')}>
-            <ChatIcon isActive={current === 'chat'} />
+          <button onClick={() => setCurrentSideBarItem('chat')}>
+            <ChatIcon isActive={currentSideBarItem === 'chat'} />
           </button>
         </div>
         <div className="">
-          <button onClick={() => onChange('friend')}>
-            <FriendIcon isActive={current === 'friend'} />
+          <button onClick={() => setCurrentSideBarItem('friend')}>
+            <FriendIcon isActive={currentSideBarItem === 'friend'} />
           </button>
         </div>
         <div className="">
-          <button onClick={() => onChange('dm')}>
-            <DmIcon isActive={current === 'dm'} />
+          <button onClick={() => setCurrentSideBarItem('dm')}>
+            <DmIcon isActive={currentSideBarItem === 'dm'} />
           </button>
         </div>
       </div>

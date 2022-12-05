@@ -1,36 +1,38 @@
-import { useState } from 'react';
+import { useRecoilValue } from 'recoil';
+import { useNotification } from '@/hooks/notification';
+import { currentSideBarItemState } from '@/states/currentSideBarItemState';
 
-import Nav from "@/organism/Nav";
-import Chat from "@/organism/Chat";
-import Friends from "@/organism/Friends";
-import Directmsg from "@/organism/Directmsg";
+import Nav from '@/organism/Nav';
+import Chat from '@/organism/Chat';
+import Friends from '@/organism/Friends';
+import Directmsg from '@/organism/Directmsg';
 import UserProfileModal from '@/organism/UserProfileModal';
 import GameContainer from "@/templates/GameContainer";
 
-export type SidebarItem = 'dm' | 'friend' | 'chat';
+function SidebarSelector() {
+  const currentSideBarItem = useRecoilValue(currentSideBarItemState);
 
-function sidebarSelector(sidebarIndex: SidebarItem) {
-	return sidebarIndex === 'dm' ? (
-		<Directmsg />
-	) : sidebarIndex === 'friend' ? (
-		<Friends />
-	) : (
-		<Chat />
-	);
+  return currentSideBarItem === 'dm' ? (
+    <Directmsg />
+  ) : currentSideBarItem === 'friend' ? (
+    <Friends />
+  ) : (
+    <Chat />
+  );
 }
 
 function Main() {
-	const [sideState, setSideState] = useState<SidebarItem>("chat");
+  useNotification();
 
-	return (
-		<div className="bg-neutral-600 flex flex-col w-full h-full mx-auto my-0">
-			<Nav current={sideState} onChange={setSideState}></Nav>
-			<div className="flex h-full w-full min-h-0">
-				<GameContainer />
-				{sidebarSelector(sideState)}
-			</div>
+  return (
+    <div className="mx-auto my-0 flex h-full w-full flex-col bg-neutral-600">
+      <Nav />
+      <div className="flex h-full min-h-0 w-full">
+        <GameContainer />
+        <SidebarSelector />
+      </div>
       <UserProfileModal />
-		</div>
+    </div>
   );
 }
 
