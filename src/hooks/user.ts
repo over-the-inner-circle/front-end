@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetcher } from '@/hooks/fetcher';
 import { useNavigate } from 'react-router-dom';
+import { f } from 'msw/lib/SetupApi-75fbec12';
 
 export interface UserInfo {
   user_id: string;
@@ -26,6 +27,18 @@ export function useCurrentUser() {
     },
   });
   return data;
+}
+
+export function useUpdateUserName() {
+
+}
+
+export function useUpdateUserProfilePhoto() {
+
+}
+
+export function useUpdateUser2Fa() {
+  
 }
 
 export function useLogOut() {

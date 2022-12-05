@@ -12,26 +12,6 @@ import isEditAccountModalOpenState from "@/states/user/isEditAccountModalOpen";
 import Button from "@/atom/Button";
 import {useCurrentUser} from "@/hooks/user";
 
-// interface UserInfo {
-//   "user_id": string,
-//   "nickname": string,
-//   "provider": string,
-//   "third_party_id": string,
-//   "prof_img": string,
-//   "mmr": number,
-//   "two_factor_authentication_type": string,
-//   "two_factor_authentication_key": string,
-//   "created": string,
-//   "deleted": string
-// }
-
-interface UserInfo {
-  nickname: string;
-  prof_img: string;
-  two_factor_authentication_type: string;
-  two_factor_authentication_key: string;
-}
-
 interface ImageInfo {
   file: File;
   url: string;
@@ -97,6 +77,12 @@ const EditAccountForm = () => {
   }
 
   const saveAccountInfo = () => {
+    // 닉네임 수정 PUT 요청
+
+    // 프로필 수정 PUT 요청
+
+    // 2fa 수정 PUT 요청
+
 
   }
 
