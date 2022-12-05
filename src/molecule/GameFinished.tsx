@@ -47,7 +47,7 @@ return (
           />
           <div className="flex flex-col justify-center items-center gap-12">
             <span className="text-5xl whitespace-nowrap "> {result.l_player.score} : {result.r_player.score} </span>
-            <span className="text-3xl text-green-600 "> {"+ or -"} </span>
+            <span className="text-xl">{result.mode === "friendly" ? "Normal" : "Rank" }</span>
           </div>
           <GameMatchedUserInfo name={result.r_player.nickname}
                                eloScore={result.r_player.mmr}
