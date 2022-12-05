@@ -26,7 +26,7 @@ function useFriendsStatusSocket() {
         return prevFriends
           ? prevFriends.map((friend) =>
               friend.user_id === data.user
-                ? { ...friend, status: data.state }
+                ? { ...friend, state: data.state }
                 : friend,
             )
           : undefined;
@@ -96,8 +96,8 @@ function FriendItem({ friend }: FriendItemProps) {
       <div className="flex h-16 min-w-0 flex-col justify-around px-5">
         <p className="truncate text-base">{friend.nickname}</p>
         <div className="flex flex-row items-center space-x-2">
-          <StatusIndicator status={friend.status} />
-          <p className="min-w-0 truncate text-xs">{friend.status}</p>
+          <StatusIndicator status={friend.state} />
+          <p className="min-w-0 truncate text-xs">{friend.state}</p>
         </div>
       </div>
       <button
