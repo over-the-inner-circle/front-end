@@ -31,7 +31,7 @@ const GameContainer = () => {
 
     // socket should be initiated before using;
     gameSocketManager.initSocket(gameSocketUri, accessToken);
-    
+
     const gameSocket = gameSocketManager.socket;
     if (!gameSocket) { return; }
 
@@ -50,7 +50,7 @@ const GameContainer = () => {
     gameSocket.on("game_error", (error: any) => {
       console.log(error);
     });
-  },[]);
+  },[accessToken]);
 
   return (
     <div className="flex flex-col h-full w-full bg-neutral-900">
