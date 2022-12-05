@@ -54,7 +54,7 @@ export function useUpdateUserName() {
   return mutation;
 }
 
-export function useUpdateUserProfilePhoto() {
+export function useUpdateUserProfileImage() {
 
 }
 

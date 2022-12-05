@@ -10,7 +10,11 @@ import {
 
 import isEditAccountModalOpenState from "@/states/user/isEditAccountModalOpen";
 import Button from "@/atom/Button";
-import {useCurrentUser, useUpdateUserName} from "@/hooks/user";
+import {useCurrentUser,
+  useUpdateUserName,
+  useUpdateUserProfileImage,
+  useUpdateUser2Fa
+} from "@/hooks/user";
 
 interface ImageInfo {
   file: File;
@@ -30,6 +34,8 @@ const EditAccountForm = () => {
   const currentUser = useCurrentUser().data;
 
   const updateUserName = useUpdateUserName();
+  const updateUserProfileImage = useUpdateUserProfileImage();
+  const updateUser2Fa = useUpdateUser2Fa();
 
   useEffect(() => {
     setNickname(currentUser?.nickname || "");
@@ -81,15 +87,12 @@ const EditAccountForm = () => {
 
   const saveAccountInfo = () => {
     // 닉네임 수정 PUT 요청
-    try {
-      updateUserName.mutate(nickname);
-    } catch (e) {
-      console.log(e);
-    }
-
+    updateUserName.mutate(nickname);
     // 프로필 수정 PUT 요청
-
-    // 2fa 수정 PUT 요청
+    // if (imageInfo) {
+    //   updateUserProfileImage.mutate(imageInfo);
+    // }
+    //updateUser2Fa()
   }
 
   const closeModal = () => {
