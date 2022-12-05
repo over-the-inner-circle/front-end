@@ -1,7 +1,36 @@
+import { accessTokenState } from '@/states/user/auth';
+import { useQueryClient } from '@tanstack/react-query';
+import { useRecoilValue } from 'recoil';
+
 export const BASE_API_URL = import.meta.env.VITE_REQUEST_URL;
 
-export async function fetcher(url: string, options: RequestInit = {}) {
-  options = appendAccessToken(options);
+export function useFetcher() {
+  const accessToken = useRecoilValue(accessTokenState);
+  const queryClient = useQueryClient();
+
+  const fetcherWrapper = (url: string, options: RequestInit = {}) =>
+    fetcher(url, accessToken, options)
+      .then((res) => {
+        if (res.status === 401) throw res;
+        else return res;
+      })
+      .catch((e) => {
+        if (e instanceof Response) {
+          if (e.status === 401) {
+            queryClient.invalidateQueries({ queryKey: ['auth/refresh'] });
+          }
+        }
+        throw e;
+      });
+  return fetcherWrapper;
+}
+
+export async function fetcher(
+  url: string,
+  token: string | null,
+  options: RequestInit = {},
+) {
+  options = appendAccessToken(token, options);
 
   if (options.body) {
     options.headers = {
@@ -10,28 +39,12 @@ export async function fetcher(url: string, options: RequestInit = {}) {
     };
   }
 
-  try {
-    const res = await fetch(BASE_API_URL + url, options);
+  const res = await fetch(BASE_API_URL + url, options);
 
-    if (!res.ok) throw res;
-    return res;
-  } catch (error) {
-    if (error instanceof Response) {
-      if (error.status === 401) {
-        const refresh = await refreshAccessToken();
-
-        if (refresh) {
-          options = appendAccessToken(options);
-          return fetch(BASE_API_URL + url, options);
-        }
-      }
-      return error;
-    }
-    throw error;
-  }
+  return res;
 }
 
-async function refreshAccessToken() {
+export async function refreshAccessToken() {
   const refresh_token = window.localStorage.getItem('refresh_token');
 
   if (!refresh_token) {
@@ -46,21 +59,10 @@ async function refreshAccessToken() {
     body: JSON.stringify({ refresh_token }),
   });
 
-  if (!res.ok) {
-    return null;
-  }
-
-  const data = await res.json();
-
-  window.localStorage.setItem('access_token', data.access_token);
-  window.localStorage.setItem('refresh_token', data.refresh_token);
-
-  return data.refresh_token as string;
+  return res;
 }
 
-function appendAccessToken(options: RequestInit) {
-  const accessToken = window.localStorage.getItem('access_token');
-
+function appendAccessToken(accessToken: string | null, options: RequestInit) {
   if (accessToken) {
     options.headers = {
       ...options.headers,

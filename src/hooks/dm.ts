@@ -3,7 +3,7 @@ import { useSetRecoilState } from "recoil";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { dmHistoryState, type DmInfo } from '@/states/dmHistoryState';
 import { useSocketRef } from "./chat";
-import { fetcher } from "./fetcher";
+import { useFetcher } from "./fetcher";
 import { type Friend } from "./friends";
 
 interface Message {
@@ -18,6 +18,7 @@ interface SubscribeData {
 }
 
 export function useDirectMessages(opponent: string) {
+  const fetcher = useFetcher();
   const data = useQuery<Message[]>({
     queryKey: ['dm/messages', opponent],
     queryFn: async () => {

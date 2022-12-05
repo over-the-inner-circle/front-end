@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
 import { useMutation } from '@tanstack/react-query';
-import { fetcher } from '@/hooks/fetcher';
+import { useFetcher } from '@/hooks/fetcher';
 import { SignUpUserInfo, signUpUserInfoState } from '@/states/user/signUp';
 import { toast } from 'react-toastify';
+import { accessTokenState } from '@/states/user/auth';
 
 interface LoginParams {
   provider: string;
@@ -14,6 +15,9 @@ interface LoginParams {
 function useLoginMutation() {
   const navigate = useNavigate();
   const setSignupUserInfo = useSetRecoilState(signUpUserInfoState);
+  const setAccessToken = useSetRecoilState(accessTokenState);
+  const fetcher = useFetcher();
+
   const mutation = useMutation({
     mutationFn: async ({ code, provider }: LoginParams) => {
       const res = await fetcher(`/auth/oauth2/${provider}`, {
@@ -26,7 +30,7 @@ function useLoginMutation() {
     },
     onSuccess: (data) => {
       if ('access_token' in data) {
-        window.localStorage.setItem('access_token', data.access_token);
+        setAccessToken(data.access_token);
         window.localStorage.setItem('refresh_token', data.refresh_token);
         return navigate('/main');
       }

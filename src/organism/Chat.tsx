@@ -1,30 +1,12 @@
 import { useState } from 'react';
 import { useRecoilState, useSetRecoilState } from 'recoil';
-import { fetcher } from '@/hooks/fetcher';
-import { useQuery, useMutation } from '@tanstack/react-query';
 import { RoomInfo, roomInfoState } from '@/states/roomInfoState';
+import { RoomListType, useJoinRoom, useRoomList } from '@/hooks/chat';
 import SideBarLayout from '@/molecule/SideBarLayout';
 import SideBarHeader from '@/molecule/SideBarHeader';
 import SectionList from '@/molecule/SectionList';
 import ChatingRoom from '@/organism/ChatingRoom';
 import CreateChatForm from '@/organism/CreateChatForm';
-
-export type RoomListType = 'all' | 'joined';
-
-function useRoomList(type: RoomListType) {
-  const result = useQuery({
-    queryKey: ['chat/rooms', type],
-    queryFn: async (): Promise<RoomInfo[]> => {
-      const res = await fetcher(`/chat/rooms/${type}`);
-      if (res.ok) {
-        const data = await res.json();
-        return data.rooms;
-      }
-      return [];
-    },
-  });
-  return result;
-}
 
 const Chat = () => {
   const [roomInfo, setRoomInfo] = useRecoilState(roomInfoState); //room_id need to be null when user is not in any room
@@ -39,24 +21,6 @@ const Chat = () => {
     </SideBarLayout>
   );
 };
-
-function useJoinRoom() {
-  const setRoomInfo = useSetRecoilState(roomInfoState);
-  const mutation = useMutation({
-    mutationFn: async (room: RoomInfo) => {
-      return fetcher(`/chat/room/${room.room_id}/join`, {
-        method: 'POST',
-        body: JSON.stringify({ room_password: '' }),
-      });
-    },
-    onSuccess: (data, variables) => {
-      if (data.ok) {
-        setRoomInfo(variables ?? null);
-      }
-    },
-  });
-  return mutation;
-}
 
 function ChattingRoomList() {
   const [isOpenForm, setIsOpenForm] = useState(false);
