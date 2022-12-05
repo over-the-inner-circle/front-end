@@ -5,7 +5,7 @@ import { fetcher } from '@/hooks/fetcher';
 import { sortedDmHistoryState } from '@/states/dmHistoryState';
 import { currentDMOpponentState } from '@/states/currentDMOpponent';
 import SideBarHeader from '@/molecule/SideBarHeader';
-import StatusIndicator from '@/molecule/StatusIndicator';
+import SectionList from '@/molecule/SectionList';
 import type { Friend } from '@/hooks/friends';
 
 function DirectmsgList() {
@@ -16,24 +16,20 @@ function DirectmsgList() {
     <>
       <SideBarHeader>Direct Message</SideBarHeader>
       <AddDirectmsgForm />
-      <ul className="w-full border-t border-neutral-400">
-        {dmHistory.map((dmInfo) => (
-          <li key={dmInfo.opponent.user_id} className="w-full bg-neutral-700">
+      {dmHistory.length ? (
+        <SectionList
+          sections={[{ title: 'Recent history', list: dmHistory }]}
+          renderItem={(dmInfo) => (
             <button
-              className="flex w-full flex-col gap-1 border-b border-neutral-400 p-3 px-5"
+              className="flex w-full flex-col gap-1 p-3 px-5"
               onClick={() => setCurrentDMOpponent(dmInfo.opponent.nickname)}
             >
               <p>{dmInfo.opponent.nickname}</p>
-              <div className="flex flex-row items-center space-x-2">
-                <StatusIndicator status={dmInfo.opponent.status} />
-                <p className="min-w-0 truncate text-xs">
-                  {dmInfo.opponent.status ?? 'unknown'}
-                </p>
-              </div>
             </button>
-          </li>
-        ))}
-      </ul>
+          )}
+          keyExtractor={(dmInfo) => dmInfo.opponent.user_id}
+        />
+      ) : null}
     </>
   );
 }
@@ -73,7 +69,8 @@ function AddDirectmsgForm() {
     <>
       <form
         onSubmit={handleSubmit}
-        className="flex w-full flex-row items-center gap-2 bg-neutral-800 p-3"
+        className="flex w-full flex-row items-center gap-2
+                   border-b border-neutral-400 bg-neutral-800 p-3"
       >
         <label htmlFor="nickname">To.</label>
         <input
