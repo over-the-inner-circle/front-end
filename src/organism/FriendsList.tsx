@@ -6,7 +6,6 @@ import { FloatingPortal } from '@floating-ui/react-dom-interactions';
 import { profileUserState } from '@/states/user/profileUser';
 import { Friend, useDeleteFriend, useFriends } from '@/hooks/friends';
 import { useOptionMenu } from '@/hooks/optionMenu';
-import { useRequestWatchGame } from '@/hooks/game';
 import Spinner from '@/atom/Spinner';
 import SectionList from '@/molecule/SectionList';
 import OptionMenu, { Option } from '@/molecule/OptionMenu';
