@@ -10,15 +10,10 @@ export interface NotificationGameData {
 export interface GameInvitationData {
   sender : {
     created: string
-
     deleted: string | null;
-
     mmr: number
-
     nickname: string
-
     prof_img: string
-
     user_id: string
   }
 }
