@@ -12,20 +12,29 @@ export interface ChatProps {
   close(): void;
 }
 
-const ChattingSideBarSelector = ( { sidebarState, roomInfo, close }: ChatProps) => {
-  // switch (sidebarState) {
-  //   case 'chatting':
-      return <ChattingSideBar sidebarState= {sidebarState} roomInfo={roomInfo} close={close} />;
-    // case 'configChattingRoom':
-    //   return <ConfigChattingRoomSideBar />;
-  // }
+export interface ChattingSideBarProps {
+  sidebarState: ChattingSideBarState;
+  roomInfo: RoomInfo;
+  close(): void;
+  closeSidebarState(): void;
+}
+
+
+
+const ChattingSideBarSelector = ( { sidebarState, roomInfo, close, closeSidebarState }: ChattingSideBarProps) => {
+  switch (sidebarState) {
+    case 'chatting':
+      return <ChattingSideBar sidebarState= {sidebarState} roomInfo={roomInfo} close={close} closeSidebarState={closeSidebarState} />;
+    case 'configChattingRoom':
+      return <ConfigChattingRoomSideBar sidebarState= {sidebarState} roomInfo={roomInfo} close={close} closeSidebarState={closeSidebarState}/>;
+  }
 }
 
 export default function ChatingRoom({ roomInfo, close }: ChatProps) {
   const [sidebarState, setSidebarState] = useState<ChattingSideBarState>(
     'chatting');
   return (
-    <ChattingSideBarSelector sidebarState={sidebarState} roomInfo={roomInfo} close={close} />
+    <ChattingSideBarSelector sidebarState={sidebarState} roomInfo={roomInfo} close={close} closeSidebarState={() => {setSidebarState('chatting')}} />
 );
 }
 
@@ -122,20 +131,29 @@ function useChat(roomId: string) {
   return { messages, socket: socketRef.current };
 }
 
-/*
-  config function that ChatingRoom component use
- */
-function ConfigChattingRoomSideBar(roomInfo: RoomInfo) {
+function ConfigChattingRoomSideBar({sidebarState, roomInfo, close, closeSidebarState}: ChattingSideBarProps) {
 
 
-  return {
-  <div>
-
-  </div>
-  };
+  return (
+    <>
+      <div className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
+        {roomInfo.room_name}
+      </div>
+      <div className="h-full w-full grow overflow-y-auto border-b border-inherit">
+        <ul className="flex h-fit w-full flex-col items-start justify-start">
+          <li className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
+            <button> UserList </button>
+          </li>
+          <li className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
+            <button> ConfigChattingRoom </button>
+          </li>
+        </ul>
+      </div>
+    </>
+  )
 }
 
-function ChattingSideBar({sidebarState, roomInfo, close }: ChatProps) {
+function ChattingSideBar({sidebarState, roomInfo, close, closeSidebarState }: ChattingSideBarProps) {
   const [content, setContent] = useState('');
   const { messages, socket } = useChat(roomInfo.room_id);
   const autoScrollRef = useAutoScroll(messages);
@@ -150,10 +168,13 @@ function ChattingSideBar({sidebarState, roomInfo, close }: ChatProps) {
 
   return (
     <>
-      <div className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
-        {roomInfo.room_name}
+      <div className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-3">
         <button onClick={close} className="px-1">
           ⬅
+        </button>
+        {roomInfo.room_name}
+        <button onClick={() => closeSidebarState()} className="px-1 text-2xl align-middle">
+          ⚙
         </button>
       </div>
       <div
