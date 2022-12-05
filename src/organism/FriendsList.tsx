@@ -6,11 +6,11 @@ import { FloatingPortal } from '@floating-ui/react-dom-interactions';
 import { profileUserState } from '@/states/user/profileUser';
 import { Friend, useDeleteFriend, useFriends } from '@/hooks/friends';
 import { useOptionMenu } from '@/hooks/optionMenu';
-import { useRequestWatchGame } from '@/hooks/game';
 import Spinner from '@/atom/Spinner';
 import SectionList from '@/molecule/SectionList';
 import OptionMenu, { Option } from '@/molecule/OptionMenu';
 import StatusIndicator from '@/molecule/StatusIndicator';
+import {useRequestNormalGame, useRequestWatchGame} from "@/hooks/game";
 
 function useFriendsStatusSocket() {
   const socketRef = useSocketRef(`ws://${import.meta.env.VITE_BASE_URL}:9994`);
@@ -135,12 +135,13 @@ interface FriendOptionMenuProps {
 function FriendOptionMenu({ friend }: FriendOptionMenuProps) {
   const deleteFriend = useDeleteFriend();
   const requestWatchGame = useRequestWatchGame();
+  const requestNormalGame = useRequestNormalGame();
 
   const options: Option[] = [
     {
       label: 'Invite Game',
       onClick: () => {
-        /**/
+        requestNormalGame(friend.nickname);
       },
     },
     {
