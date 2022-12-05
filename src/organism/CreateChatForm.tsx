@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Button from '@/atom/Button';
-import { fetcher } from '@/hooks/fetcher';
+import { useFetcher } from '@/hooks/fetcher';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSetRecoilState } from 'recoil';
 import { roomInfoState } from '@/states/roomInfoState';
@@ -13,6 +13,7 @@ function useAddChatRoom(
   password: string,
 ) {
   const queryClient = useQueryClient();
+  const fetcher = useFetcher();
   const setRoomInfo = useSetRecoilState(roomInfoState);
 
   const addChatRoom = useMutation({

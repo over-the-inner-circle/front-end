@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetcher } from '@/hooks/fetcher';
+import { useFetcher } from '@/hooks/fetcher';
 import {RoomInfo} from "@/states/roomInfoState";
 import { useAutoScroll, useSocketRef } from '@/hooks/chat';
+import { toast } from 'react-toastify';
 
 export interface ChatProps {
   roomInfo: RoomInfo;
@@ -36,6 +37,7 @@ interface Message {
 }
 
 function useChatMessages(roomId: string) {
+  const fetcher = useFetcher();
   const data = useQuery<Message[]>({
     queryKey: ['chat/room/messages', roomId],
     queryFn: async () => {
@@ -80,8 +82,8 @@ function useChat(roomId: string) {
       );
     };
 
-    const handleAnnounce = (data) => {
-      console.log(data);
+    const handleAnnounce = (data: object) => {
+      toast.info(JSON.stringify(data));
     };
 
     socket.emit('join', { room: roomId });

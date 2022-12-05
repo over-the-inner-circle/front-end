@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSetRecoilState } from 'recoil';
 import { useAutoScroll } from '@/hooks/chat';
-import { fetcher } from '@/hooks/fetcher';
+import { useFetcher } from '@/hooks/fetcher';
 import { useOptionMenu } from '@/hooks/optionMenu';
 import { useRequestNormalGame } from '@/hooks/game';
 import {
@@ -22,6 +22,7 @@ interface DirectmsgRoomProps {
 }
 
 function useOpponent(nickname: string) {
+  const fetcher = useFetcher();
   const data = useQuery<Friend>({
     queryKey: ['user', nickname],
     queryFn: async () => {

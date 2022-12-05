@@ -1,5 +1,5 @@
 import Spinner from '@/atom/Spinner';
-import { fetcher } from '@/hooks/fetcher';
+import { useFetcher } from '@/hooks/fetcher';
 import { RequestedFriend, useRequestedFriends } from '@/hooks/friends';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import SectionList from '@/molecule/SectionList';
@@ -43,6 +43,7 @@ interface RequestedFriendItemProps {
 }
 
 function useFriendRequestAccept(requestData: RequestedFriend, type?: string) {
+  const fetcher = useFetcher();
   const queryClient = useQueryClient();
   const acceptMutation = useMutation({
     mutationFn: () => {
@@ -60,6 +61,7 @@ function useFriendRequestAccept(requestData: RequestedFriend, type?: string) {
 }
 
 function useFriendRequestReject(requestData: RequestedFriend, type?: string) {
+  const fetcher = useFetcher();
   const queryClient = useQueryClient();
   const rejectMutation = useMutation({
     mutationFn: (type?: string) => {
