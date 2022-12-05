@@ -9,7 +9,7 @@
 
 @font-face {
   font-family: dalmoori;
-  src: url('./assets/dalmoori.ttf');
+  src: url('./assets/dalmoori.woff') format('woff');
   unicode-range: U+AC00-D7A3;
 }
 
