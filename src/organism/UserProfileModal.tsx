@@ -1,43 +1,15 @@
-import { useEffect, useState } from 'react';
-import { useRecoilState } from 'recoil';
-import { useQuery } from '@tanstack/react-query';
+import { useProfileModal, useUserInfo } from '@/hooks/profileModal';
 import {
   FloatingFocusManager,
   FloatingOverlay,
   FloatingPortal,
-  useDismiss,
-  useFloating,
-  useInteractions,
 } from '@floating-ui/react-dom-interactions';
 import Spinner from '@/atom/Spinner';
-import { fetcher } from '@/hooks/fetcher';
-import { UserInfo } from '@/hooks/user';
-import { profileUserState } from '@/states/user/profileUser';
+import UserMatchHistory from './UserMatchHistory';
 
 function UserProfileModal() {
-  const [profileUser, setProfileUser] = useRecoilState(profileUserState);
-  const [open, setOpen] = useState(false);
-  const { floating, context } = useFloating({
-    open,
-    onOpenChange: setOpen,
-  });
-
-  const dismiss = useDismiss(context);
-  const { getFloatingProps } = useInteractions([dismiss]);
-
-  useEffect(() => {
-    if (profileUser) {
-      setOpen(true);
-    } else {
-      setOpen(false);
-    }
-  }, [profileUser]);
-
-  useEffect(() => {
-    if (!open) {
-      setProfileUser(null);
-    }
-  }, [open, setProfileUser]);
+  const { profileUser, open, setOpen, context, floating, getFloatingProps } =
+    useProfileModal();
 
   return (
     <FloatingPortal>
@@ -47,7 +19,11 @@ function UserProfileModal() {
           className="flex items-center justify-center bg-neutral-800/80"
         >
           <FloatingFocusManager context={context}>
-            <div className="h-3/4 w-2/3" ref={floating} {...getFloatingProps()}>
+            <div
+              className="h-3/4 w-2/3 overflow-auto"
+              ref={floating}
+              {...getFloatingProps()}
+            >
               <UserProfile
                 nickname={profileUser}
                 close={() => setOpen(false)}
@@ -60,21 +36,6 @@ function UserProfileModal() {
   );
 }
 
-function useUserInfo(nickname: string) {
-  const data = useQuery<UserInfo>({
-    queryKey: ['user', nickname],
-    queryFn: async () => {
-      const res = await fetcher(`/user/${nickname}`);
-
-      if (res.ok) return res.json();
-      throw res;
-    },
-    retry: false,
-  });
-
-  return data;
-}
-
 interface UserProfileProps {
   nickname: string;
   close(): void;
@@ -85,17 +46,19 @@ function UserProfile({ nickname, close }: UserProfileProps) {
 
   return (
     <div
-      className="flex h-full w-full flex-col flex-wrap items-center justify-start
+      className="flex h-fit w-full flex-col items-center justify-start
                  border-4 bg-neutral-900 p-4 font-pixel text-white"
     >
       <div className="flex w-full items-start">
         <button onClick={close}>X</button>
       </div>
-      <div className="flex w-full max-w-md flex-col space-y-6 pt-8">
+      <div className="flex w-full max-w-lg flex-col space-y-6 pt-8">
         {isError ? (
           <h2>Could not found {`'${nickname}'`}</h2>
         ) : isLoading ? (
-          <Spinner />
+            <div className="py-28">
+              <Spinner />
+            </div>
         ) : (
           <>
             <div className="flex flex-row items-center">
@@ -111,7 +74,7 @@ function UserProfile({ nickname, close }: UserProfileProps) {
                 <p>mmr: {data.mmr}</p>
               </div>
             </div>
-            <div>최근 전적</div>
+            <UserMatchHistory nickname={data.nickname} />
           </>
         )}
       </div>
