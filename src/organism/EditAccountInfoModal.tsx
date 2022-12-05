@@ -89,9 +89,9 @@ const EditAccountForm = () => {
     // 닉네임 수정 PUT 요청
     updateUserName.mutate(nickname);
     // 프로필 수정 PUT 요청
-    // if (imageInfo) {
-    //   updateUserProfileImage.mutate(imageInfo);
-    // }
+    if (imageInfo) {
+      updateUserProfileImage.mutate(imageInfo.file);
+    }
     //updateUser2Fa()
   }
 

@@ -8,8 +8,10 @@ export function useFetcher() {
   const accessToken = useRecoilValue(accessTokenState);
   const queryClient = useQueryClient();
 
-  const fetcherWrapper = (url: string, options: RequestInit = {}) =>
-    fetcher(url, accessToken, options)
+  const fetcherWrapper = (url: string,
+                          options: RequestInit = {},
+                          contentType = 'application/json') =>
+    fetcher(url, accessToken, options, contentType)
       .then((res) => {
         if (res.status === 401) throw res;
         else return res;
@@ -29,10 +31,11 @@ export async function fetcher(
   url: string,
   token: string | null,
   options: RequestInit = {},
+  contentType: string,
 ) {
   options = appendAccessToken(token, options);
 
-  if (options.body) {
+  if (options.body && contentType !== '') {
     options.headers = {
       ...options.headers,
       'content-type': 'application/json',

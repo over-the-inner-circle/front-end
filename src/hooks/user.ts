@@ -1,11 +1,8 @@
-import {useMutation, useQuery} from '@tanstack/react-query';
-import { fetcher } from '@/hooks/fetcher';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { refreshAccessToken, useFetcher } from '@/hooks/fetcher';
+import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
+import {BASE_API_URL, refreshAccessToken, useFetcher} from '@/hooks/fetcher';
 import { useNavigate } from 'react-router-dom';
-import {SignUpUserInfo} from "@/states/user/signUp";
 import { accessTokenState, UserInfo } from '@/states/user/auth';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import { toast } from 'react-toastify';
 
 interface RefreshData {
@@ -68,6 +65,7 @@ export function useCurrentUser() {
   return data;
 }
 export function useUpdateUserName() {
+  const fetcher = useFetcher();
   const mutation = useMutation({
     mutationFn: async (nickname: string) => {
       const res = await fetcher('/user/nickname', {
@@ -92,7 +90,26 @@ export function useUpdateUserName() {
 }
 
 export function useUpdateUserProfileImage() {
-
+  const fetcher = useFetcher();
+  const mutation = useMutation({
+    mutationFn: async (image: File) => {
+      const imgData = new FormData();
+      imgData.append('prof_img', image);
+      const res = await fetcher('/user/prof-img', {
+        method: 'PUT',
+        body: imgData,
+      }, '');
+      if (res.ok) return res.json();
+      throw res;
+    },
+    onSuccess: () => {
+      toast.success('Your profile image has been updated.');
+    },
+    onError: () => {
+      toast.error('Failed to update profile image.');
+    }
+  })
+  return mutation;
 }
 
 export function useUpdateUser2Fa() {
