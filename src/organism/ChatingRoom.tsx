@@ -45,14 +45,7 @@ interface Message {
   created: Date;
 }
 
-export default function ChatingRoom({ roomInfo, close }: ChatProps) {
-  const [sidebarState, setSidebarState] = useState<ChattingSideBarState> (
-    'chatting');
-  return (
-    <ChattingSideBarSelector sidebarState={sidebarState} roomInfo={roomInfo} close={close} closeSidebarState={
-      () => {setSidebarState('configChattingRoom')}} />
-  );
-}
+
 
 function ChattingSideBarSelector ( { sidebarState, roomInfo, close, closeSidebarState }: ChattingSideBarProps) {
   switch (sidebarState) {
@@ -214,7 +207,7 @@ function ConfigChattingRoomSideBar({sidebarState, roomInfo, close, closeSidebarS
 
 function ShowUserList(roomInfo: RoomInfo) {
   const { data: users } = GetUserListItem(roomInfo);
-  console.log(users);
+  //console.log(users);
   return (
     <>
       <div className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
@@ -248,4 +241,13 @@ function GetUserListItem(roomInfo: RoomInfo) {
     }
   });
   return result;
+}
+
+export default function ChatingRoom({ roomInfo, close }: ChatProps) {
+  const [sidebarState, setSidebarState] = useState<ChattingSideBarState> (
+    'chatting');
+  return (
+    <ChattingSideBarSelector sidebarState={sidebarState} roomInfo={roomInfo} close={close} closeSidebarState={
+      () => {setSidebarState('configChattingRoom')}} />
+  );
 }
