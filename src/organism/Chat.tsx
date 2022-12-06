@@ -68,7 +68,13 @@ function ChattingRoomList() {
       <SectionList
         sections={section}
         renderItem={(room) => (
-          <button onClick={() => handleClick(room)}>{room.room_name}</button>
+          <button
+            className="flex w-full flex-col p-3 px-5 gap-2"
+            onClick={() => handleClick(room)}
+          >
+            <p>{room.room_name}</p>
+            <p className='text-xs'>{room.room_access}</p>
+          </button>
         )}
         keyExtractor={(room) => room.room_id}
       />

@@ -71,7 +71,7 @@ function AddDirectmsgForm() {
       <form
         onSubmit={handleSubmit}
         className="flex w-full flex-row items-center gap-2
-                   border-b border-neutral-400 bg-neutral-800 p-3"
+                   border-b border-neutral-400 bg-neutral-800 p-3 pl-5"
       >
         <label htmlFor="nickname">To.</label>
         <input
@@ -84,7 +84,7 @@ function AddDirectmsgForm() {
           required
         />
         <button
-          className="disabled:opacity-20"
+          className="disabled:opacity-20 px-1"
           type="submit"
           disabled={isFetching}
         >
