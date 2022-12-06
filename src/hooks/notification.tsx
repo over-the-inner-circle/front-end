@@ -7,11 +7,9 @@ import { dmHistoryState } from '@/states/dmHistoryState';
 import NotificationGame, {GameInvitationData} from '@/molecule/NotificationGame';
 import NotificationChat from '@/molecule/NotificationChat';
 import NotificationDM from '@/molecule/NotificationDM';
-import type { NotificationGameData } from '@/molecule/NotificationGame';
 import type { NotificationChatData } from '@/molecule/NotificationChat';
 import type { NotificationDMData } from '@/molecule/NotificationDM';
 import { currentDMOpponentState } from '@/states/currentDMOpponent';
-import {UserInfo} from "@/hooks/user";
 
 interface NotificationResponse<T extends object> {
   type: string;

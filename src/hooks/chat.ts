@@ -53,19 +53,20 @@ export function useSocketRef(url: string) {
   );
 
   useEffect(() => {
-    if (access_token) {
-      socketRef.current.auth = { access_token };
-    }
-  }, [access_token]);
-
-  useEffect(() => {
     const socket = socketRef.current;
 
-    socket.connect();
     return () => {
       socket.disconnect();
     };
   }, []);
+
+  useEffect(() => {
+    const socket = socketRef.current;
+    if (access_token) {
+      socket.auth = { access_token };
+      socket.connect();
+    }
+  }, [access_token]);
 
   return socketRef;
 }

@@ -4,7 +4,7 @@ import {gameInitialData} from "@/states/game/gameInitialData";
 import {matchInfo} from "@/states/game/matchInfo";
 import {GameSocketManager} from "@/models/GameSocketManager";
 import {MatchInfo} from "@/molecule/GameOnMatching";
-import {fetcher} from "@/hooks/fetcher";
+import {useFetcher} from "@/hooks/fetcher";
 import {toast} from "react-toastify";
 import {useEffect} from "react";
 
@@ -35,6 +35,7 @@ export const useRequestWatchGame = () => {
 export const useRequestNormalGame = () => {
   const setGameStatus = useSetRecoilState(currentGameStatus);
   const setMatchInfo = useSetRecoilState(matchInfo);
+  const fetcher = useFetcher();
 
   const waitNormalGameMatched = (player: string) => {
     const socket = GameSocketManager.getInstance().socket;
