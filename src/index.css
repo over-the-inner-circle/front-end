@@ -18,6 +18,22 @@ body, html, #root {
   width: 100%;
 }
 
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #262626;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #404040;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #737373;
+}
+
 div.stop-dragging
 {
   -ms-user-select: none;
