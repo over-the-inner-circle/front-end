@@ -23,7 +23,7 @@ export interface RoomUserList {
 	"deleted": string;
 }
 
-export const roomUserListState = atom<RoomUserList[] | null>({
+export const roomUserListState = atom<RoomUserList | null>({
 	key: 'roomUserList',
-	default: [],
+	default: null,
 })

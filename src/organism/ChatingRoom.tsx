@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetcher } from '@/hooks/fetcher';
-import {RoomInfo} from "@/states/roomInfoState";
+import {RoomInfo, RoomUserList} from "@/states/roomInfoState";
 import { useAutoScroll, useSocketRef } from '@/hooks/chat';
 import * as process from "process";
 
@@ -49,7 +49,8 @@ export default function ChatingRoom({ roomInfo, close }: ChatProps) {
   const [sidebarState, setSidebarState] = useState<ChattingSideBarState> (
     'chatting');
   return (
-    <ChattingSideBarSelector sidebarState={sidebarState} roomInfo={roomInfo} close={close} closeSidebarState={() => {setSidebarState('chatting')}} />
+    <ChattingSideBarSelector sidebarState={sidebarState} roomInfo={roomInfo} close={close} closeSidebarState={
+      () => {setSidebarState('configChattingRoom')}} />
   );
 }
 
@@ -199,7 +200,8 @@ function ConfigChattingRoomSideBar({sidebarState, roomInfo, close, closeSidebarS
       <div className="h-full w-full grow overflow-y-auto border-b border-inherit">
         <ul className="flex h-fit w-full flex-col items-start justify-start">
           <li className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
-            <button> UserList </button>
+            <button onClick={() => {ShowUserList(roomInfo)}}> UserList </button>
+
           </li>
           <li className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
             <button> ConfigChattingRoom </button>
@@ -210,28 +212,9 @@ function ConfigChattingRoomSideBar({sidebarState, roomInfo, close, closeSidebarS
   )
 }
 
-function userListItem(roomInfo: RoomInfo) {
-  const result = useQuery({
-    queryKey: ['chat/room', roomInfo.room_id],
-    queryFn: async ():promise< => {
-      const res = await fetcher(`/chat/room/${roomInfo.room_id}`);
-
-      if (res.ok) {
-        const data = await res.json();
-        return data.room;
-      }
-      return null;
-    }
-  })
-
-}
-
-
-
-function showUserList( {sidebarState, roomInfo, close, closeSidebarState}: ChattingSideBarProps ) {
-
-
-
+function ShowUserList(roomInfo: RoomInfo) {
+  const { data: users } = GetUserListItem(roomInfo);
+  console.log(users);
   return (
     <>
       <div className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
@@ -239,12 +222,30 @@ function showUserList( {sidebarState, roomInfo, close, closeSidebarState}: Chatt
       </div>
       <div className="h-full w-full grow overflow-y-auto border-b border-inherit">
         <ul className="flex h-fit w-full flex-col items-start justify-start">
-          <li className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
-
-          </li>
+          {users?.map((user) => (
+            <li
+              key={user.user_id}
+              className="h-fit w-full break-words p-1 px-5 text-xs"
+            >{`${user.nickname}`}</li>
+          ))}
         </ul>
       </div>
     </>
   )
 }
 
+function GetUserListItem(roomInfo: RoomInfo) {
+  const result = useQuery({
+    queryKey: ['chat/room', roomInfo.room_id],
+    queryFn: async (): Promise<RoomUserList[]> => {
+      const res = await fetcher(`/chat/room/${roomInfo.room_id}`);
+
+      if (res.ok) {
+        const data = await res.json();
+        return data.room_users;
+      }
+      return [];
+    }
+  });
+  return result;
+}
