@@ -52,6 +52,7 @@ export function useRefreshToken() {
 
 export function useCurrentUser() {
   const fetcher = useFetcher();
+  const accessToken = useRecoilValue(accessTokenState);
   const data = useQuery<UserInfo>({
     queryKey: ['user'],
     queryFn: async () => {
@@ -60,9 +61,11 @@ export function useCurrentUser() {
       if (res.ok) return res.json();
       throw res;
     },
+    enabled: !!accessToken,
   });
   return data;
 }
+
 export function useUpdateUserName() {
   const fetcher = useFetcher();
   const queryClient = useQueryClient();
