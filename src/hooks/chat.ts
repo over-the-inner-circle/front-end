@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { io } from 'socket.io-client';
 import { accessTokenState } from '@/states/user/auth';
 import { RoomInfo, roomInfoState } from '@/states/roomInfoState';
@@ -9,6 +9,7 @@ import { useFetcher } from '@/hooks/fetcher';
 export type RoomListType = 'all' | 'joined';
 
 export function useRoomList(type: RoomListType) {
+  const queryClient = useQueryClient();
   const fetcher = useFetcher();
   const result = useQuery({
     queryKey: ['chat/rooms', type],
@@ -19,6 +20,22 @@ export function useRoomList(type: RoomListType) {
         return data.rooms;
       }
       return [];
+    },
+    select: (roomList) => {
+      if (type === 'all') {
+        const joinedRoomList = queryClient.getQueryData<RoomInfo[]>([
+          'chat/rooms',
+          'joined',
+        ]);
+
+        if (joinedRoomList) {
+          return roomList.filter(
+            (all) =>
+              !joinedRoomList.find((joined) => joined.room_id === all.room_id),
+          );
+        }
+      }
+      return roomList;
     },
   });
   return result;
