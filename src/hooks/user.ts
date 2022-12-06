@@ -42,7 +42,6 @@ export function useRefreshToken() {
         }
       }
     },
-    enabled: !accessToken,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchInterval: 3500 * 1000,
@@ -66,6 +65,7 @@ export function useCurrentUser() {
 }
 export function useUpdateUserName() {
   const fetcher = useFetcher();
+  const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: async (nickname: string) => {
       const res = await fetcher('/user/nickname', {
@@ -77,6 +77,7 @@ export function useUpdateUserName() {
     },
     onSuccess: () => {
       toast.success('Your nickname has been updated.');
+      queryClient.invalidateQueries({queryKey: ['auth/refresh']});
     },
     onError: (error: Response) => {
       if (error.status === 409) {
