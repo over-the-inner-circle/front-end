@@ -38,7 +38,7 @@ export async function fetcher(
   if (options.body && contentType !== '') {
     options.headers = {
       ...options.headers,
-      'content-type': 'application/json',
+      'content-type': contentType,
     };
   }
 

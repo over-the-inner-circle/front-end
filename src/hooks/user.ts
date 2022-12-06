@@ -4,10 +4,55 @@ import { useNavigate } from 'react-router-dom';
 import { accessTokenState, UserInfo } from '@/states/user/auth';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import { toast } from 'react-toastify';
+import {signUpUserInfoState} from "@/states/user/signUp";
+import {useEffect} from "react";
+import {getOAuthUrl, providers} from "@/pages/Intro";
 
 interface RefreshData {
   access_token: string;
   refresh_token: string;
+}
+
+export const useSignUpUser = () => {
+  const fetcher = useFetcher();
+  const navigate = useNavigate();
+  const signUpUserInfo = useRecoilValue(signUpUserInfoState);
+
+  useEffect(() => {
+    if (!signUpUserInfo) {
+      navigate('/');
+    }
+  }, [signUpUserInfo, navigate]);
+
+  const mutation = useMutation({
+    mutationFn: async (nickname: string) => {
+      const res = await fetcher('/user', {
+        method: 'POST',
+        body: JSON.stringify({
+          nickname,
+          provider: signUpUserInfo?.provider,
+          third_party_id: signUpUserInfo?.third_party_id,
+          prof_img: signUpUserInfo?.prof_img,
+        })
+      });
+      if (!res.ok) throw res;
+      return res.json();
+    },
+    onSuccess: () => {
+      if (signUpUserInfo) {
+        window.location.href = getOAuthUrl(providers[signUpUserInfo.provider]);
+      }
+    },
+    onError: (error: Response) => {
+      if (error.status === 409) {
+        toast.error('Nickname is already exist');
+      } else {
+        toast.error('Something went wrong');
+        console.log(error);
+      }
+    }
+  })
+  return mutation;
 }
 
 export function useRefreshToken() {
