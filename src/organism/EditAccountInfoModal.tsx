@@ -1,4 +1,5 @@
 import React, {useCallback, useEffect, useRef, useState} from "react";
+import {useNavigate} from "react-router-dom";
 import {useRecoilState, useSetRecoilState} from "recoil";
 import {
   FloatingFocusManager,
@@ -16,6 +17,7 @@ import {useCurrentUser,
   useUpdateUser2Fa
 } from "@/hooks/user";
 
+
 interface ImageInfo {
   file: File;
   url: string;
@@ -26,16 +28,17 @@ const EditAccountForm = () => {
 
   const setIsEditAccountModalOpen = useSetRecoilState(isEditAccountModalOpenState);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const navigate = useNavigate();
 
   const [imageInfo, setImageInfo] = useState<ImageInfo | null>(null);
   const [nickname, setNickname] = useState("");
   const [is2faOn, setIs2faOn] = useState(false);
 
   const currentUser = useCurrentUser().data;
-
   const updateUserName = useUpdateUserName();
   const updateUserProfileImage = useUpdateUserProfileImage();
   const updateUser2Fa = useUpdateUser2Fa();
+
 
   useEffect(() => {
     setNickname(currentUser?.nickname || "");
@@ -97,6 +100,14 @@ const EditAccountForm = () => {
 
   const closeModal = () => {
     setIsEditAccountModalOpen(false);
+  }
+
+  const deleteAccount = () => {
+    if (confirm("Are you sure you want to delete your account?")) {
+      // DELETE 요청
+
+      navigate("/");
+    }
   }
 
   /* sub components =========================================================== */
@@ -168,7 +179,13 @@ const EditAccountForm = () => {
           <SaveButton />
         </div>
       </div>
-      <div className={`empty`}></div>
+      <div className="flex w-full items-start">
+        <div className="text-neutral-700 text-xs stop-dragging hover:text-neutral-300"
+             onClick={deleteAccount}
+        >
+          Delete Account
+        </div>
+      </div>
     </div>
   )
 }

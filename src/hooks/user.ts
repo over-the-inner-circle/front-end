@@ -1,5 +1,5 @@
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
-import {BASE_API_URL, refreshAccessToken, useFetcher} from '@/hooks/fetcher';
+import {refreshAccessToken, useFetcher} from '@/hooks/fetcher';
 import { useNavigate } from 'react-router-dom';
 import { accessTokenState, UserInfo } from '@/states/user/auth';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
@@ -35,8 +35,6 @@ export const useSignUpUser = () => {
           prof_img: signUpUserInfo?.prof_img,
         })
       });
-      if (!res.ok) throw res;
-      return res.json();
     },
     onSuccess: () => {
       if (signUpUserInfo) {

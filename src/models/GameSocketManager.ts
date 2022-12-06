@@ -12,7 +12,6 @@ export class GameSocketManager {
   public initSocket(socketUrl: string, accessToken: string) {
     this.socket = io(socketUrl, {
       auth: { access_token: accessToken },
-      autoConnect: false,
     });
   }
 

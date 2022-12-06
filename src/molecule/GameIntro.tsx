@@ -20,6 +20,7 @@ const GameIntro = () => {
 
     const socket = socketManager.socket;
     if (!socket) { return; }
+    if (socket.disconnected) { socket.connect(); }
     //TODO: 여러번 눌렸을 때 어떻게 되는지 체크하기
     console.log(socket.id);
     socket.emit("user_join_queue");
