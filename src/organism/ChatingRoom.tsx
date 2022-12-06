@@ -3,11 +3,11 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetcher } from '@/hooks/fetcher';
 import {RoomInfo} from "@/states/roomInfoState";
 import { useAutoScroll, useSocketRef } from '@/hooks/chat';
+import * as process from "process";
 
 export type ChattingSideBarState = 'chatting' | 'configChattingRoom';
 
 export interface ChatProps {
-  sidebarState: ChattingSideBarState;
   roomInfo: RoomInfo;
   close(): void;
 }
@@ -18,27 +18,6 @@ export interface ChattingSideBarProps {
   close(): void;
   closeSidebarState(): void;
 }
-
-
-
-const ChattingSideBarSelector = ( { sidebarState, roomInfo, close, closeSidebarState }: ChattingSideBarProps) => {
-  switch (sidebarState) {
-    case 'chatting':
-      return <ChattingSideBar sidebarState= {sidebarState} roomInfo={roomInfo} close={close} closeSidebarState={closeSidebarState} />;
-    case 'configChattingRoom':
-      return <ConfigChattingRoomSideBar sidebarState= {sidebarState} roomInfo={roomInfo} close={close} closeSidebarState={closeSidebarState}/>;
-  }
-}
-
-export default function ChatingRoom({ roomInfo, close }: ChatProps) {
-  const [sidebarState, setSidebarState] = useState<ChattingSideBarState>(
-    'chatting');
-  return (
-    <ChattingSideBarSelector sidebarState={sidebarState} roomInfo={roomInfo} close={close} closeSidebarState={() => {setSidebarState('chatting')}} />
-);
-}
-
-
 
 interface UserInfo {
   user_id: string;
@@ -64,6 +43,23 @@ interface Message {
   sender: UserInfo;
   payload: string;
   created: Date;
+}
+
+export default function ChatingRoom({ roomInfo, close }: ChatProps) {
+  const [sidebarState, setSidebarState] = useState<ChattingSideBarState> (
+    'chatting');
+  return (
+    <ChattingSideBarSelector sidebarState={sidebarState} roomInfo={roomInfo} close={close} closeSidebarState={() => {setSidebarState('chatting')}} />
+  );
+}
+
+function ChattingSideBarSelector ( { sidebarState, roomInfo, close, closeSidebarState }: ChattingSideBarProps) {
+  switch (sidebarState) {
+    case 'chatting':
+      return <ChattingSideBar sidebarState= {sidebarState} roomInfo={roomInfo} close={close} closeSidebarState={closeSidebarState} />;
+    case 'configChattingRoom':
+      return <ConfigChattingRoomSideBar sidebarState= {sidebarState} roomInfo={roomInfo} close={close} closeSidebarState={closeSidebarState}/>;
+  }
 }
 
 function useChatMessages(roomId: string) {
@@ -131,28 +127,6 @@ function useChat(roomId: string) {
   return { messages, socket: socketRef.current };
 }
 
-function ConfigChattingRoomSideBar({sidebarState, roomInfo, close, closeSidebarState}: ChattingSideBarProps) {
-
-
-  return (
-    <>
-      <div className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
-        {roomInfo.room_name}
-      </div>
-      <div className="h-full w-full grow overflow-y-auto border-b border-inherit">
-        <ul className="flex h-fit w-full flex-col items-start justify-start">
-          <li className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
-            <button> UserList </button>
-          </li>
-          <li className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
-            <button> ConfigChattingRoom </button>
-          </li>
-        </ul>
-      </div>
-    </>
-  )
-}
-
 function ChattingSideBar({sidebarState, roomInfo, close, closeSidebarState }: ChattingSideBarProps) {
   const [content, setContent] = useState('');
   const { messages, socket } = useChat(roomInfo.room_id);
@@ -215,5 +189,62 @@ function ChattingSideBar({sidebarState, roomInfo, close, closeSidebarState }: Ch
   );
 }
 
+function ConfigChattingRoomSideBar({sidebarState, roomInfo, close, closeSidebarState}: ChattingSideBarProps) {
 
+  return (
+    <>
+      <div className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
+        {roomInfo.room_name}
+      </div>
+      <div className="h-full w-full grow overflow-y-auto border-b border-inherit">
+        <ul className="flex h-fit w-full flex-col items-start justify-start">
+          <li className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
+            <button> UserList </button>
+          </li>
+          <li className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
+            <button> ConfigChattingRoom </button>
+          </li>
+        </ul>
+      </div>
+    </>
+  )
+}
+
+function userListItem(roomInfo: RoomInfo) {
+  const result = useQuery({
+    queryKey: ['chat/room', roomInfo.room_id],
+    queryFn: async ():promise< => {
+      const res = await fetcher(`/chat/room/${roomInfo.room_id}`);
+
+      if (res.ok) {
+        const data = await res.json();
+        return data.room;
+      }
+      return null;
+    }
+  })
+
+}
+
+
+
+function showUserList( {sidebarState, roomInfo, close, closeSidebarState}: ChattingSideBarProps ) {
+
+
+
+  return (
+    <>
+      <div className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
+        {roomInfo.room_name}
+      </div>
+      <div className="h-full w-full grow overflow-y-auto border-b border-inherit">
+        <ul className="flex h-fit w-full flex-col items-start justify-start">
+          <li className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
+
+          </li>
+        </ul>
+      </div>
+    </>
+  )
+}
 
