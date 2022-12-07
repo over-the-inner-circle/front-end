@@ -175,3 +175,26 @@ export function useLogOut() {
 
   return logOut;
 }
+
+export const useDeleteAccount = () => {
+  const fetcher = useFetcher();
+  const logOut = useLogOut();
+  const mutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetcher('/user', {
+        method: 'DELETE',
+      });
+      if (res.ok) return res.json();
+      throw res;
+    },
+    onSuccess: () => {
+      logOut();
+      toast.success('Your account has been deleted.');
+    },
+    onError: (error: Response) => {
+      console.log(error);
+      toast.error('Failed to delete account.');
+    }
+  })
+  return mutation;
+}

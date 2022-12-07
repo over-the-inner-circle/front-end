@@ -1,5 +1,4 @@
 import React, {useCallback, useEffect, useRef, useState} from "react";
-import {useNavigate} from "react-router-dom";
 import {useRecoilState, useSetRecoilState} from "recoil";
 import {
   FloatingFocusManager,
@@ -11,10 +10,12 @@ import {
 
 import isEditAccountModalOpenState from "@/states/user/isEditAccountModalOpen";
 import Button from "@/atom/Button";
-import {useCurrentUser,
+import {
+  useCurrentUser,
   useUpdateUserName,
   useUpdateUserProfileImage,
-  useUpdateUser2Fa
+  useUpdateUser2Fa,
+  useDeleteAccount
 } from "@/hooks/user";
 
 
@@ -28,7 +29,6 @@ const EditAccountForm = () => {
 
   const setIsEditAccountModalOpen = useSetRecoilState(isEditAccountModalOpenState);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const navigate = useNavigate();
 
   const [imageInfo, setImageInfo] = useState<ImageInfo | null>(null);
   const [nickname, setNickname] = useState("");
@@ -38,6 +38,7 @@ const EditAccountForm = () => {
   const updateUserName = useUpdateUserName();
   const updateUserProfileImage = useUpdateUserProfileImage();
   const updateUser2Fa = useUpdateUser2Fa();
+  const deleteAccount = useDeleteAccount();
 
 
   useEffect(() => {
@@ -102,11 +103,11 @@ const EditAccountForm = () => {
     setIsEditAccountModalOpen(false);
   }
 
-  const deleteAccount = () => {
-    if (confirm("Are you sure you want to delete your account?")) {
-      // DELETE 요청
-
-      navigate("/");
+  const deleteCurrentAccount = () => {
+    if (confirm("Are you sure you want to delete your account?")
+      && confirm("Are you really sure? This action cannot be undone.")
+      && confirm("Last chance.\nARE YOU REALLY SURE?")) {
+      deleteAccount.mutate();
     }
   }
 
@@ -180,11 +181,11 @@ const EditAccountForm = () => {
         </div>
       </div>
       <div className="flex w-full items-start">
-        <div className="text-neutral-700 text-xs stop-dragging hover:text-neutral-300"
-             onClick={deleteAccount}
-        >
-          Delete Account
-        </div>
+        {/*<div className="text-neutral-700 text-xs stop-dragging hover:text-neutral-300"*/}
+        {/*     onClick={deleteCurrentAccount}*/}
+        {/*>*/}
+        {/*  Delete Account*/}
+        {/*</div>*/}
       </div>
     </div>
   )
