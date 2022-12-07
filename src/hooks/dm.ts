@@ -68,20 +68,14 @@ export function useDirectMessageSocket(opponent: string) {
       );
     };
 
-    const handleAnnounce = (data: unknown) => {
-      console.log(data);
-    };
-
     socket.emit('join', { opponent });
 
     socket.on('subscribe', handleSub);
     socket.on('subscribe_self', handleSub);
-    socket.on('announcement', handleAnnounce);
 
     return () => {
       socket.off('subscribe', handleSub);
       socket.off('subscribe_self', handleSub);
-      socket.off('announcement', handleAnnounce);
     };
   }, [opponent, queryClient, socketRef, setDmHistory]);
 
