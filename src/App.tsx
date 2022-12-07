@@ -9,6 +9,7 @@ import SignUp from '@/pages/SignUp';
 import Main from '@/pages/Main';
 
 import 'react-toastify/dist/ReactToastify.min.css';
+import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ function App() {
             <Route path="/login/:provider" element={<Login />} />
             <Route path="/sign-up" element={<SignUp />} />
             <Route path="/main" element={<Main />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
           <ToastContainer
             position="top-center"

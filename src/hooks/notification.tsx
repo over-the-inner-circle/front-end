@@ -4,10 +4,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useSocketRef } from '@/hooks/chat';
 import { toast, ToastContentProps } from 'react-toastify';
 import { dmHistoryState } from '@/states/dmHistoryState';
-import NotificationGame from '@/molecule/NotificationGame';
+import NotificationGame, {GameInvitationData} from '@/molecule/NotificationGame';
 import NotificationChat from '@/molecule/NotificationChat';
 import NotificationDM from '@/molecule/NotificationDM';
-import type { NotificationGameData } from '@/molecule/NotificationGame';
 import type { NotificationChatData } from '@/molecule/NotificationChat';
 import type { NotificationDMData } from '@/molecule/NotificationDM';
 import { currentDMOpponentState } from '@/states/currentDMOpponent';
@@ -28,14 +27,14 @@ export function useNotification() {
 
     const handleGame = ({
       data,
-    }: NotificationResponse<NotificationGameData>) => {
+    }: NotificationResponse<GameInvitationData>) => {
       toast(
-        (props: ToastContentProps<NotificationGameData>) => (
+        (props: ToastContentProps<GameInvitationData>) => (
           <NotificationGame {...props} />
         ),
         {
           autoClose: false,
-          toastId: `invite-game-${data.nickname}`,
+          toastId: `invite-game-${data.sender.nickname}`,
           data,
         },
       );

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetcher } from './fetcher';
+import { useFetcher } from './fetcher';
 
 export interface HistoryUser {
   user_id: string;
@@ -20,6 +20,7 @@ export interface MatchHistory {
 }
 
 export function useMatchHistory(nickname: string) {
+  const fetcher = useFetcher();
   const data = useQuery<MatchHistory[]>({
     queryKey: ['matchHistory', nickname],
     queryFn: async () => {

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetcher } from '@/hooks/fetcher';
+import { useFetcher } from '@/hooks/fetcher';
 import {RoomInfo, RoomUserList} from "@/states/roomInfoState";
 import { useAutoScroll, useSocketRef } from '@/hooks/chat';
-import * as process from "process";
+import { toast } from 'react-toastify';
 import Spinner from "@/atom/Spinner";
 
 export type ChattingSideBarState = 'chatting' | 'configChattingRoom' | 'showUserList' | 'configurRoomSetting';
@@ -47,6 +47,7 @@ interface Message {
 }
 
 function useGetUserListItem(roomInfo: RoomInfo) {
+  const fetcher = useFetcher();
   const result = useQuery({
     queryKey: ['chat/room', roomInfo.room_id],
     queryFn: async (): Promise<RoomUserList[]> => {
@@ -107,6 +108,7 @@ function ChattingSideBarSelector ( { sidebarState, roomInfo, close, setSidebarSt
 }
 
 function useChatMessages(roomId: string) {
+  const fetcher = useFetcher();
   const data = useQuery<Message[]>({
     queryKey: ['chat/room/messages', roomId],
     queryFn: async () => {
@@ -151,8 +153,8 @@ function useChat(roomId: string) {
       );
     };
 
-    const handleAnnounce = (data) => {
-      console.log(data);
+    const handleAnnounce = (data: object) => {
+      toast.info(JSON.stringify(data));
     };
 
     socket.emit('join', { room: roomId });

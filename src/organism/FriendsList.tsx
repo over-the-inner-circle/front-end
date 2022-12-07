@@ -6,7 +6,7 @@ import { FloatingPortal } from '@floating-ui/react-dom-interactions';
 import { profileUserState } from '@/states/user/profileUser';
 import { Friend, useDeleteFriend, useFriends } from '@/hooks/friends';
 import { useOptionMenu } from '@/hooks/optionMenu';
-import { useRequestWatchGame } from '@/hooks/game';
+import { useRequestNormalGame, useRequestWatchGame } from '@/hooks/game';
 import Spinner from '@/atom/Spinner';
 import SectionList from '@/molecule/SectionList';
 import OptionMenu, { Option } from '@/molecule/OptionMenu';
@@ -26,7 +26,7 @@ function useFriendsStatusSocket() {
         return prevFriends
           ? prevFriends.map((friend) =>
               friend.user_id === data.user
-                ? { ...friend, status: data.state }
+                ? { ...friend, state: data.state }
                 : friend,
             )
           : undefined;
@@ -80,24 +80,26 @@ function FriendItem({ friend }: FriendItemProps) {
   const setProfileUser = useSetRecoilState(profileUserState);
 
   return (
-    <div className="flex h-full w-full flex-row items-center justify-start px-5 py-4">
+    <div className="flex h-full w-full flex-row items-center justify-start p-3 px-5">
       <button
         className="min-w-fit"
         onClick={() => setProfileUser(friend.nickname)}
       >
-        <img
-          src={friend.prof_img}
-          alt="profile"
-          width={65}
-          height={65}
-          className="rounded-full"
-        />
+        <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full">
+          <img
+            src={friend.prof_img}
+            alt="profile"
+            width={65}
+            height={65}
+            className="h-full w-full object-cover"
+          />
+        </div>
       </button>
       <div className="flex h-16 min-w-0 flex-col justify-around px-5">
         <p className="truncate text-base">{friend.nickname}</p>
         <div className="flex flex-row items-center space-x-2">
-          <StatusIndicator status={friend.status} />
-          <p className="min-w-0 truncate text-xs">{friend.status}</p>
+          <StatusIndicator status={friend.state} radius={8} />
+          <p className="min-w-0 truncate text-xs">{friend.state}</p>
         </div>
       </div>
       <button
@@ -135,12 +137,13 @@ interface FriendOptionMenuProps {
 function FriendOptionMenu({ friend }: FriendOptionMenuProps) {
   const deleteFriend = useDeleteFriend();
   const requestWatchGame = useRequestWatchGame();
+  const requestNormalGame = useRequestNormalGame();
 
   const options: Option[] = [
     {
       label: 'Invite Game',
       onClick: () => {
-        /**/
+        requestNormalGame(friend.nickname);
       },
     },
     {
