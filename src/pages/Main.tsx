@@ -10,6 +10,7 @@ import UserProfileModal from '@/organism/UserProfileModal';
 import GameContainer from "@/templates/GameContainer";
 import EditAccountInfoModal from "@/organism/EditAccountInfoModal";
 import { useRefreshToken } from '@/hooks/user';
+import TwoFaQrcodeModal from "@/molecule/TwoFaQrcodeModal";
 
 function SidebarSelector() {
   const currentSideBarItem = useRecoilValue(currentSideBarItemState);

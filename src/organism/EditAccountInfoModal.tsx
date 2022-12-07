@@ -7,7 +7,7 @@ import {
   useDismiss,
   useFloating, useInteractions
 } from "@floating-ui/react-dom-interactions";
-
+import {is2FaQrModalOpenState} from "@/states/user/is2FaQrModalOpen";
 import isEditAccountModalOpenState from "@/states/user/isEditAccountModalOpen";
 import Button from "@/atom/Button";
 import {
@@ -15,8 +15,10 @@ import {
   useUpdateUserName,
   useUpdateUserProfileImage,
   useUpdateUser2Fa,
-  useDeleteAccount
+  useDeleteAccount, useGenerateUser2FA, TwoFAGenerateData
 } from "@/hooks/user";
+import TwoFaQrcodeModal from "@/molecule/TwoFaQrcodeModal";
+
 
 
 interface ImageInfo {
@@ -28,6 +30,7 @@ interface ImageInfo {
 const EditAccountForm = () => {
 
   const setIsEditAccountModalOpen = useSetRecoilState(isEditAccountModalOpenState);
+  const setIs2FaQrModalOpen = useSetRecoilState(is2FaQrModalOpenState);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const [imageInfo, setImageInfo] = useState<ImageInfo | null>(null);
@@ -38,6 +41,7 @@ const EditAccountForm = () => {
   const updateUserName = useUpdateUserName();
   const updateUserProfileImage = useUpdateUserProfileImage();
   const updateUser2Fa = useUpdateUser2Fa();
+  const generateUser2Fa = useGenerateUser2FA();
   const deleteAccount = useDeleteAccount();
 
 
@@ -46,7 +50,6 @@ const EditAccountForm = () => {
     if (currentUser?.two_factor_authentication_key) {
       setIs2faOn(true);
     }
-
   }, [currentUser]);
 
   const onUploadImage = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,7 +78,13 @@ const EditAccountForm = () => {
   }
 
   const handle2fa = () => {
-    setIs2faOn(!is2faOn);
+    const authData:TwoFAGenerateData | undefined = generateUser2Fa.data;
+    if (authData) {
+      console.log(authData.secret);
+      console.log(authData.otpauthUrl);
+    }
+    setIs2FaQrModalOpen(true);
+    // setIs2faOn(!is2faOn);
   }
 
   const currentProfileImageUrl = () => {
@@ -211,6 +220,7 @@ const EditAccountInfoModal = () => {
           >
             <div className="h-3/4 w-2/3" ref={floating} {...getFloatingProps()}>
               <EditAccountForm/>
+              <TwoFaQrcodeModal />
             </div>
           </FloatingFocusManager>
         </FloatingOverlay>

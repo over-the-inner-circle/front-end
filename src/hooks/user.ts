@@ -13,6 +13,11 @@ interface RefreshData {
   refresh_token: string;
 }
 
+export interface TwoFAGenerateData {
+  "otpauthUrl": string;
+  "secret": string;
+}
+
 export const useSignUpUser = () => {
   const fetcher = useFetcher();
   const navigate = useNavigate();
@@ -26,7 +31,7 @@ export const useSignUpUser = () => {
 
   const mutation = useMutation({
     mutationFn: async (nickname: string) => {
-      const res = await fetcher('/user', {
+      await fetcher('/user', {
         method: 'POST',
         body: JSON.stringify({
           nickname,
@@ -100,7 +105,6 @@ export function useCurrentUser() {
     queryKey: ['user'],
     queryFn: async () => {
       const res = await fetcher('/user');
-
       if (res.ok) return res.json();
       throw res;
     },
@@ -157,6 +161,19 @@ export function useUpdateUserProfileImage() {
     }
   })
   return mutation;
+}
+
+export function useGenerateUser2FA() {
+  const fetcher = useFetcher();
+  const data = useQuery<TwoFAGenerateData>({
+    queryKey: ['auth/2fa/generate'],
+    queryFn: async () => {
+      const res = await fetcher('/auth/2fa/generate');
+      if (res.ok) return res.json();
+      throw res;
+    },
+  });
+  return data;
 }
 
 export function useUpdateUser2Fa() {
