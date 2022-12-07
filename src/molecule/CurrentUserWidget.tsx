@@ -46,7 +46,7 @@ function CurrentUserWidget() {
             className="h-full w-full object-cover"
           />
         </div>
-        <p className="mr-1">{data.nickname}</p>
+        <p className="pl-1">{data.nickname}</p>
       </button>
       {open && (
         <div
