@@ -1,10 +1,12 @@
-import { useEffect } from "react";
-import { useSetRecoilState } from "recoil";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from 'react';
+import { useSetRecoilState } from 'recoil';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { dmHistoryState, type DmInfo } from '@/states/dmHistoryState';
-import { useSocketRef } from "./chat";
-import { useFetcher } from "./fetcher";
-import { type Friend } from "./friends";
+import { currentDMOpponentState } from '@/states/currentDMOpponent';
+import { currentSideBarItemState } from '@/states/currentSideBarItemState';
+import { useSocketRef } from './chat';
+import { useFetcher } from './fetcher';
+import { type Friend } from './friends';
 
 interface Message {
   sender: Friend;
@@ -110,4 +112,15 @@ export function useUpdateDmHistory(opponent: Friend | undefined) {
       });
     }
   }, [opponent, setDmHistory]);
+}
+
+export function useSetCurrentDMOpponent() {
+  const setCurrentSideBarItem = useSetRecoilState(currentSideBarItemState);
+  const setCurrentDMOpponent = useSetRecoilState(currentDMOpponentState);
+
+  const setCurrentDMOpponentWrapper = (nickname: string) => {
+    setCurrentSideBarItem('dm');
+    setCurrentDMOpponent(nickname);
+  };
+  return setCurrentDMOpponentWrapper;
 }

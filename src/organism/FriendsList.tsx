@@ -3,8 +3,6 @@ import { useSetRecoilState } from 'recoil';
 import { useQueryClient } from '@tanstack/react-query';
 import { FloatingPortal } from '@floating-ui/react-dom-interactions';
 import { profileUserState } from '@/states/user/profileUser';
-import { currentDMOpponentState } from '@/states/currentDMOpponent';
-import { currentSideBarItemState } from '@/states/currentSideBarItemState';
 import { useSocketRef } from '@/hooks/chat';
 import { Friend, useDeleteFriend, useFriends } from '@/hooks/friends';
 import { useOptionMenu } from '@/hooks/optionMenu';
@@ -13,6 +11,7 @@ import Spinner from '@/atom/Spinner';
 import SectionList from '@/molecule/SectionList';
 import OptionMenu, { Option } from '@/molecule/OptionMenu';
 import StatusIndicator from '@/molecule/StatusIndicator';
+import { useSetCurrentDMOpponent } from '@/hooks/dm';
 
 function useFriendsStatusSocket() {
   const socketRef = useSocketRef(`ws://${import.meta.env.VITE_BASE_URL}:9994`);
@@ -140,8 +139,7 @@ function FriendOptionMenu({ friend }: FriendOptionMenuProps) {
   const deleteFriend = useDeleteFriend();
   const requestWatchGame = useRequestWatchGame();
   const requestNormalGame = useRequestNormalGame();
-  const setCurrentSideBarItem = useSetRecoilState(currentSideBarItemState);
-  const setCurrentDMOpponent = useSetRecoilState(currentDMOpponentState);
+  const setCurrentDMOpponent = useSetCurrentDMOpponent();
 
   const options: Option[] = [
     {
@@ -159,7 +157,6 @@ function FriendOptionMenu({ friend }: FriendOptionMenuProps) {
     {
       label: 'DM',
       onClick: () => {
-        setCurrentSideBarItem('dm');
         setCurrentDMOpponent(friend.nickname);
       },
     },

@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilValue } from 'recoil';
+import type { Friend } from '@/hooks/friends';
+import { useSetCurrentDMOpponent } from '@/hooks/dm';
 import { useFetcher } from '@/hooks/fetcher';
 import { sortedDmHistoryState } from '@/states/dmHistoryState';
-import { currentDMOpponentState } from '@/states/currentDMOpponent';
 import SideBarHeader from '@/molecule/SideBarHeader';
 import SectionList from '@/molecule/SectionList';
-import type { Friend } from '@/hooks/friends';
 
 function DirectmsgList() {
-  const setCurrentDMOpponent = useSetRecoilState(currentDMOpponentState);
+  const setCurrentDMOpponent = useSetCurrentDMOpponent();
   const dmHistory = useRecoilValue(sortedDmHistoryState);
 
   return (
@@ -36,7 +36,7 @@ function DirectmsgList() {
 
 function useSearchUser(nickname: string) {
   const fetcher = useFetcher();
-  const setCurrentDMOpponent = useSetRecoilState(currentDMOpponentState);
+  const setCurrentDMOpponent = useSetCurrentDMOpponent();
 
   const data = useQuery<Friend>({
     queryKey: ['user', nickname],
