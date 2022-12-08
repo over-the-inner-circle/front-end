@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useRecoilState } from 'recoil';
 import { currentDMOpponentState } from '@/states/currentDMOpponent';
 import SideBarLayout from '@/molecule/SideBarLayout';
@@ -8,6 +9,12 @@ const Directmsg = () => {
   const [currentDMOpponent, setCurrentDMOpponent] = useRecoilState(
     currentDMOpponentState,
   );
+
+  useEffect(() => {
+    return () => {
+      setCurrentDMOpponent(null);
+    }
+  }, [setCurrentDMOpponent])
 
   return (
     <SideBarLayout>
