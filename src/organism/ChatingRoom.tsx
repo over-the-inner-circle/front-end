@@ -190,11 +190,11 @@ function ChattingSideBar({sidebarState, roomInfo, close, setSidebarState }: Chat
     <>
       <div className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-3">
         <button onClick={close} className="px-1">
-          ⬅
+          &lt;
         </button>
         {roomInfo.room_name}
-        <button onClick={() => setSidebarState('configChattingRoom')} className="px-1 text-2xl align-middle">
-          ⚙
+        <button onClick={() => setSidebarState('configChattingRoom')} className="px-1">
+          :
         </button>
       </div>
       <div
