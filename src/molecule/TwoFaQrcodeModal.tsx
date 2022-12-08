@@ -1,5 +1,5 @@
-import {is2FaQrModalOpenState} from "@/states/user/is2FaQrModalOpen";
-import {useRecoilState} from "recoil";
+import React from "react";
+import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {
   FloatingFocusManager,
   FloatingOverlay,
@@ -8,13 +8,29 @@ import {
   useFloating,
   useInteractions
 } from "@floating-ui/react-dom-interactions";
-import React from "react";
+import QRCode from "react-qr-code";
+import {twoFAGenDataState} from "@/states/user/TwoFaGenData";
+import {is2FaQrModalOpenState} from "@/states/user/is2FaQrModalOpen";
+
+
 
 const TwoFaQrForm = () => {
+  const setIs2FaQrModalOpen = useSetRecoilState(is2FaQrModalOpenState);
+  const twoFAGenData = useRecoilValue(twoFAGenDataState);
+
+  const closeModal = () => {
+    setIs2FaQrModalOpen(false);
+  }
   return (
     <div className="flex h-full w-full flex-col flex-wrap items-center
     justify-between border-4 bg-neutral-900 p-4 font-pixel text-white">
+      <div className="flex w-full items-start">
+        <button onClick={closeModal}>X</button>
+      </div>
       <span> 2FA QR MODAL </span>
+      { twoFAGenData &&
+        (<QRCode value={twoFAGenData.otpauthUrl}/>)
+      }
     </div>
   )
 }
