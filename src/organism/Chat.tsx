@@ -7,6 +7,7 @@ import SideBarHeader from '@/molecule/SideBarHeader';
 import SectionList from '@/molecule/SectionList';
 import ChatingRoom from '@/organism/ChatingRoom';
 import CreateChatForm from '@/organism/CreateChatForm';
+import Spinner from '@/atom/Spinner';
 
 const Chat = () => {
   const [roomInfo, setRoomInfo] = useRecoilState(roomInfoState); //room_id need to be null when user is not in any room
@@ -36,8 +37,7 @@ function ChattingRoomList() {
     }
   };
 
-  const { data: roomList } = useRoomList(roomListFilter);
-
+  const { data: roomList, isLoading } = useRoomList(roomListFilter);
   const section = [
     {
       title: roomListFilter,
@@ -65,19 +65,23 @@ function ChattingRoomList() {
         </button>
       </SideBarHeader>
       {isOpenForm ? <CreateChatForm /> : null}
-      <SectionList
-        sections={section}
-        renderItem={(room) => (
-          <button
-            className="flex w-full flex-col p-3 px-5 gap-2"
-            onClick={() => handleClick(room)}
-          >
-            <p>{room.room_name}</p>
-            <p className='text-xs'>{room.room_access}</p>
-          </button>
-        )}
-        keyExtractor={(room) => room.room_id}
-      />
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <SectionList
+          sections={section}
+          renderItem={(room) => (
+            <button
+              className="flex w-full flex-col gap-1 p-2 px-5"
+              onClick={() => handleClick(room)}
+            >
+              <p>{room.room_name}</p>
+              <p className="text-xs">{room.room_access}</p>
+            </button>
+          )}
+          keyExtractor={(room) => room.room_id}
+        />
+      )}
     </>
   );
 }
