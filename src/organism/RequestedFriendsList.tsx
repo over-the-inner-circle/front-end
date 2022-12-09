@@ -50,7 +50,7 @@ function RequestedFriendItem({ data, type }: RequestedFriendItemProps) {
   const reject = useFriendRequestReject();
 
   return (
-    <div className="flex flex-row justify-between p-5">
+    <div className="flex flex-row justify-between px-5 py-3">
       <p>{data.user_info.nickname}</p>
       <div>
         {type === 'recv' ? (

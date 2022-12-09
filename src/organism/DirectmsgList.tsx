@@ -21,7 +21,7 @@ function DirectmsgList() {
           sections={[{ title: 'Recent history', list: dmHistory }]}
           renderItem={(dmInfo) => (
             <button
-              className="flex w-full flex-col gap-1 p-3 px-5"
+              className="flex w-full flex-col items-start justify-center gap-1 p-3 px-5"
               onClick={() => setCurrentDMOpponent(dmInfo.opponent.nickname)}
             >
               <p>{dmInfo.opponent.nickname}</p>
@@ -84,7 +84,7 @@ function AddDirectmsgForm() {
           required
         />
         <button
-          className="disabled:opacity-20 px-1"
+          className="px-1 disabled:opacity-20"
           type="submit"
           disabled={isFetching}
         >

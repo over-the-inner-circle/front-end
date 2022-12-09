@@ -98,7 +98,7 @@ function ChattingRoomList() {
           sections={section}
           renderItem={(room) => (
             <button
-              className="flex w-full flex-col gap-1 p-2 px-5"
+              className="flex w-full flex-col items-start justify-center gap-1 p-2 px-5"
               onClick={() => handleClick(room)}
             >
               <p>{room.room_name}</p>
@@ -172,10 +172,7 @@ function PasswordForm({ room, close }: PasswordFormProps) {
         >
           Join
         </Button>
-        <Button
-          onClick={close}
-          className="flex w-1/3 justify-center bg-red-500"
-        >
+        <Button onClick={close} className="w-1/3 bg-red-500">
           Back
         </Button>
       </div>
