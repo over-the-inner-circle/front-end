@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useFetcher } from '@/hooks/fetcher';
 import {RoomInfo, RoomUserList} from "@/states/roomInfoState";
-import { useAutoScroll, useSocketRef } from '@/hooks/chat';
-import { toast } from 'react-toastify';
+import { useAutoScroll, useChat } from '@/hooks/chat';
 import Spinner from "@/atom/Spinner";
 
 export type ChattingSideBarState = 'chatting' | 'configChattingRoom' | 'showUserList' | 'configurRoomSetting';
@@ -18,32 +17,6 @@ export interface ChattingSideBarProps {
   roomInfo: RoomInfo;
   close(): void;
   setSidebarState(sidebarState: ChattingSideBarState): void;
-}
-
-interface UserInfo {
-  user_id: string;
-  nickname: string;
-  provider: string;
-  third_party_id: string;
-  two_factor_authentication_key: string;
-  two_factor_authentication_type: string;
-  prof_img: string;
-  mmr: number;
-  created: Date;
-  deleted: Date;
-}
-
-interface SubscribeData {
-  sender: UserInfo;
-  payload: string;
-}
-
-interface Message {
-  room_msg_id: number;
-  room_id: string;
-  sender: UserInfo;
-  payload: string;
-  created: Date;
 }
 
 function useGetUserListItem(roomInfo: RoomInfo) {
@@ -105,72 +78,6 @@ function ChattingSideBarSelector ( { sidebarState, roomInfo, close, setSidebarSt
     default:
       return <ChattingSideBar sidebarState= {sidebarState} roomInfo={roomInfo} close={close} setSidebarState={setSidebarState} />;
   }
-}
-
-function useChatMessages(roomId: string) {
-  const fetcher = useFetcher();
-  const data = useQuery<Message[]>({
-    queryKey: ['chat/room/messages', roomId],
-    queryFn: async () => {
-      const res = await fetcher(`/chat/room/${roomId}/messages`);
-
-      if (res.ok) {
-        const data = await res.json();
-        return data.messages;
-      }
-      return [];
-    },
-    refetchOnWindowFocus: false,
-  });
-
-  return data;
-}
-
-function useChat(roomId: string) {
-  const queryClient = useQueryClient();
-  const socketRef = useSocketRef(`ws://${import.meta.env.VITE_BASE_URL}:9999`);
-  const { data: messages } = useChatMessages(roomId);
-
-  useEffect(() => {
-    const socket = socketRef.current;
-
-    const handleSub = (data: SubscribeData) => {
-      queryClient.setQueryData<Message[]>(
-        ['chat/room/messages', roomId],
-        (prevMsg) => {
-          const newMessage: Message = {
-            room_msg_id:
-              prevMsg && prevMsg.length
-                ? prevMsg[prevMsg.length - 1].room_msg_id + 1
-                : 1,
-            room_id: roomId,
-            sender: data.sender,
-            payload: data.payload,
-            created: new Date(),
-          };
-          return prevMsg ? [...prevMsg, newMessage] : [newMessage];
-        },
-      );
-    };
-
-    const handleAnnounce = (data: object) => {
-      toast.info(JSON.stringify(data));
-    };
-
-    socket.emit('join', { room: roomId });
-
-    socket.on('subscribe', handleSub);
-    socket.on('subscribe_self', handleSub);
-    socket.on('announcement', handleAnnounce);
-
-    return () => {
-      socket.off('subscribe', handleSub);
-      socket.off('subscribe_self', handleSub);
-      socket.off('announcement', handleAnnounce);
-    };
-  }, [roomId, queryClient, socketRef]);
-
-  return { messages, socket: socketRef.current };
 }
 
 function ChattingSideBar({sidebarState, roomInfo, close, setSidebarState }: ChattingSideBarProps) {
