@@ -1,5 +1,6 @@
 import { accessTokenState } from '@/states/user/auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
 import { useRecoilValue } from 'recoil';
 import { useFetcher } from './fetcher';
 
@@ -58,7 +59,7 @@ export function useDeleteFriend() {
 }
 
 export interface RequestedFriend {
-  request_id: number;
+  request_id: string;
   user_info: Friend;
   created_date: Date;
 }
@@ -74,4 +75,56 @@ export function useRequestedFriends(type: 'sent' | 'recv') {
     },
   });
   return data;
+}
+
+export function useFriendRequestAccept() {
+  const fetcher = useFetcher();
+  const queryClient = useQueryClient();
+  const acceptMutation = useMutation({
+    mutationFn: (request_id: string) => {
+      return fetcher(`/friend/request/${request_id}/accept`, {
+        method: 'POST',
+      });
+    },
+    onSuccess: (res) => {
+      if (!res.ok) throw res;
+      queryClient.invalidateQueries({ queryKey: ['friend/request'] });
+      queryClient.invalidateQueries({ queryKey: ['friend/all'] });
+      toast.success('success');
+    },
+    onError: () => {
+      toast.error('friend acceptance failed');
+    },
+  });
+
+  return acceptMutation;
+}
+
+export function useFriendRequestReject() {
+  const fetcher = useFetcher();
+  const queryClient = useQueryClient();
+  const rejectMutation = useMutation({
+    mutationFn: ({
+      request_id,
+      type,
+    }: {
+      request_id: string;
+      type?: string;
+    }) => {
+      if (type === 'sent') {
+        return fetcher(`/friend/request/${request_id}`, {
+          method: 'DELETE',
+        });
+      }
+      return fetcher(`/friend/request/${request_id}/reject`, {
+        method: 'POST',
+      });
+    },
+    onError: () => toast.error('reject is failed'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['friend/request'] });
+    },
+  });
+
+  return rejectMutation;
 }
