@@ -1,4 +1,4 @@
-import {useSetRecoilState} from "recoil";
+import {useRecoilState, useSetRecoilState} from "recoil";
 import {currentGameStatus} from "@/states/game/currentGameStatus";
 import {gameInitialData} from "@/states/game/gameInitialData";
 import {matchInfo} from "@/states/game/matchInfo";
@@ -10,11 +10,15 @@ import {useEffect} from "react";
 
 export const useRequestWatchGame = () => {
 
-  const setGameStatus = useSetRecoilState(currentGameStatus);
+  const [gameStatus, setGameStatus] = useRecoilState(currentGameStatus);
   const setGameInitialData = useSetRecoilState(gameInitialData);
-  const setMatchInfo = useSetRecoilState(matchInfo)
+  const setMatchInfo = useSetRecoilState(matchInfo);
 
   return (player: string) => {
+    if (gameStatus !== 'INTRO') {
+      toast.error('You cannot watch game now');
+      return;
+    }
     const socket = GameSocketManager.getInstance().socket;
     if (!socket) {
       return;
@@ -33,7 +37,7 @@ export const useRequestWatchGame = () => {
 }
 
 export const useRequestNormalGame = () => {
-  const setGameStatus = useSetRecoilState(currentGameStatus);
+  const [gameStatus, setGameStatus] = useRecoilState(currentGameStatus);
   const setMatchInfo = useSetRecoilState(matchInfo);
   const fetcher = useFetcher();
 
@@ -61,6 +65,10 @@ export const useRequestNormalGame = () => {
   }, [])
 
   return (player: string) => {
+    if (gameStatus !== 'INTRO') {
+      toast.error('You cannot request game now');
+      return;
+    }
     // 알림 발송
     const result = fetcher(`/game/invitation/${player}`);
     result.then(res => {
