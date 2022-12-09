@@ -193,8 +193,9 @@ export function useLogOut() {
 
   return logOut;
 }
-export const useEnable2FA = () => {
+export const useEnable2FA = (closeModal: () => void) => {
   const fetcher = useFetcher();
+  const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: async (code: string) => {
       const res = await fetcher('/auth/2fa/enable', {
@@ -206,6 +207,7 @@ export const useEnable2FA = () => {
     },
     onSuccess: () => {
       toast.success('2FA has been enabled.');
+      queryClient.invalidateQueries({queryKey: ['user']});
     },
     onError: () => {
       toast.error('Failed to enable 2FA');
@@ -213,6 +215,31 @@ export const useEnable2FA = () => {
   });
   return mutation;
 }
+
+export const useDisable2FA = (closeModal: () => void) => {
+  const fetcher = useFetcher();
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: async (code: string) => {
+      const res = await fetcher('/auth/2fa/disable', {
+        method: 'PUT',
+        body: JSON.stringify({ "otp" : code }),
+      });
+      if (res.ok) return res;
+      throw res;
+    },
+    onSuccess: () => {
+      toast.success('2FA has been disabled.');
+      queryClient.invalidateQueries({queryKey: ['user']});
+      closeModal();
+    },
+    onError: () => {
+      toast.error('Failed to disable 2FA');
+    }
+  });
+  return mutation;
+}
+
 export const useDeleteAccount = () => {
   const fetcher = useFetcher();
   const logOut = useLogOut();

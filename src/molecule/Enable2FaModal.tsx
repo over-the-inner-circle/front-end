@@ -9,20 +9,21 @@ import {
   useInteractions
 } from "@floating-ui/react-dom-interactions";
 import QRCode from "react-qr-code";
-import {twoFAGenDataState} from "@/states/user/TwoFaGenData";
-import {is2FaQrModalOpenState} from "@/states/user/is2FaQrModalOpen";
+import {twoFAGenDataState} from "@/states/user/twoFaGenData";
+import {isEnable2FaModalOpenState} from "@/states/user/twoFaModalStates";
 import Button from "@/atom/Button";
 import {useEnable2FA} from "@/hooks/user";
 
 const TwoFaQrForm = () => {
-  const setIs2FaQrModalOpen = useSetRecoilState(is2FaQrModalOpenState);
+  const setIs2FaQrModalOpen = useSetRecoilState(isEnable2FaModalOpenState);
   const twoFAGenData = useRecoilValue(twoFAGenDataState);
   const [secret, setSecret] = useState("");
-  const enable2FaMutation = useEnable2FA();
 
   const closeModal = () => {
     setIs2FaQrModalOpen(false);
   }
+
+  const enable2FaMutation = useEnable2FA(closeModal);
 
   const onChangeSecret = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSecret(e.target.value);
@@ -75,9 +76,9 @@ const TwoFaQrForm = () => {
   )
 }
 
-const TwoFaQrcodeModal = () => {
+const Enable2FaModal = () => {
 
-  const [isModalOpen, setIsModalOpen] = useRecoilState(is2FaQrModalOpenState);
+  const [isModalOpen, setIsModalOpen] = useRecoilState(isEnable2FaModalOpenState);
   const {floating, context} = useFloating({
     open: isModalOpen,
     onOpenChange: setIsModalOpen,
@@ -102,4 +103,4 @@ const TwoFaQrcodeModal = () => {
   )
 }
 
-export default TwoFaQrcodeModal
+export default Enable2FaModal

@@ -35,6 +35,11 @@ function useLoginMutation(setError: (error: string) => void,
       return res.json();
     },
     onSuccess: (data) => {
+      if (!(data.grant)) {
+        tempAccessTokenRef.current = data.access_token;
+        setIs2FaRequired(true);
+        return;
+      }
       if ('access_token' in data) {
         setAccessToken(data.access_token);
         window.localStorage.setItem('refresh_token', data.refresh_token);
@@ -47,14 +52,7 @@ function useLoginMutation(setError: (error: string) => void,
       throw data;
     },
     onError: (res: Response) => {
-      if (res.status === 401 && res.statusText === 'Pending Authentication') {
-        res.json().then((data) => {
-          console.log(data);
-          tempAccessTokenRef.current = data.access_token;
-          setIs2FaRequired(true);
-        });
-        return;
-      } else { setError('Login request failed'); }
+      setError('Login request failed');
       throw res;
     }
   });
@@ -114,9 +112,9 @@ const Login = () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${tempAccessToken.current}`
       },
       body: JSON.stringify({
-        access_token: tempAccessToken.current,
         otp: secret,
       })
     })
@@ -126,36 +124,30 @@ const Login = () => {
       window.localStorage.setItem('refresh_token', data.refresh_token);
       navigate('/main');
     } else {
+      const data = await res.json();
+      toast.error(data);
       toast.error('2fa failed. please try again');
     }
   }
 
   /* ========================================================================= */
 
-  /* subcomponents =========================================================== */
-
-  const TwoFactorAuthContainer = () => {
-    return (
-      <div className="flex flex-col items-center justify-center text-white font-pixel">
-        <div className={`flex flex-col items-center`}>
-          <span className={`text-sm mb-2`}> Secret </span>
-          <input className="w-48 h-10 bg-white text-true-gray mb-4"
-                 type="text"
-                 value={secret}
-                 onChange={onChangeSecret}/>
-        </div>
-        <Button onClick={submit2FaSecret} className={`bg-true-green-600 text-xs`}>
-          submit
-        </Button>
-      </div>
-    )
-  }
-
-  /* ========================================================================= */
-
   return (
     <div className="flex flex-col w-full h-full items-center justify-center bg-true-gray">
-      { is2FaRequired && <TwoFactorAuthContainer /> }
+      { is2FaRequired && (
+        <div className="flex flex-col items-center justify-center text-white font-pixel">
+          <div className={`flex flex-col items-center`}>
+            <span className={`text-sm mb-2`}> Secret </span>
+            <input className="w-48 h-10 bg-white text-true-gray mb-4"
+                   type="text"
+                   value={secret}
+                   onChange={onChangeSecret}/>
+          </div>
+          <Button onClick={submit2FaSecret} className={`bg-true-green-600 text-xs`}>
+            submit
+          </Button>
+        </div>
+      )}
       { !is2FaRequired &&
         <div className="m-auto font-pixel text-2xl text-white">Loading...</div>
       }

@@ -1,10 +1,10 @@
 import {atom} from "recoil";
 
-export interface TwoFAGenData {
+export interface TwoFaGenData {
   otp_auth_url: string;
 }
 
-export const twoFAGenDataState = atom<TwoFAGenData | null>({
+export const twoFAGenDataState = atom<TwoFaGenData | null>({
   key: 'twoFAGenDataState',
   default: null,
 })

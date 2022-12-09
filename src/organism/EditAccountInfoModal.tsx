@@ -7,7 +7,7 @@ import {
   useDismiss,
   useFloating, useInteractions
 } from "@floating-ui/react-dom-interactions";
-import {is2FaQrModalOpenState} from "@/states/user/is2FaQrModalOpen";
+import {isDisable2FaModalOpenState, isEnable2FaModalOpenState} from "@/states/user/twoFaModalStates";
 import isEditAccountModalOpenState from "@/states/user/isEditAccountModalOpen";
 import Button from "@/atom/Button";
 import {
@@ -17,8 +17,9 @@ import {
   useDeleteAccount,
   useGenerateUser2FA,
 } from "@/hooks/user";
-import TwoFaQrcodeModal from "@/molecule/TwoFaQrcodeModal";
-import {TwoFAGenData, twoFAGenDataState} from "@/states/user/TwoFaGenData";
+import Enable2FaModal from "@/molecule/Enable2FaModal";
+import {TwoFaGenData, twoFAGenDataState} from "@/states/user/twoFaGenData";
+import Disable2FaModal from "@/molecule/Disable2FaModal";
 
 interface ImageInfo {
   file: File;
@@ -29,7 +30,8 @@ interface ImageInfo {
 const EditAccountForm = () => {
 
   const setIsEditAccountModalOpen = useSetRecoilState(isEditAccountModalOpenState);
-  const setIs2FaQrModalOpen = useSetRecoilState(is2FaQrModalOpenState);
+  const setIsEnable2FaModalOpen = useSetRecoilState(isEnable2FaModalOpenState);
+  const setIsDisable2FaModalOpen = useSetRecoilState(isDisable2FaModalOpenState);
   const set2faGenData = useSetRecoilState(twoFAGenDataState);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -46,7 +48,7 @@ const EditAccountForm = () => {
 
   useEffect(() => {
     setNickname(currentUser?.nickname || "");
-    if (currentUser?.two_factor_authentication_key) {
+    if (currentUser?.is_two_factor_authentication_enabled) {
       setIs2faOn(true);
     }
   }, [currentUser]);
@@ -77,12 +79,18 @@ const EditAccountForm = () => {
   }
 
   const handle2fa = async () => {
-    const data = await mutateAsync();
-    const result:TwoFAGenData = await data.json();
-    if (result) {
-      set2faGenData(result);
+    if (currentUser?.is_two_factor_authentication_enabled) {
+      setIsDisable2FaModalOpen(true);
+      return;
     }
-    setIs2FaQrModalOpen(true);
+    if (!(currentUser?.two_factor_authentication_key)) {
+      const data = await mutateAsync();
+      const result:TwoFaGenData = await data.json();
+      if (result) {
+        set2faGenData(result);
+      }
+    }
+    setIsEnable2FaModalOpen(true);
   }
 
   const currentProfileImageUrl = () => {
@@ -90,10 +98,14 @@ const EditAccountForm = () => {
     if (imageInfo) {
       return imageInfo.url;
     } else if (currentUser?.prof_img) {
-      return currentUser.prof_img;
+      return currentUser?.prof_img;
     } else {
       return DEFAULT_PROFILE_IMAGE_URL;
     }
+  }
+
+  const closeModal = () => {
+    setIsEditAccountModalOpen(false);
   }
 
   const saveAccountInfo = () => {
@@ -105,11 +117,6 @@ const EditAccountForm = () => {
     if (imageInfo) {
       updateUserProfileImage.mutate(imageInfo.file);
     }
-    //updateUser2Fa()
-  }
-
-  const closeModal = () => {
-    setIsEditAccountModalOpen(false);
   }
 
   const deleteCurrentAccount = () => {
@@ -220,7 +227,8 @@ const EditAccountInfoModal = () => {
           >
             <div className="h-3/4 w-2/3" ref={floating} {...getFloatingProps()}>
               <EditAccountForm/>
-              <TwoFaQrcodeModal />
+              <Enable2FaModal />
+              <Disable2FaModal />
             </div>
           </FloatingFocusManager>
         </FloatingOverlay>
