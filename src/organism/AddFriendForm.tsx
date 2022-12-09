@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { fetcher } from '@/hooks/fetcher';
+import { useFetcher } from '@/hooks/fetcher';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
 
 function useAddFriend() {
   const queryClient = useQueryClient();
+  const fetcher = useFetcher();
   const mutation = useMutation({
     mutationFn: async (nickname: string) => {
       const res = await fetcher(`/friend/request/${nickname}`, {
@@ -12,12 +14,19 @@ function useAddFriend() {
       if (res.ok) return res;
       throw res;
     },
-    onSuccess: () => {
+    onSuccess: (_, nickname) => {
       queryClient.invalidateQueries({ queryKey: ['friend/request', 'sent'] });
-      console.log('add friend request success');
+      toast.success(`sent friend request to ${nickname}`);
     },
-    onError: () => {
-      console.log('add friend request failed');
+    onError: (error, nickname) => {
+      let errorMsg = `friend request to ${nickname} failed`;
+
+      if (error instanceof Response) {
+        if (error.status === 404) {
+          errorMsg = `could not found ${nickname}`;
+        }
+      }
+      toast.error(errorMsg);
     },
   });
   return mutation;
@@ -31,7 +40,6 @@ function AddFriendForm() {
     e.preventDefault();
 
     if (query) {
-      console.log('request:', query);
       addFriend.mutate(query);
       setQuery('');
     }

@@ -4,11 +4,15 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useSocketRef } from '@/hooks/chat';
 import { toast, ToastContentProps } from 'react-toastify';
 import { dmHistoryState } from '@/states/dmHistoryState';
-import NotificationGame, {GameInvitationData} from '@/molecule/NotificationGame';
+import NotificationGame, {
+  GameInvitationData,
+} from '@/molecule/NotificationGame';
 import NotificationChat from '@/molecule/NotificationChat';
-import NotificationDM from '@/molecule/NotificationDM';
-import type { NotificationChatData } from '@/molecule/NotificationChat';
-import type { NotificationDMData } from '@/molecule/NotificationDM';
+import NotificationDM, { NotificationDMData } from '@/molecule/NotificationDM';
+import NotificationUser, {
+  NotificationUserData,
+} from '@/molecule/NotificationUser';
+import { NotificationChatData } from '@/molecule/NotificationChat';
 import { currentDMOpponentState } from '@/states/currentDMOpponent';
 
 interface NotificationResponse<T extends object> {
@@ -25,9 +29,7 @@ export function useNotification() {
   useEffect(() => {
     const socket = socketRef.current;
 
-    const handleGame = ({
-      data,
-    }: NotificationResponse<GameInvitationData>) => {
+    const handleGame = ({ data }: NotificationResponse<GameInvitationData>) => {
       toast(
         (props: ToastContentProps<GameInvitationData>) => (
           <NotificationGame {...props} />
@@ -74,14 +76,29 @@ export function useNotification() {
       }
     };
 
+    const handleUser = ({
+      data,
+    }: NotificationResponse<NotificationUserData>) => {
+      toast(
+        (props: ToastContentProps<NotificationUserData>) => (
+          <NotificationUser {...props} />
+        ),
+        {
+          data,
+        },
+      );
+    };
+
     socket.on('notification-game', handleGame);
     socket.on('notification-chat', handleChat);
     socket.on('notification-dm', handleDM);
+    socket.on('notification-user', handleUser);
 
     return () => {
       socket.off('notification-game', handleGame);
       socket.off('notification-chat', handleChat);
       socket.off('notification-dm', handleDM);
+      socket.on('notification-user', handleUser);
     };
   }, [socketRef, setDmHistory, currentOpponent]);
 }
