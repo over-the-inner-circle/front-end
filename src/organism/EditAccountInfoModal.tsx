@@ -14,12 +14,11 @@ import {
   useCurrentUser,
   useUpdateUserName,
   useUpdateUserProfileImage,
-  useUpdateUser2Fa,
-  useDeleteAccount, useGenerateUser2FA, TwoFAGenerateData
+  useDeleteAccount,
+  useGenerateUser2FA,
 } from "@/hooks/user";
 import TwoFaQrcodeModal from "@/molecule/TwoFaQrcodeModal";
-
-
+import {TwoFAGenData, twoFAGenDataState} from "@/states/user/TwoFaGenData";
 
 interface ImageInfo {
   file: File;
@@ -31,6 +30,7 @@ const EditAccountForm = () => {
 
   const setIsEditAccountModalOpen = useSetRecoilState(isEditAccountModalOpenState);
   const setIs2FaQrModalOpen = useSetRecoilState(is2FaQrModalOpenState);
+  const set2faGenData = useSetRecoilState(twoFAGenDataState);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const [imageInfo, setImageInfo] = useState<ImageInfo | null>(null);
@@ -40,8 +40,7 @@ const EditAccountForm = () => {
   const currentUser = useCurrentUser().data;
   const updateUserName = useUpdateUserName();
   const updateUserProfileImage = useUpdateUserProfileImage();
-  const updateUser2Fa = useUpdateUser2Fa();
-  const generateUser2Fa = useGenerateUser2FA();
+  const {mutateAsync} = useGenerateUser2FA();
   const deleteAccount = useDeleteAccount();
 
 
@@ -77,14 +76,13 @@ const EditAccountForm = () => {
     setNickname(e.target.value);
   }
 
-  const handle2fa = () => {
-    const authData:TwoFAGenerateData | undefined = generateUser2Fa.data;
-    if (authData) {
-      console.log(authData.secret);
-      console.log(authData.otpauthUrl);
+  const handle2fa = async () => {
+    const data = await mutateAsync();
+    const result:TwoFAGenData = await data.json();
+    if (result) {
+      set2faGenData(result);
     }
     setIs2FaQrModalOpen(true);
-    // setIs2faOn(!is2faOn);
   }
 
   const currentProfileImageUrl = () => {
@@ -100,7 +98,9 @@ const EditAccountForm = () => {
 
   const saveAccountInfo = () => {
     // 닉네임 수정 PUT 요청
-    updateUserName.mutate(nickname);
+    if (nickname !== currentUser?.nickname) {
+      updateUserName.mutate(nickname);
+    }
     // 프로필 수정 PUT 요청
     if (imageInfo) {
       updateUserProfileImage.mutate(imageInfo.file);

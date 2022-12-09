@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {useRecoilState, useRecoilValue, useSetRecoilState} from "recoil";
 import {
   FloatingFocusManager,
@@ -11,26 +11,66 @@ import {
 import QRCode from "react-qr-code";
 import {twoFAGenDataState} from "@/states/user/TwoFaGenData";
 import {is2FaQrModalOpenState} from "@/states/user/is2FaQrModalOpen";
-
-
+import Button from "@/atom/Button";
+import {useEnable2FA} from "@/hooks/user";
 
 const TwoFaQrForm = () => {
   const setIs2FaQrModalOpen = useSetRecoilState(is2FaQrModalOpenState);
   const twoFAGenData = useRecoilValue(twoFAGenDataState);
+  const [secret, setSecret] = useState("");
+  const enable2FaMutation = useEnable2FA();
 
   const closeModal = () => {
     setIs2FaQrModalOpen(false);
   }
+
+  const onChangeSecret = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSecret(e.target.value);
+  }
+
+  const enable2Fa = () => {
+    enable2FaMutation.mutate(secret);
+    if (enable2FaMutation.isSuccess) {
+      closeModal();
+    }
+  }
+
+
+  const QRcodeContainer = () => {
+    return (
+      <div className="flex flex-col items-center">
+        <span className="mb-4"> 2FA Init </span>
+        <div className="bg-white p-1 mb-4">
+          { twoFAGenData &&
+            (<QRCode value={twoFAGenData.otp_auth_url}
+                     size={96}
+            />)
+          }
+        </div>
+        <span className={`text-xs mb-4`}>Scan it with Google Authenticator</span>
+      </div>
+    )
+  }
+
   return (
     <div className="flex h-full w-full flex-col flex-wrap items-center
     justify-between border-4 bg-neutral-900 p-4 font-pixel text-white">
       <div className="flex w-full items-start">
         <button onClick={closeModal}>X</button>
       </div>
-      <span> 2FA QR MODAL </span>
-      { twoFAGenData &&
-        (<QRCode value={twoFAGenData.otpauthUrl}/>)
-      }
+      {twoFAGenData && <QRcodeContainer />}
+      <div className={`flex flex-col items-center`}>
+        <span className={`text-sm mb-2`}> Secret </span>
+        <input className="w-48 h-10 bg-white text-true-gray mb-4"
+               type="text"
+               value={secret}
+               onChange={onChangeSecret}/>
+      </div>
+      <Button onClick={enable2Fa}
+              className={`bg-true-green-600 text-xs`}
+      >
+        Enable 2FA</Button>
+      <div className={`empty`} />
     </div>
   )
 }
@@ -51,7 +91,7 @@ const TwoFaQrcodeModal = () => {
         <FloatingOverlay lockScroll
                          className="flex items-center justify-center bg-neutral-800/80">
           <FloatingFocusManager context={context}>
-            <div className="h-2/5 w-2/5" ref={floating} {...getFloatingProps()}>
+            <div className="h-auto w-auto" ref={floating} {...getFloatingProps()}>
               <TwoFaQrForm />
             </div>
           </FloatingFocusManager>

@@ -1,18 +1,22 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
 import { useMutation } from '@tanstack/react-query';
-import { useFetcher } from '@/hooks/fetcher';
+import { BASE_API_URL, useFetcher } from '@/hooks/fetcher';
 import { SignUpUserInfo, signUpUserInfoState } from '@/states/user/signUp';
 import { toast } from 'react-toastify';
 import { accessTokenState } from '@/states/user/auth';
+import Button from "@/atom/Button";
 
 interface LoginParams {
   provider: string;
   code: string;
 }
 
-function useLoginMutation() {
+function useLoginMutation(setError: (error: string) => void,
+                          setIs2FaRequired: (is2FaRequired: boolean) => void,
+                          tempAccessTokenRef: React.MutableRefObject<string>)
+{
   const navigate = useNavigate();
   const setSignupUserInfo = useSetRecoilState(signUpUserInfoState);
   const setAccessToken = useSetRecoilState(accessTokenState);
@@ -24,8 +28,10 @@ function useLoginMutation() {
         method: 'POST',
         body: JSON.stringify({ code }),
       });
-      if (!res.ok) throw res;
-
+      console.log(res);
+      if (!res.ok) {
+        throw res;
+      }
       return res.json();
     },
     onSuccess: (data) => {
@@ -40,15 +46,29 @@ function useLoginMutation() {
       }
       throw data;
     },
+    onError: (res: Response) => {
+      if (res.status === 401 && res.statusText === 'Pending Authentication') {
+        res.json().then((data) => {
+          console.log(data);
+          tempAccessTokenRef.current = data.access_token;
+          setIs2FaRequired(true);
+        });
+        return;
+      } else { setError('Login request failed'); }
+      throw res;
+    }
   });
   return mutation;
 }
 
-function useLogin() {
+function useLogin(setIs2FaRequired: (is2FaRequired: boolean) => void,
+                  tempAccessTokenRef: React.MutableRefObject<string>)
+{
   const params = useParams();
   const navigate = useNavigate();
-  const { mutate, isError } = useLoginMutation();
   const [error, setError] = useState<string | null>(null);
+
+  const { mutate } = useLoginMutation(setError, setIs2FaRequired, tempAccessTokenRef);
 
   useEffect(() => {
     const provider: string = params.provider || '';
@@ -63,15 +83,8 @@ function useLogin() {
       setError('unknown provider');
       return;
     }
-
     mutate({ provider, code });
   }, [params, mutate]);
-
-  useEffect(() => {
-    if (isError) {
-      setError('login request failed');
-    }
-  }, [isError]);
 
   useEffect(() => {
     if (error) {
@@ -82,11 +95,70 @@ function useLogin() {
 }
 
 const Login = () => {
-  useLogin();
+  const tempAccessToken = useRef<string>('');
+  const [is2FaRequired, setIs2FaRequired] = useState(false);
+  const [secret, setSecret] = useState('');
+  const setAccessToken = useSetRecoilState(accessTokenState);
+  const navigate = useNavigate();
+
+  useLogin(setIs2FaRequired, tempAccessToken);
+
+  /* functions ================================================================ */
+
+  const onChangeSecret = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSecret(e.target.value);
+  }
+
+  const submit2FaSecret = async () => {
+    const res = await fetch(`${BASE_API_URL}/auth/2fa/verify`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        access_token: tempAccessToken.current,
+        otp: secret,
+      })
+    })
+    if (res.ok) {
+      const data = await res.json();
+      setAccessToken(data.access_token);
+      window.localStorage.setItem('refresh_token', data.refresh_token);
+      navigate('/main');
+    } else {
+      toast.error('2fa failed. please try again');
+    }
+  }
+
+  /* ========================================================================= */
+
+  /* subcomponents =========================================================== */
+
+  const TwoFactorAuthContainer = () => {
+    return (
+      <div className="flex flex-col items-center justify-center text-white font-pixel">
+        <div className={`flex flex-col items-center`}>
+          <span className={`text-sm mb-2`}> Secret </span>
+          <input className="w-48 h-10 bg-white text-true-gray mb-4"
+                 type="text"
+                 value={secret}
+                 onChange={onChangeSecret}/>
+        </div>
+        <Button onClick={submit2FaSecret} className={`bg-true-green-600 text-xs`}>
+          submit
+        </Button>
+      </div>
+    )
+  }
+
+  /* ========================================================================= */
 
   return (
-    <div className="flex h-screen bg-true-gray">
-      <div className="m-auto font-pixel text-2xl text-white">Loading...</div>
+    <div className="flex flex-col w-full h-full items-center justify-center bg-true-gray">
+      { is2FaRequired && <TwoFactorAuthContainer /> }
+      { !is2FaRequired &&
+        <div className="m-auto font-pixel text-2xl text-white">Loading...</div>
+      }
     </div>
   );
 };

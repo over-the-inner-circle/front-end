@@ -13,11 +13,6 @@ interface RefreshData {
   refresh_token: string;
 }
 
-export interface TwoFAGenerateData {
-  "otpauthUrl": string;
-  "secret": string;
-}
-
 export const useSignUpUser = () => {
   const fetcher = useFetcher();
   const navigate = useNavigate();
@@ -165,19 +160,25 @@ export function useUpdateUserProfileImage() {
 
 export function useGenerateUser2FA() {
   const fetcher = useFetcher();
-  const data = useQuery<TwoFAGenerateData>({
-    queryKey: ['auth/2fa/generate'],
-    queryFn: async () => {
-      const res = await fetcher('/auth/2fa/generate');
-      if (res.ok) return res.json();
+  const mutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetcher('/auth/2fa/generate', {
+        method: 'POST',
+        body: JSON.stringify({
+          "type": "google",
+          "key": ""
+        }),
+      });
+      if (res.ok) return res;
       throw res;
     },
-  });
-  return data;
-}
-
-export function useUpdateUser2Fa() {
-
+    onError: (error: Response) => {
+      error.text().then((text) => {
+        console.log(text);
+      })
+    }
+  })
+  return mutation;
 }
 
 export function useLogOut() {
@@ -192,7 +193,26 @@ export function useLogOut() {
 
   return logOut;
 }
-
+export const useEnable2FA = () => {
+  const fetcher = useFetcher();
+  const mutation = useMutation({
+    mutationFn: async (code: string) => {
+      const res = await fetcher('/auth/2fa/enable', {
+        method: 'PUT',
+        body: JSON.stringify({ "otp" : code }),
+      });
+      if (res.ok) return res;
+      throw res;
+    },
+    onSuccess: () => {
+      toast.success('2FA has been enabled.');
+    },
+    onError: () => {
+      toast.error('Failed to enable 2FA');
+    }
+  });
+  return mutation;
+}
 export const useDeleteAccount = () => {
   const fetcher = useFetcher();
   const logOut = useLogOut();
