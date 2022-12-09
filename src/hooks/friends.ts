@@ -59,7 +59,7 @@ export function useDeleteFriend() {
 }
 
 export interface RequestedFriend {
-  request_id: number;
+  request_id: string;
   user_info: Friend;
   created_date: Date;
 }
@@ -81,7 +81,7 @@ export function useFriendRequestAccept() {
   const fetcher = useFetcher();
   const queryClient = useQueryClient();
   const acceptMutation = useMutation({
-    mutationFn: (request_id: number) => {
+    mutationFn: (request_id: string) => {
       return fetcher(`/friend/request/${request_id}/accept`, {
         method: 'POST',
       });
@@ -108,7 +108,7 @@ export function useFriendRequestReject() {
       request_id,
       type,
     }: {
-      request_id: number;
+      request_id: string;
       type?: string;
     }) => {
       if (type === 'sent') {

@@ -14,8 +14,8 @@ function NotificationUser({
   const acceptFriendRequest = useFriendRequestAccept();
 
   const handleClick = () => {
-    if (data?.sender) {
-      acceptFriendRequest.mutate(parseInt(data.payload, 10));
+    if (data?.payload) {
+      acceptFriendRequest.mutate(data.payload);
     }
     if (closeToast) closeToast();
   };
