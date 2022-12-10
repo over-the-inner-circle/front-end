@@ -2,19 +2,19 @@ import { useState } from 'react';
 import Button from '@/atom/Button';
 import { useFetcher } from '@/hooks/fetcher';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSetRecoilState } from 'recoil';
-import { roomInfoState } from '@/states/roomInfoState';
-
-type ChatAccessType = 'public' | 'protected' | 'private';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { RoomInfo, roomInfoState } from '@/states/roomInfoState';
+import { currentUserInfoState } from '@/states/user/auth';
 
 function useAddChatRoom(
   name: string,
-  accessType: ChatAccessType,
+  accessType: RoomInfo['room_access'],
   password: string,
 ) {
   const queryClient = useQueryClient();
   const fetcher = useFetcher();
   const setRoomInfo = useSetRecoilState(roomInfoState);
+  const currentUserInfo = useRecoilValue(currentUserInfoState);
 
   const addChatRoom = useMutation({
     mutationFn: (event: React.FormEvent<HTMLFormElement>) => {
@@ -36,7 +36,7 @@ function useAddChatRoom(
           room_id,
           room_name: name,
           room_access: accessType,
-          room_owner_id: 'my id',
+          room_owner_id: currentUserInfo?.user_id ?? '',
           created: new Date(),
         });
       } catch (error) {
@@ -50,7 +50,8 @@ function useAddChatRoom(
 
 function CreateChatForm() {
   const [name, setName] = useState('');
-  const [accessType, setAccessType] = useState<ChatAccessType>('public');
+  const [accessType, setAccessType] =
+    useState<RoomInfo['room_access']>('public');
   const [password, setPassword] = useState('');
   const addChatRoom = useAddChatRoom(name, accessType, password);
 
@@ -78,7 +79,9 @@ function CreateChatForm() {
           name="room_access"
           className="ml-2 w-full bg-neutral-500 p-1"
           value={accessType}
-          onChange={(e) => setAccessType(e.target.value as ChatAccessType)}
+          onChange={(e) =>
+            setAccessType(e.target.value as RoomInfo['room_access'])
+          }
         >
           <option value="public">Public</option>
           <option value="protected">Protected</option>

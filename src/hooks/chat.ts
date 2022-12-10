@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { io } from 'socket.io-client';
 import { accessTokenState } from '@/states/user/auth';
@@ -152,6 +152,79 @@ export function useJoinRoom() {
     },
     onError: () => {
       toast.error('Fail to join this room');
+    },
+  });
+  return mutation;
+}
+
+export function useExitRoom() {
+  const fetcher = useFetcher();
+  const setRoomInfo = useSetRecoilState(roomInfoState);
+  const mutation = useMutation({
+    mutationFn: async (room_id: string) => {
+      return fetcher(`/chat/room/${room_id}/exit`, {
+        method: 'POST',
+      });
+    },
+    onSuccess: (data) => {
+      if (data.ok) {
+        setRoomInfo(null);
+      } else {
+        throw data;
+      }
+    },
+    onError: () => {
+      toast.error('Fail to exit this room');
+    },
+  });
+  return mutation;
+}
+
+export function useEditRoomAccess(room_id: string) {
+  const fetcher = useFetcher();
+  const [roomInfo, setRoomInfo] = useRecoilState(roomInfoState);
+  const mutation = useMutation({
+    mutationFn: (room_access: RoomInfo['room_access']) => {
+      return fetcher(`/chat/room/${room_id}/access`, {
+        method: 'PUT',
+        body: JSON.stringify({ room_access }),
+      });
+    },
+    onSuccess: (res, room_access) => {
+      if (!res.ok) throw res;
+      setRoomInfo((currRoomInfo) => (currRoomInfo ? {
+        ...roomInfo,
+        room_access,
+      } as RoomInfo : currRoomInfo));
+      toast.success('success');
+    },
+    onError: () => {
+      toast.error('failed');
+    },
+  });
+  return mutation;
+}
+
+export function useEditRoomPassword(room_id: string) {
+  const fetcher = useFetcher();
+  const [roomInfo, setRoomInfo] = useRecoilState(roomInfoState);
+  const mutation = useMutation({
+    mutationFn: (room_password: string) => {
+      return fetcher(`/chat/room/${room_id}/password`, {
+        method: 'PUT',
+        body: JSON.stringify({ room_password }),
+      });
+    },
+    onSuccess: (res, room_password) => {
+      if (!res.ok) throw res;
+      setRoomInfo((currRoomInfo) => (currRoomInfo ? {
+        ...roomInfo,
+        room_password,
+      } as RoomInfo : currRoomInfo));
+      toast.success('success');
+    },
+    onError: () => {
+      toast.error('failed');
     },
   });
   return mutation;

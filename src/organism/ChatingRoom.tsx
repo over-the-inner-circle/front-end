@@ -1,19 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useFetcher } from '@/hooks/fetcher';
 import {RoomInfo, RoomUserList} from "@/states/roomInfoState";
-import { useAutoScroll, useChat } from '@/hooks/chat';
+import { useAutoScroll, useChat, useEditRoomAccess, useEditRoomPassword, useExitRoom } from '@/hooks/chat';
 import Spinner from "@/atom/Spinner";
+import Button from '@/atom/Button';
+import { useRecoilValue } from 'recoil';
+import { currentUserInfoState } from '@/states/user/auth';
 
-export type ChattingSideBarState = 'chatting' | 'configChattingRoom' | 'showUserList' | 'configurRoomSetting';
-
-export interface ChatProps {
-  roomInfo: RoomInfo;
-  close(): void;
-}
+export type ChattingSideBarState = 'chat' | 'menu' | 'userList';
 
 export interface ChattingSideBarProps {
-  sidebarState: ChattingSideBarState;
   roomInfo: RoomInfo;
   close(): void;
   setSidebarState(sidebarState: ChattingSideBarState): void;
@@ -38,6 +35,7 @@ function useGetUserListItem(roomInfo: RoomInfo) {
 
 interface ShowUserListProps {
   roomInfo: RoomInfo;
+  close(): void;
 }
 
 function ShowUserList({ roomInfo }: ShowUserListProps) {
@@ -65,22 +63,7 @@ function ShowUserList({ roomInfo }: ShowUserListProps) {
   )
 }
 
-function ChattingSideBarSelector ( { sidebarState, roomInfo, close, setSidebarState }: ChattingSideBarProps) {
-  switch (sidebarState) {
-    case 'chatting':
-      return <ChattingSideBar sidebarState= {sidebarState} roomInfo={roomInfo} close={close} setSidebarState={setSidebarState} />;
-    case 'configChattingRoom':
-      return <ConfigChattingRoomSideBar sidebarState= {sidebarState} roomInfo={roomInfo} close={close} setSidebarState={setSidebarState}/>;
-    case 'showUserList':
-      return <ShowUserList roomInfo={roomInfo} />;
-    // case 'configurRoomSetting':
-    //   return <ConfigRoomSettingSideBar sidebarState= {sidebarState} roomInfo={roomInfo} close={close} closeSidebarState={closeSidebarState}/>;
-    default:
-      return <ChattingSideBar sidebarState= {sidebarState} roomInfo={roomInfo} close={close} setSidebarState={setSidebarState} />;
-  }
-}
-
-function ChattingSideBar({sidebarState, roomInfo, close, setSidebarState }: ChattingSideBarProps) {
+function ChattingRoom({roomInfo, close, setSidebarState }: ChattingSideBarProps) {
   const [content, setContent] = useState('');
   const { messages, socket } = useChat(roomInfo.room_id);
   const autoScrollRef = useAutoScroll(messages);
@@ -100,7 +83,7 @@ function ChattingSideBar({sidebarState, roomInfo, close, setSidebarState }: Chat
           &lt;
         </button>
         {roomInfo.room_name}
-        <button onClick={() => setSidebarState('configChattingRoom')} className="px-1">
+        <button onClick={() => setSidebarState('menu')} className="px-1">
           :
         </button>
       </div>
@@ -142,36 +125,127 @@ function ChattingSideBar({sidebarState, roomInfo, close, setSidebarState }: Chat
   );
 }
 
-function ConfigChattingRoomSideBar({sidebarState, roomInfo, close, setSidebarState}: ChattingSideBarProps) {
+function ChattingRoomMenu({roomInfo, close, setSidebarState}: ChattingSideBarProps) {
+  const currentUserInfo = useRecoilValue(currentUserInfoState);
+
+  const exitRoom = useExitRoom();
+  const menuList = [
+    {
+      title: 'User List',
+      onClick: () => setSidebarState('userList'),
+    },
+    {
+      title: 'Exit',
+      className: 'text-red-500',
+      onClick: () => {
+        if (confirm('Are you sure?')) {
+          exitRoom.mutate(roomInfo.room_id);
+        }
+      }
+    }
+  ];
 
   return (
     <>
-      <div className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
+      <div className="flex h-fit w-full items-center justify-between border-b border-neutral-400 bg-neutral-800 p-3">
+        <button onClick={close} className="px-1">
+          &lt;
+        </button>
         {roomInfo.room_name}
+        <p className="px-1 w-6 h-full" />
       </div>
-      <div className="h-full w-full grow overflow-y-auto border-b border-inherit">
+      <div className="h-full w-full grow overflow-y-auto border-b border-neutral-400">
         <ul className="flex h-fit w-full flex-col items-start justify-start">
-          <li className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
-            <button onClick={() => {setSidebarState('showUserList')}}> UserList </button>
-
-          </li>
-          <li className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
-            <button> ConfigChattingRoom </button>
-          </li>
+          {currentUserInfo?.user_id === roomInfo.room_owner_id ? (
+            <li className='w-full'>
+              <EditRoomInfoForm roomInfo={roomInfo} />
+            </li>
+          ) : null}
+          {menuList.map((menu) => (
+            <li
+              key={menu.title}
+              className={`flex h-fit w-full items-center justify-between
+                         border-b border-neutral-400 bg-neutral-700 p-2 px-5
+                         ${menu.className}`}>
+              <button onClick={menu.onClick}>{menu.title}</button>
+            </li>
+          ))}
         </ul>
       </div>
     </>
   )
 }
 
+function EditRoomInfoForm({ roomInfo }: { roomInfo: RoomInfo; }) {
+  const [password, setPassword] = useState('');
+  const [accessType, setAccessType] = useState<RoomInfo['room_access']>(roomInfo.room_access);
 
+  useEffect(() => {
+    if (accessType !== 'protected') {
+      setPassword('')
+    }
+  }, [accessType]);
 
+  const editRoomAccess = useEditRoomAccess(roomInfo.room_id);
+  const editRoomPassword = useEditRoomPassword(roomInfo.room_id);
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-export default function ChatingRoom({ roomInfo, close }: ChatProps) {
-  const [sidebarState, setSidebarState] = useState<ChattingSideBarState> (
-    'chatting');
+    editRoomPassword.mutate(password);
+    if (roomInfo.room_access !== accessType) {
+      editRoomAccess.mutate(accessType);
+    }
+  }
+
   return (
-    <ChattingSideBarSelector sidebarState={sidebarState} roomInfo={roomInfo} close={close} setSidebarState={setSidebarState} />
+    <form
+      onSubmit={handleSubmit}
+      className='flex flex-col items-center justify-start p-2 w-full gap-2 bg-neutral-800 border-b border-neutral-400'>
+      <div className="flex w-full flex-row items-center justify-start p-1">
+        <label htmlFor="room_access">type:</label>
+        <select
+          name="room_access"
+          className="ml-2 w-full bg-neutral-500 p-1"
+          value={accessType}
+          onChange={(e) => setAccessType(e.target.value as RoomInfo['room_access'])}
+        >
+          <option value="public">Public</option>
+          <option value="protected">Protected</option>
+          <option value="private">Private</option>
+        </select>
+      </div>
+      <div className="flex w-full flex-row items-center justify-start p-1">
+        <label htmlFor="room_password" className={`${accessType !== 'protected' ? 'opacity-30' : ''}`}>password:</label>
+        <input
+          className="ml-2 w-full border-b-4 border-white bg-inherit disabled:opacity-30"
+          name="room_password"
+          type="password"
+          disabled={accessType !== 'protected'}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </div>
+      <Button type="submit" className='w-full h-fit bg-red-500'>Edit</Button>
+    </form>
   );
+}
+
+export interface ChatProps {
+  roomInfo: RoomInfo;
+  close(): void;
+}
+
+export default function ChattingRoomWrapper({ roomInfo, close }: ChatProps) {
+  const [sidebarState, setSidebarState] = useState<ChattingSideBarState> (
+    'chat');
+
+  switch (sidebarState) {
+    case 'menu':
+      return <ChattingRoomMenu roomInfo={roomInfo} close={() => setSidebarState('chat')} setSidebarState={setSidebarState}/>;
+    case 'userList':
+      return <ShowUserList roomInfo={roomInfo} close={() => setSidebarState('chat')} />;
+    default:
+      return <ChattingRoom roomInfo={roomInfo} close={close} setSidebarState={setSidebarState} />;
+  }
 }
