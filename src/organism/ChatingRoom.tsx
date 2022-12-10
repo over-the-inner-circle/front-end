@@ -1,12 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useFetcher } from '@/hooks/fetcher';
-import {RoomInfo, RoomUserList} from "@/states/roomInfoState";
-import { useAutoScroll, useChat, useEditRoomAccess, useEditRoomPassword, useExitRoom } from '@/hooks/chat';
-import Spinner from "@/atom/Spinner";
-import Button from '@/atom/Button';
 import { useRecoilValue } from 'recoil';
 import { currentUserInfoState } from '@/states/user/auth';
+import { RoomInfo, RoomUserList } from '@/states/roomInfoState';
+import {
+  useAutoScroll,
+  useChat,
+  useEditRoomAccess,
+  useEditRoomPassword,
+  useExitRoom,
+} from '@/hooks/chat';
+import Spinner from '@/atom/Spinner';
+import Button from '@/atom/Button';
 
 export type ChattingSideBarState = 'chat' | 'menu' | 'userList';
 
@@ -28,7 +34,7 @@ function useGetUserListItem(roomInfo: RoomInfo) {
         return data.members;
       }
       return [];
-    }
+    },
   });
   return result;
 }
@@ -41,8 +47,7 @@ interface ShowUserListProps {
 function ShowUserList({ roomInfo }: ShowUserListProps) {
   const { data: users, isError, isLoading } = useGetUserListItem(roomInfo);
 
-  if (isLoading || isError)
-    return <Spinner />;
+  if (isLoading || isError) return <Spinner />;
 
   return (
     <>
@@ -60,10 +65,14 @@ function ShowUserList({ roomInfo }: ShowUserListProps) {
         </ul>
       </div>
     </>
-  )
+  );
 }
 
-function ChattingRoom({roomInfo, close, setSidebarState }: ChattingSideBarProps) {
+function ChattingRoom({
+  roomInfo,
+  close,
+  setSidebarState,
+}: ChattingSideBarProps) {
   const [content, setContent] = useState('');
   const { messages, socket } = useChat(roomInfo.room_id);
   const autoScrollRef = useAutoScroll(messages);
@@ -125,7 +134,11 @@ function ChattingRoom({roomInfo, close, setSidebarState }: ChattingSideBarProps)
   );
 }
 
-function ChattingRoomMenu({roomInfo, close, setSidebarState}: ChattingSideBarProps) {
+function ChattingRoomMenu({
+  roomInfo,
+  close,
+  setSidebarState,
+}: ChattingSideBarProps) {
   const currentUserInfo = useRecoilValue(currentUserInfoState);
 
   const exitRoom = useExitRoom();
@@ -141,23 +154,26 @@ function ChattingRoomMenu({roomInfo, close, setSidebarState}: ChattingSideBarPro
         if (confirm('Are you sure?')) {
           exitRoom.mutate(roomInfo.room_id);
         }
-      }
-    }
+      },
+    },
   ];
 
   return (
     <>
-      <div className="flex h-fit w-full items-center justify-between border-b border-neutral-400 bg-neutral-800 p-3">
+      <div
+        className="flex h-fit w-full items-center justify-between
+                      border-b border-neutral-400 bg-neutral-800 p-3"
+      >
         <button onClick={close} className="px-1">
           &lt;
         </button>
         {roomInfo.room_name}
-        <p className="px-1 w-6 h-full" />
+        <p className="h-full w-6 px-1" />
       </div>
       <div className="h-full w-full grow overflow-y-auto border-b border-neutral-400">
         <ul className="flex h-fit w-full flex-col items-start justify-start">
           {currentUserInfo?.user_id === roomInfo.room_owner_id ? (
-            <li className='w-full'>
+            <li className="w-full">
               <EditRoomInfoForm roomInfo={roomInfo} />
             </li>
           ) : null}
@@ -166,23 +182,26 @@ function ChattingRoomMenu({roomInfo, close, setSidebarState}: ChattingSideBarPro
               key={menu.title}
               className={`flex h-fit w-full items-center justify-between
                          border-b border-neutral-400 bg-neutral-700 p-2 px-5
-                         ${menu.className}`}>
+                         ${menu.className}`}
+            >
               <button onClick={menu.onClick}>{menu.title}</button>
             </li>
           ))}
         </ul>
       </div>
     </>
-  )
+  );
 }
 
-function EditRoomInfoForm({ roomInfo }: { roomInfo: RoomInfo; }) {
+function EditRoomInfoForm({ roomInfo }: { roomInfo: RoomInfo }) {
   const [password, setPassword] = useState('');
-  const [accessType, setAccessType] = useState<RoomInfo['room_access']>(roomInfo.room_access);
+  const [accessType, setAccessType] = useState<RoomInfo['room_access']>(
+    roomInfo.room_access,
+  );
 
   useEffect(() => {
     if (accessType !== 'protected') {
-      setPassword('')
+      setPassword('');
     }
   }, [accessType]);
 
@@ -196,19 +215,23 @@ function EditRoomInfoForm({ roomInfo }: { roomInfo: RoomInfo; }) {
     if (roomInfo.room_access !== accessType) {
       editRoomAccess.mutate(accessType);
     }
-  }
+  };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className='flex flex-col items-center justify-start p-2 w-full gap-2 bg-neutral-800 border-b border-neutral-400'>
+      className="flex w-full flex-col items-center justify-start gap-2
+                 border-b border-neutral-400 bg-neutral-800 p-2"
+    >
       <div className="flex w-full flex-row items-center justify-start p-1">
         <label htmlFor="room_access">type:</label>
         <select
           name="room_access"
           className="ml-2 w-full bg-neutral-500 p-1"
           value={accessType}
-          onChange={(e) => setAccessType(e.target.value as RoomInfo['room_access'])}
+          onChange={(e) =>
+            setAccessType(e.target.value as RoomInfo['room_access'])
+          }
         >
           <option value="public">Public</option>
           <option value="protected">Protected</option>
@@ -216,7 +239,12 @@ function EditRoomInfoForm({ roomInfo }: { roomInfo: RoomInfo; }) {
         </select>
       </div>
       <div className="flex w-full flex-row items-center justify-start p-1">
-        <label htmlFor="room_password" className={`${accessType !== 'protected' ? 'opacity-30' : ''}`}>password:</label>
+        <label
+          htmlFor="room_password"
+          className={`${accessType !== 'protected' ? 'opacity-30' : ''}`}
+        >
+          password:
+        </label>
         <input
           className="ml-2 w-full border-b-4 border-white bg-inherit disabled:opacity-30"
           name="room_password"
@@ -226,7 +254,9 @@ function EditRoomInfoForm({ roomInfo }: { roomInfo: RoomInfo; }) {
           onChange={(e) => setPassword(e.target.value)}
         />
       </div>
-      <Button type="submit" className='w-full h-fit bg-red-500'>Edit</Button>
+      <Button type="submit" className="h-fit w-full bg-red-500">
+        Edit
+      </Button>
     </form>
   );
 }
@@ -237,15 +267,33 @@ export interface ChatProps {
 }
 
 export default function ChattingRoomWrapper({ roomInfo, close }: ChatProps) {
-  const [sidebarState, setSidebarState] = useState<ChattingSideBarState> (
-    'chat');
+  const [sidebarState, setSidebarState] =
+    useState<ChattingSideBarState>('chat');
 
   switch (sidebarState) {
     case 'menu':
-      return <ChattingRoomMenu roomInfo={roomInfo} close={() => setSidebarState('chat')} setSidebarState={setSidebarState}/>;
+      return (
+        <ChattingRoomMenu
+          roomInfo={roomInfo}
+          close={() => setSidebarState('chat')}
+          setSidebarState={setSidebarState}
+        />
+      );
     case 'userList':
-      return <ShowUserList roomInfo={roomInfo} close={() => setSidebarState('chat')} />;
+      return (
+        <ShowUserList
+          roomInfo={roomInfo}
+          close={() => setSidebarState('chat')}
+        />
+      );
     default:
-      return <ChattingRoom roomInfo={roomInfo} close={close} setSidebarState={setSidebarState} />;
+      return (
+        <ChattingRoom
+          roomInfo={roomInfo}
+          close={close}
+          setSidebarState={setSidebarState}
+        />
+      );
   }
 }
+

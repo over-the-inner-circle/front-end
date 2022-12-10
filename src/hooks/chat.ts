@@ -192,10 +192,14 @@ export function useEditRoomAccess(room_id: string) {
     },
     onSuccess: (res, room_access) => {
       if (!res.ok) throw res;
-      setRoomInfo((currRoomInfo) => (currRoomInfo ? {
-        ...roomInfo,
-        room_access,
-      } as RoomInfo : currRoomInfo));
+      setRoomInfo((currRoomInfo) =>
+        currRoomInfo
+          ? ({
+              ...roomInfo,
+              room_access,
+            } as RoomInfo)
+          : currRoomInfo,
+      );
       toast.success('success');
     },
     onError: () => {
@@ -217,10 +221,14 @@ export function useEditRoomPassword(room_id: string) {
     },
     onSuccess: (res, room_password) => {
       if (!res.ok) throw res;
-      setRoomInfo((currRoomInfo) => (currRoomInfo ? {
-        ...roomInfo,
-        room_password,
-      } as RoomInfo : currRoomInfo));
+      setRoomInfo((currRoomInfo) =>
+        currRoomInfo
+          ? ({
+              ...roomInfo,
+              room_password,
+            } as RoomInfo)
+          : currRoomInfo,
+      );
       toast.success('success');
     },
     onError: () => {
