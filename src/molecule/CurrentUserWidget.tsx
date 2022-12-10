@@ -1,13 +1,16 @@
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { useLogOut } from '@/hooks/user';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
+import { useCurrentUser, useLogOut } from '@/hooks/user';
 import { useOptionMenu } from '@/hooks/optionMenu';
-import { profileUserState } from '@/states/user/profileUser';
-import { currentUserInfoState, UserInfo } from '@/states/user/auth';
 import OptionMenu, { Option } from '@/molecule/OptionMenu';
+import { profileUserState } from '@/states/user/profileUser';
+import isEditAccountModalOpenState from '@/states/user/isEditAccountModalOpen';
+import { UserInfo } from '@/states/user/auth';
 import Button from '@/atom/Button';
+import {currentGameStatus} from "@/states/game/currentGameStatus";
+import {toast} from "react-toastify";
 
 function CurrentUserWidget() {
-  const data = useRecoilValue(currentUserInfoState);
+  const { data, isError, isLoading } = useCurrentUser();
   const {
     open,
     setOpen,
@@ -21,9 +24,9 @@ function CurrentUserWidget() {
   } = useOptionMenu();
   const logOut = useLogOut();
 
-  if (!data) {
+  if (isError || isLoading) {
     return (
-      <Button onClick={logOut} className="bg-red-700">
+      <Button onClick={logOut}>
         Sign in
       </Button>
     );
@@ -73,6 +76,8 @@ interface OptionMenuProps {
 function UserOptionMenu({ currentUser }: OptionMenuProps) {
   const logOut = useLogOut();
   const setProfileUser = useSetRecoilState(profileUserState);
+  const setIsEditModalOpen = useSetRecoilState(isEditAccountModalOpenState);
+  const gameStatus = useRecoilValue(currentGameStatus);
 
   const options: Option[] = [
     {
@@ -84,13 +89,21 @@ function UserOptionMenu({ currentUser }: OptionMenuProps) {
     {
       label: 'Edit Account',
       onClick: () => {
-        /**/
+        if (gameStatus !== "INTRO") {
+          toast.error("You can't edit account info during the game");
+          return;
+        }
+        setIsEditModalOpen(true);
       },
     },
     {
       label: 'Log Out',
       color: 'text-red-700',
       onClick: () => {
+        if (gameStatus !== "INTRO") {
+          toast.error("You can't log out during the game");
+          return;
+        }
         logOut();
       },
     },
