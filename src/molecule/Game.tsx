@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 import {useSetRecoilState, useRecoilValue, useRecoilState} from "recoil";
 
 import {currentGameScore} from "@/states/game/currentGameScore";
@@ -7,7 +7,7 @@ import {gameTheme} from "@/states/game/gameTheme";
 import {gameInitialData} from "@/states/game/gameInitialData";
 import {gameResult} from "@/states/game/gameResult";
 
-import Pong, { PongComponentsPositions } from "@/models/Pong";
+import Pong from "@/models/Pong";
 import {GameSocketManager} from "@/models/GameSocketManager";
 
 interface GameRenderData {
@@ -43,7 +43,6 @@ export interface GameResultData {
 }
 
 const Game = () => {
-  const isInitialMount = useRef(true);
   const didGameStarted = useRef(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -52,14 +51,9 @@ const Game = () => {
 
   const currentGameTheme = useRecoilValue(gameTheme);
   const initialGameData = useRecoilValue(gameInitialData);
-
+  const [gameStatus, setGameStatus] = useRecoilState(currentGameStatus);
   const [gameScore, setGameScore] = useRecoilState(currentGameScore);
   const setGameResult = useSetRecoilState(gameResult);
-
-  const [gameStatus, setGameStatus] = useRecoilState(currentGameStatus);
-
-  const [positions, setPositions] = useState<PongComponentsPositions | null>(null);
-
 
   const socketManager = GameSocketManager.getInstance();
 
@@ -76,7 +70,6 @@ const Game = () => {
     const context = canvas?.getContext('2d');
     if (canvas && context && container && initialGameData) {
       pongRef.current = new Pong(context, currentGameTheme, initialGameData);
-      setPositions(pongRef.current.currentPositions()); // 포지션 초기화
       setGameScore({ p1Score: 0,  p2Score: 0});
       if (gameStatus === "PLAYING") {
         socketManager.socket?.emit('client_ready_to_start');
@@ -86,19 +79,6 @@ const Game = () => {
       }
     }
   }, []);
-
-  // 포지션 데이터 받아올 때 마다 실행, Pong 객체의 포지션 데이터를 업데이트하고 렌더링
-  useEffect(() => {
-    // 마운트 시 실행안함
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-    } else {
-      if (pongRef.current && positions) {
-        pongRef.current.updateCurrentPositions(positions);
-        pongRef.current.render();
-      }
-    }
-  }, [positions]);
 
   // 윈도우 리사이즈 시 게임 크기 조정
   useEffect( () => {
@@ -127,12 +107,14 @@ const Game = () => {
 
     socket.on('game_render_data', (data: GameRenderData) => {
       if (!didGameStarted.current) { return; }
-      setPositions({
+      if (!pongRef.current) { return; }
+      pongRef.current.updateCurrentPositions({
         p1YPosition: data.lPlayerY,
         p2YPosition: data.rPlayerY,
         ballXPosition: data.ballX,
         ballYPosition: data.bally,
-      })
+      });
+      pongRef.current.render();
       if (data.lPlayerScore !== gameScore.p1Score || data.rPlayerScore !== gameScore.p2Score) {
         setGameScore({ p1Score: data.lPlayerScore, p2Score: data.rPlayerScore });
       }
@@ -146,7 +128,7 @@ const Game = () => {
     });
 
     socket.once('saved_game_data', () => {
-      console.log("game_saved_data received");
+      console.log("saved_game_data received");
       socket.emit('user_leave_room');
     });
 
@@ -159,11 +141,11 @@ const Game = () => {
       socket.removeAllListeners('game_started');
       socket.removeAllListeners('game_render_data');
       socket.removeAllListeners('game_finished');
-      socket.removeAllListeners('game_saved_data');
+      socket.removeAllListeners('saved_game_data');
       socket.removeAllListeners('game_result');
     }
 
-  }, []);
+  }, [gameScore]);
 
   /* ============================================================================ */
 
