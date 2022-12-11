@@ -11,6 +11,7 @@ import GameIntro from "@/molecule/GameIntro";
 import GameFinished from '@/molecule/GameFinished';
 
 import {GameSocketManager} from "@/models/GameSocketManager";
+import {toast} from "react-toastify";
 
 export type GameStatus = 'INTRO' | 'ON_MATCHING' | 'MATCHED' | 'PLAYING' | 'WATCHING' | 'FINISHED';
 
@@ -43,11 +44,12 @@ const GameContainer = () => {
 
     gameSocket.on("disconnect", () => {
       console.log("disconnected");
+      toast.error("lost connection to the game server.\nplease refresh the page");
       setCurrentStatus("INTRO");
     });
 
-    gameSocket.on("game_error", (error: any) => {
-      console.log(error);
+    gameSocket.on("game_error", (error: string) => {
+      toast.error(error);
     });
 
     return () => {

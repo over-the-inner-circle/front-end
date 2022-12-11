@@ -2,11 +2,6 @@ import Button from '@/atom/Button';
 import type { ToastContentProps } from 'react-toastify';
 import {useAcceptNormalGameInvitation} from "@/hooks/game";
 
-export interface NotificationGameData {
-  nickname: string;
-  game_id: string;
-}
-
 export interface GameInvitationData {
   sender : {
     created: string

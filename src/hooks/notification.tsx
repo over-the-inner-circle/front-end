@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useSocketRef } from '@/hooks/chat';
 import { toast, ToastContentProps } from 'react-toastify';
 import { dmHistoryState } from '@/states/dmHistoryState';
+import { currentGameStatus } from "@/states/game/currentGameStatus";
 import NotificationGame, {
   GameInvitationData,
 } from '@/molecule/NotificationGame';
@@ -25,11 +26,12 @@ export function useNotification() {
   const queryClient = useQueryClient();
   const setDmHistory = useSetRecoilState(dmHistoryState);
   const currentOpponent = useRecoilValue(currentDMOpponentState);
+  const gameStatus = useRecoilValue(currentGameStatus);
 
   useEffect(() => {
     const socket = socketRef.current;
-
     const handleGame = ({ data }: NotificationResponse<GameInvitationData>) => {
+      if (gameStatus !== "INTRO") return;
       toast(
         (props: ToastContentProps<GameInvitationData>) => (
           <NotificationGame {...props} />
@@ -100,5 +102,5 @@ export function useNotification() {
       socket.off('notification-dm', handleDM);
       socket.on('notification-user', handleUser);
     };
-  }, [socketRef, setDmHistory, currentOpponent]);
+  }, [socketRef, setDmHistory, currentOpponent, gameStatus]);
 }
