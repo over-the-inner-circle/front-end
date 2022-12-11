@@ -74,6 +74,7 @@ export function useRefreshToken() {
         }
       }
     },
+    retry: 0,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchInterval: 3500 * 1000,
