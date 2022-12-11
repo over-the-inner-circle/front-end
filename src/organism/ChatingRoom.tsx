@@ -7,6 +7,7 @@ import { RoomInfo, RoomUserList } from '@/states/roomInfoState';
 import {
   useAutoScroll,
   useChat,
+  useDeleteRoom,
   useEditRoomAccess,
   useEditRoomPassword,
   useExitRoom,
@@ -142,12 +143,13 @@ function ChattingRoomMenu({
   const currentUserInfo = useRecoilValue(currentUserInfoState);
 
   const exitRoom = useExitRoom();
-  const menuList = [
-    {
+  const deleteRoom = useDeleteRoom();
+  const menuList = {
+    userList: {
       title: 'User List',
       onClick: () => setSidebarState('userList'),
     },
-    {
+    exit: {
       title: 'Exit',
       className: 'text-red-500',
       onClick: () => {
@@ -156,7 +158,16 @@ function ChattingRoomMenu({
         }
       },
     },
-  ];
+    delete: {
+      title: 'Delete',
+      className: 'text-red-500',
+      onClick: () => {
+        if (confirm('Are you sure?')) {
+          deleteRoom.mutate(roomInfo.room_id);
+        }
+      },
+    },
+  };
 
   return (
     <>
@@ -177,16 +188,35 @@ function ChattingRoomMenu({
               <EditRoomInfoForm roomInfo={roomInfo} />
             </li>
           ) : null}
-          {menuList.map((menu) => (
+          <li
+            className="flex h-fit w-full items-center justify-between
+                        border-b border-neutral-400 bg-neutral-700 p-2 px-5"
+          >
+            <button onClick={menuList['userList'].onClick}>
+              {menuList['userList'].title}
+            </button>
+          </li>
+          {currentUserInfo?.user_id === roomInfo.room_owner_id ? (
             <li
-              key={menu.title}
-              className={`flex h-fit w-full items-center justify-between
-                         border-b border-neutral-400 bg-neutral-700 p-2 px-5
-                         ${menu.className}`}
+              className="flex h-fit w-full items-center justify-between
+                           border-b border-neutral-400 bg-neutral-700 p-2 px-5
+                           text-red-500"
             >
-              <button onClick={menu.onClick}>{menu.title}</button>
+              <button onClick={menuList['delete'].onClick}>
+                {menuList['delete'].title}
+              </button>
             </li>
-          ))}
+          ) : (
+            <li
+              className="flex h-fit w-full items-center justify-between
+                         border-b border-neutral-400 bg-neutral-700 p-2 px-5
+                         text-red-500"
+            >
+              <button onClick={menuList['exit'].onClick}>
+                {menuList['exit'].title}
+              </button>
+            </li>
+          )}
         </ul>
       </div>
     </>
@@ -296,4 +326,3 @@ export default function ChattingRoomWrapper({ roomInfo, close }: ChatProps) {
       );
   }
 }
-

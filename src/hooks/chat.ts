@@ -180,6 +180,29 @@ export function useExitRoom() {
   return mutation;
 }
 
+export function useDeleteRoom() {
+  const fetcher = useFetcher();
+  const setRoomInfo = useSetRecoilState(roomInfoState);
+  const mutation = useMutation({
+    mutationFn: async (room_id: string) => {
+      return fetcher(`/chat/room/${room_id}`, {
+        method: 'DELETE',
+      });
+    },
+    onSuccess: (data) => {
+      if (data.ok) {
+        setRoomInfo(null);
+      } else {
+        throw data;
+      }
+    },
+    onError: () => {
+      toast.error('Fail to delete this room');
+    },
+  });
+  return mutation;
+}
+
 export function useEditRoomAccess(room_id: string) {
   const fetcher = useFetcher();
   const [roomInfo, setRoomInfo] = useRecoilState(roomInfoState);
