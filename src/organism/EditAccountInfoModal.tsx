@@ -20,6 +20,8 @@ import {
 import Enable2FaModal from "@/molecule/Enable2FaModal";
 import {TwoFaGenData, twoFAGenDataState} from "@/states/user/twoFaGenData";
 import Disable2FaModal from "@/molecule/Disable2FaModal";
+import {useFetcher} from "@/hooks/fetcher";
+import {toast} from "react-toastify";
 
 interface ImageInfo {
   file: File;
@@ -44,6 +46,8 @@ const EditAccountForm = () => {
   const updateUserProfileImage = useUpdateUserProfileImage();
   const {mutateAsync} = useGenerateUser2FA();
   const deleteAccount = useDeleteAccount();
+
+  const fetcher = useFetcher();
 
 
   useEffect(() => {
@@ -119,6 +123,22 @@ const EditAccountForm = () => {
     }
   }
 
+  const delete2faInfo = async () => {
+    const secret = prompt("enter the secret");
+    if (secret) {
+      const res = await fetcher('/auth/2fa/info', {
+        method: 'DELETE',
+        body: JSON.stringify({otp: secret})
+      });
+      if (res.ok) {
+        toast.success('2fa info deleted');
+      } else {
+        toast.error('2fa info delete failed');
+        console.log(res);
+      }
+    }
+  }
+
   const deleteCurrentAccount = () => {
     if (confirm("Are you sure you want to delete your account?")
       && confirm("Are you really sure? This action cannot be undone.")
@@ -159,6 +179,11 @@ const EditAccountForm = () => {
              onClick={handle2fa}>
           {is2faOn ? <div className="box-content h-4 w-4 bg-white"></div> : null}
         </button>
+        {/*<Button className={`bg-red-400 text-xs`}*/}
+        {/*        onClick={delete2faInfo}*/}
+        {/*>*/}
+        {/*  delete 2fa Info*/}
+        {/*</Button>*/}
       </div>
     )
   }

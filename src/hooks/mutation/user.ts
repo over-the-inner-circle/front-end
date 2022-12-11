@@ -1,12 +1,13 @@
 import { toast } from 'react-toastify';
 import { useEffect } from 'react';
-import { useRecoilValue } from 'recoil';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
 import { useNavigate } from 'react-router-dom';
 import { signUpUserInfoState } from '@/states/user/signUp';
 import { getOAuthUrl, providers } from '@/pages/Intro';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useFetcher } from '@/hooks/fetcher';
 import { useLogOut } from '@/hooks/user';
+import {twoFAGenDataState} from "@/states/user/twoFaGenData";
 
 export const useSignUpUser = () => {
   const fetcher = useFetcher();
@@ -140,13 +141,48 @@ export const useEnable2FA = (closeModal: () => void) => {
     onSuccess: () => {
       toast.success('2FA has been enabled.');
       queryClient.invalidateQueries({ queryKey: ['user'] });
+      closeModal();
     },
-    onError: () => {
+    onError: (error) => {
       toast.error('Failed to enable 2FA');
+      console.log(error);
     },
   });
   return mutation;
 };
+
+export const useUpdateUser2faInfo = (closeModal: () => void) => {
+  interface Update2faInfoData {
+    otp: string
+    info: {
+      type: string
+      key: string
+    }
+  }
+
+  const fetcher = useFetcher();
+  const enable2Fa = useEnable2FA(closeModal);
+  const set2faGenData = useSetRecoilState(twoFAGenDataState);
+  const mutation = useMutation({
+    mutationFn: async (data: Update2faInfoData) => {
+      const res = await fetcher('/auth/2fa/info', {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
+        enable2Fa.mutate(data.otp);
+        set2faGenData(null);
+        return res;
+      }
+      throw res;
+    },
+    onError: () => {
+      toast.error('Failed to update 2FA info');
+    }
+  })
+  return mutation;
+}
+
 
 export const useDisable2FA = (closeModal: () => void) => {
   const fetcher = useFetcher();

@@ -12,7 +12,7 @@ import QRCode from "react-qr-code";
 import {twoFAGenDataState} from "@/states/user/twoFaGenData";
 import {isEnable2FaModalOpenState} from "@/states/user/twoFaModalStates";
 import Button from "@/atom/Button";
-import {useEnable2FA} from "@/hooks/mutation/user";
+import {useEnable2FA, useUpdateUser2faInfo} from "@/hooks/mutation/user";
 
 const TwoFaQrForm = () => {
   const setIs2FaQrModalOpen = useSetRecoilState(isEnable2FaModalOpenState);
@@ -23,6 +23,7 @@ const TwoFaQrForm = () => {
     setIs2FaQrModalOpen(false);
   }
 
+  const update2faInfoMutation = useUpdateUser2faInfo(closeModal);
   const enable2FaMutation = useEnable2FA(closeModal);
 
   const onChangeSecret = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,10 +31,11 @@ const TwoFaQrForm = () => {
   }
 
   const enable2Fa = () => {
-    enable2FaMutation.mutate(secret);
-    if (enable2FaMutation.isSuccess) {
-      closeModal();
+    if (!twoFAGenData) {
+      enable2FaMutation.mutate(secret);
+      return;
     }
+    update2faInfoMutation.mutate({otp: secret, info: twoFAGenData.info});
   }
 
 
