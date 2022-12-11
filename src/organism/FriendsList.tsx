@@ -41,7 +41,7 @@ function useFriendsStatusSocket() {
     return () => {
       socket.off('update', handleNoti);
     };
-  }, [socketRef]);
+  }, [queryClient, socketRef]);
 }
 
 function FriendsList() {

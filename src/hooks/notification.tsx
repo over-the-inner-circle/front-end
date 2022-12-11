@@ -100,5 +100,5 @@ export function useNotification() {
       socket.off('notification-dm', handleDM);
       socket.on('notification-user', handleUser);
     };
-  }, [socketRef, setDmHistory, currentOpponent]);
+  }, [queryClient, socketRef, setDmHistory, currentOpponent]);
 }
