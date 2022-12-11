@@ -1,5 +1,6 @@
 import type { ToastContentProps } from 'react-toastify';
-import { Friend, useFriendRequestAccept } from '@/hooks/friends';
+import { Friend } from '@/hooks/query/friends';
+import { useFriendRequestAccept } from '@/hooks/mutation/friends';
 import Button from '@/atom/Button';
 
 export interface NotificationUserData {

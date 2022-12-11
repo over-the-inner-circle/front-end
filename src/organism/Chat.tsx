@@ -2,12 +2,9 @@ import { useState } from 'react';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { toast } from 'react-toastify';
 import { RoomInfo, roomInfoState } from '@/states/roomInfoState';
-import {
-  RoomListType,
-  useJoinRoom,
-  usePasswordForm,
-  useRoomList,
-} from '@/hooks/chat';
+import { usePasswordForm } from '@/hooks/chat';
+import { RoomListType, useRoomList } from '@/hooks/query/chat';
+import { useJoinRoom } from '@/hooks/mutation/chat';
 import {
   FloatingFocusManager,
   FloatingOverlay,

@@ -1,48 +1,16 @@
-import { useEffect } from 'react';
 import { useSetRecoilState } from 'recoil';
-import { useQueryClient } from '@tanstack/react-query';
 import { FloatingPortal } from '@floating-ui/react-dom-interactions';
 import { profileUserState } from '@/states/user/profileUser';
-import { useSocketRef } from '@/hooks/chat';
-import { Friend, useDeleteFriend, useFriends } from '@/hooks/friends';
+import { Friend, useFriends } from '@/hooks/query/friends';
+import { useDeleteFriend } from '@/hooks/mutation/friends';
 import { useOptionMenu } from '@/hooks/optionMenu';
 import { useRequestNormalGame, useRequestWatchGame } from '@/hooks/game';
+import { useSetCurrentDMOpponent } from '@/hooks/dm';
+import { useFriendsStatusSocket } from '@/hooks/friends';
 import Spinner from '@/atom/Spinner';
 import SectionList from '@/molecule/SectionList';
 import OptionMenu, { Option } from '@/molecule/OptionMenu';
 import StatusIndicator from '@/molecule/StatusIndicator';
-import { useSetCurrentDMOpponent } from '@/hooks/dm';
-
-function useFriendsStatusSocket() {
-  const socketRef = useSocketRef(`ws://${import.meta.env.VITE_BASE_URL}:9994`);
-  const queryClient = useQueryClient();
-
-  useEffect(() => {
-    const handleNoti = (data: {
-      user: string;
-      state: 'online' | 'offline' | 'ingame';
-    }) => {
-      console.log(data);
-      queryClient.setQueryData(['friend/all'], (prevFriends?: Friend[]) => {
-        return prevFriends
-          ? prevFriends.map((friend) =>
-              friend.user_id === data.user
-                ? { ...friend, state: data.state }
-                : friend,
-            )
-          : undefined;
-      });
-    };
-
-    const socket = socketRef.current;
-
-    socket.on('update', handleNoti);
-
-    return () => {
-      socket.off('update', handleNoti);
-    };
-  }, [socketRef]);
-}
 
 function FriendsList() {
   const { friends, isLoading, isError } = useFriends();

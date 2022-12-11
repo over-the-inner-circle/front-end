@@ -1,41 +1,16 @@
 import { useEffect } from 'react';
 import { useSetRecoilState } from 'recoil';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { dmHistoryState, type DmInfo } from '@/states/dmHistoryState';
 import { currentDMOpponentState } from '@/states/currentDMOpponent';
 import { currentSideBarItemState } from '@/states/currentSideBarItemState';
 import { useSocketRef } from './chat';
-import { useFetcher } from './fetcher';
-import { type Friend } from './friends';
-
-interface Message {
-  sender: Friend;
-  payload: string;
-  created: Date;
-}
+import { type Friend } from '@/hooks/query/friends';
+import { type Message } from '@/hooks/query/dm';
 
 interface SubscribeData {
   sender: Friend;
   payload: string;
-}
-
-export function useDirectMessages(opponent: string) {
-  const fetcher = useFetcher();
-  const data = useQuery<Message[]>({
-    queryKey: ['dm/messages', opponent],
-    queryFn: async () => {
-      const res = await fetcher(`/dm/${opponent}/messages`);
-
-      if (res.ok) {
-        const data = await res.json();
-        return data.messages;
-      }
-      return [];
-    },
-    refetchOnWindowFocus: false,
-  });
-
-  return data;
 }
 
 export function useDirectMessageSocket(opponent: string) {

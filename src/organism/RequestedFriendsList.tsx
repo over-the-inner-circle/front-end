@@ -1,10 +1,9 @@
 import Spinner from '@/atom/Spinner';
+import { RequestedFriend, useRequestedFriends } from '@/hooks/query/friends';
 import {
-  RequestedFriend,
   useFriendRequestAccept,
   useFriendRequestReject,
-  useRequestedFriends,
-} from '@/hooks/friends';
+} from '@/hooks/mutation/friends';
 import SectionList from '@/molecule/SectionList';
 
 function RequestedFriendsList() {

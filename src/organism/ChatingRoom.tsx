@@ -4,16 +4,16 @@ import { useFetcher } from '@/hooks/fetcher';
 import { useRecoilValue } from 'recoil';
 import { currentUserInfoState } from '@/states/user/auth';
 import { RoomInfo, RoomUserList } from '@/states/roomInfoState';
+import { useAutoScroll, useChat } from '@/hooks/chat';
 import {
-  useAutoScroll,
-  useChat,
   useDeleteRoom,
   useEditRoomAccess,
   useEditRoomPassword,
   useExitRoom,
-} from '@/hooks/chat';
+} from '@/hooks/mutation/chat';
 import Spinner from '@/atom/Spinner';
 import Button from '@/atom/Button';
+import { useChatMessages } from '@/hooks/query/chat';
 
 export type ChattingSideBarState = 'chat' | 'menu' | 'userList';
 
@@ -75,7 +75,8 @@ function ChattingRoom({
   setSidebarState,
 }: ChattingSideBarProps) {
   const [content, setContent] = useState('');
-  const { messages, socket } = useChat(roomInfo.room_id);
+  const { socket } = useChat(roomInfo.room_id);
+  const { data: messages } = useChatMessages(roomInfo.room_id);
   const autoScrollRef = useAutoScroll(messages);
 
   const sendMessage = () => {

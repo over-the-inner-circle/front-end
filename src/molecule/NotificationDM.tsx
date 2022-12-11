@@ -1,5 +1,5 @@
 import type { ToastContentProps } from 'react-toastify';
-import type { Friend } from '@/hooks/friends';
+import type { Friend } from '@/hooks/query/friends';
 import { useSetCurrentDMOpponent } from '@/hooks/dm';
 
 export interface NotificationDMData {

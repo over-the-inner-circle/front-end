@@ -1,9 +1,7 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { useRecoilValue } from 'recoil';
-import type { Friend } from '@/hooks/friends';
 import { useSetCurrentDMOpponent } from '@/hooks/dm';
-import { useFetcher } from '@/hooks/fetcher';
+import { useSearchUser } from '@/hooks/query/dm';
 import { sortedDmHistoryState } from '@/states/dmHistoryState';
 import SideBarHeader from '@/molecule/SideBarHeader';
 import SectionList from '@/molecule/SectionList';
@@ -32,27 +30,6 @@ function DirectmsgList() {
       ) : null}
     </>
   );
-}
-
-function useSearchUser(nickname: string) {
-  const fetcher = useFetcher();
-  const setCurrentDMOpponent = useSetCurrentDMOpponent();
-
-  const data = useQuery<Friend>({
-    queryKey: ['user', nickname],
-    queryFn: async () => {
-      const res = await fetcher(`/user/${nickname}`);
-      if (res.ok) return res.json();
-      throw res;
-    },
-    onSuccess: () => {
-      setCurrentDMOpponent(nickname);
-    },
-    enabled: !!nickname,
-    retry: false,
-    refetchOnWindowFocus: false,
-  });
-  return data;
 }
 
 function AddDirectmsgForm() {

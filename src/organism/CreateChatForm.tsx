@@ -1,52 +1,7 @@
 import { useState } from 'react';
 import Button from '@/atom/Button';
-import { useFetcher } from '@/hooks/fetcher';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { RoomInfo, roomInfoState } from '@/states/roomInfoState';
-import { currentUserInfoState } from '@/states/user/auth';
-
-function useAddChatRoom(
-  name: string,
-  accessType: RoomInfo['room_access'],
-  password: string,
-) {
-  const queryClient = useQueryClient();
-  const fetcher = useFetcher();
-  const setRoomInfo = useSetRecoilState(roomInfoState);
-  const currentUserInfo = useRecoilValue(currentUserInfoState);
-
-  const addChatRoom = useMutation({
-    mutationFn: (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      return fetcher('/chat/room', {
-        method: 'POST',
-        body: JSON.stringify({
-          room_name: name,
-          room_access: accessType,
-          room_password: password,
-        }),
-      });
-    },
-    onSuccess: async (data) => {
-      queryClient.invalidateQueries({ queryKey: ['chat/rooms'] });
-      try {
-        const { room_id } = await data.json();
-        setRoomInfo({
-          room_id,
-          room_name: name,
-          room_access: accessType,
-          room_owner_id: currentUserInfo?.user_id ?? '',
-          created: new Date(),
-        });
-      } catch (error) {
-        return error;
-      }
-    },
-  });
-
-  return addChatRoom;
-}
+import { RoomInfo } from '@/states/roomInfoState';
+import { useAddChatRoom } from '@/hooks/mutation/chat';
 
 function CreateChatForm() {
   const [name, setName] = useState('');

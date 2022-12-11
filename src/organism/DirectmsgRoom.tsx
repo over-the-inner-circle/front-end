@@ -1,17 +1,13 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { useSetRecoilState } from 'recoil';
 import { useAutoScroll } from '@/hooks/chat';
-import { useFetcher } from '@/hooks/fetcher';
 import { useOptionMenu } from '@/hooks/optionMenu';
 import { useRequestNormalGame } from '@/hooks/game';
-import {
-  useDirectMessages,
-  useDirectMessageSocket,
-  useUpdateDmHistory,
-} from '@/hooks/dm';
+import { useDirectMessageSocket, useUpdateDmHistory } from '@/hooks/dm';
+import { useDirectMessages } from '@/hooks/query/dm';
+import { useUserInfo } from '@/hooks/query/user';
 import { profileUserState } from '@/states/user/profileUser';
-import { type Friend } from '@/hooks/friends';
+import { type Friend } from '@/hooks/query/friends';
 import { FloatingPortal } from '@floating-ui/react-dom-interactions';
 import OptionMenu, { Option } from '@/molecule/OptionMenu';
 
@@ -20,22 +16,9 @@ interface DirectmsgRoomProps {
   close(): void;
 }
 
-function useOpponent(nickname: string) {
-  const fetcher = useFetcher();
-  const data = useQuery<Friend>({
-    queryKey: ['user', nickname],
-    queryFn: async () => {
-      const res = await fetcher(`/user/${nickname}`);
-      if (res.ok) return res.json();
-      throw res;
-    },
-  });
-  return data;
-}
-
 function DirectmsgRoom({ opponent, close }: DirectmsgRoomProps) {
   const { socket } = useDirectMessageSocket(opponent);
-  const { data: opponentInfo } = useOpponent(opponent);
+  const { data: opponentInfo } = useUserInfo(opponent);
   useUpdateDmHistory(opponentInfo);
 
   const handleSubmit = (content: string) => {
@@ -114,7 +97,7 @@ interface OpponentOpionMenuProps {
   opponent: Friend;
 }
 
-function OpponentOpionMenu({opponent}: OpponentOpionMenuProps) {
+function OpponentOpionMenu({ opponent }: OpponentOpionMenuProps) {
   const requestNormalGame = useRequestNormalGame();
   const setProfileUser = useSetRecoilState(profileUserState);
 
@@ -136,8 +119,8 @@ function OpponentOpionMenu({opponent}: OpponentOpionMenuProps) {
       color: 'text-red-700',
       onClick: () => {
         /**/
-      }
-    }
+      },
+    },
   ];
   return <OptionMenu options={options} />;
 }

@@ -1,5 +1,6 @@
 import {useRecoilValue, useSetRecoilState} from 'recoil';
-import { useCurrentUser, useLogOut } from '@/hooks/user';
+import { useLogOut } from '@/hooks/user';
+import { useCurrentUser } from '@/hooks/query/user';
 import { useOptionMenu } from '@/hooks/optionMenu';
 import OptionMenu, { Option } from '@/molecule/OptionMenu';
 import { profileUserState } from '@/states/user/profileUser';

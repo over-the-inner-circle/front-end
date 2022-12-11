@@ -11,7 +11,7 @@ import {
 
 import {isDisable2FaModalOpenState} from "@/states/user/twoFaModalStates";
 import Button from "@/atom/Button";
-import {useDisable2FA} from "@/hooks/user";
+import {useDisable2FA} from "@/hooks/mutation/user";
 
 const Disable2FaForm = () => {
   const setIs2FaQrModalOpen = useSetRecoilState(isDisable2FaModalOpenState);
