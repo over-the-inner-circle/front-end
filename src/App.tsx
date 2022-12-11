@@ -31,7 +31,7 @@ function App() {
             transition={Slide}
             closeOnClick={false}
             closeButton={true}
-            toastClassName="bg-neutral-900 p-1 w-fit"
+            toastClassName="bg-neutral-900 p-1 m-0 w-fit"
             bodyClassName="font-pixel text-xs text-white p-3 w-full"
           />
         </BrowserRouter>
