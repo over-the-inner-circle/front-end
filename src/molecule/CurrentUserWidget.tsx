@@ -60,10 +60,9 @@ function CurrentUserWidget() {
             left: x ?? 0,
             width: 'max-content',
           }}
-          onClick={() => setOpen(false)}
           {...getFloatingProps()}
         >
-          <UserOptionMenu currentUser={data} />
+          <UserOptionMenu currentUser={data} close={() => setOpen(false)} />
         </div>
       )}
     </div>
@@ -72,9 +71,10 @@ function CurrentUserWidget() {
 
 interface OptionMenuProps {
   currentUser: UserInfo;
+  close(): void;
 }
 
-function UserOptionMenu({ currentUser }: OptionMenuProps) {
+function UserOptionMenu({ currentUser, close }: OptionMenuProps) {
   const logOut = useLogOut();
   const setProfileUser = useSetRecoilState(profileUserState);
   const setIsEditModalOpen = useSetRecoilState(isEditAccountModalOpenState);
@@ -85,6 +85,7 @@ function UserOptionMenu({ currentUser }: OptionMenuProps) {
       label: 'My Profile',
       onClick: () => {
         setProfileUser(currentUser.nickname);
+        close();
       },
     },
     {
@@ -95,6 +96,7 @@ function UserOptionMenu({ currentUser }: OptionMenuProps) {
           return;
         }
         setIsEditModalOpen(true);
+        close();
       },
     },
     {

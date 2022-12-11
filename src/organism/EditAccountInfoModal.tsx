@@ -134,11 +134,12 @@ const EditAccountForm = () => {
       <div className="flex flex-col stop-dragging">
         <span className="mb-2"> Profile </span>
         <div className={`h-36 w-32 bg-cover bg-white`}>
-          <img src={currentProfileImageUrl()}
-               alt="profile"
-               className="h-36 w-32 hover:border-gray-400 text-black text-xs"
-               onClick={onUploadImageButtonClick}
-          />
+          <button onClick={onUploadImageButtonClick}>
+            <img src={currentProfileImageUrl()}
+                alt="profile"
+                className="h-36 w-32 hover:border-gray-400 text-black text-xs"
+            />
+          </button>
           <input className="hidden"
                  type="file"
                  accept="image/jpeg, image/png, image/jpg"
@@ -153,11 +154,11 @@ const EditAccountForm = () => {
     return (
       <div className="stop-dragging">
         <span> 2FactorAuth </span>
-        <div className="box-content flex h-6 w-6 border-solid border-4 border-white
+        <button className="box-content flex h-6 w-6 border-solid border-4 border-white
                               justify-center items-center hover:border-gray-400 mt-2"
              onClick={handle2fa}>
           {is2faOn ? <div className="box-content h-4 w-4 bg-white"></div> : null}
-        </div>
+        </button>
       </div>
     )
   }

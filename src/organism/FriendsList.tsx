@@ -88,10 +88,9 @@ function FriendItem({ friend }: FriendItemProps) {
               left: x ?? 0,
               width: 'max-content',
             }}
-            onClick={() => setOpen(false)}
             {...getFloatingProps()}
           >
-            <FriendOptionMenu friend={friend} />
+            <FriendOptionMenu friend={friend} close={() => setOpen(false)} />
           </div>
         )}
       </FloatingPortal>
@@ -101,9 +100,10 @@ function FriendItem({ friend }: FriendItemProps) {
 
 interface FriendOptionMenuProps {
   friend: Friend;
+  close(): void;
 }
 
-function FriendOptionMenu({ friend }: FriendOptionMenuProps) {
+function FriendOptionMenu({ friend, close }: FriendOptionMenuProps) {
   const deleteFriend = useDeleteFriend();
   const requestWatchGame = useRequestWatchGame();
   const requestNormalGame = useRequestNormalGame();
@@ -114,23 +114,27 @@ function FriendOptionMenu({ friend }: FriendOptionMenuProps) {
       label: 'Invite Game',
       onClick: () => {
         requestNormalGame(friend.nickname);
+        close();
       },
     },
     {
       label: 'Watch Game',
       onClick: () => {
         requestWatchGame(friend.nickname);
+        close();
       },
     },
     {
       label: 'DM',
       onClick: () => {
         setCurrentDMOpponent(friend.nickname);
+        close();
       },
     },
     {
       label: 'Block',
       onClick: () => {
+        close();
         /**/
       },
     },
@@ -141,6 +145,7 @@ function FriendOptionMenu({ friend }: FriendOptionMenuProps) {
         if (confirm('Are you sure?')) {
           deleteFriend.mutate(friend);
         }
+        close();
       },
     },
   ];

@@ -1,4 +1,4 @@
-import {useSetRecoilState, useRecoilValue} from "recoil";
+import {useSetRecoilState} from "recoil";
 import {useEffect} from "react";
 
 import Button from "@/atom/Button";
