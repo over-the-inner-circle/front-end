@@ -12,7 +12,7 @@ import QRCode from "react-qr-code";
 import {twoFAGenDataState} from "@/states/user/twoFaGenData";
 import {isEnable2FaModalOpenState} from "@/states/user/twoFaModalStates";
 import Button from "@/atom/Button";
-import {useEnable2FA} from "@/hooks/user";
+import {useEnable2FA} from "@/hooks/mutation/user";
 
 const TwoFaQrForm = () => {
   const setIs2FaQrModalOpen = useSetRecoilState(isEnable2FaModalOpenState);

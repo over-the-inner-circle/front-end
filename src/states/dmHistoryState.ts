@@ -1,5 +1,5 @@
 import { atom, selector } from 'recoil';
-import type { Friend } from '@/hooks/friends';
+import type { Friend } from '@/hooks/query/friends';
 
 export interface DmInfo {
   opponent: Friend;

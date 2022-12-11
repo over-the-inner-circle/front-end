@@ -3,7 +3,7 @@ import {
   HistoryUser,
   MatchHistory,
   useMatchHistory,
-} from '@/hooks/matchHistory';
+} from '@/hooks/query/matchHistory';
 
 interface UserMatchHistoryProps {
   nickname: string;

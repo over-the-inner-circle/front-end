@@ -2,7 +2,7 @@ import { useSetRecoilState } from 'recoil';
 import { currentSideBarItemState } from '@/states/currentSideBarItemState';
 import type { ToastContentProps } from 'react-toastify';
 import { RoomInfo, roomInfoState } from '@/states/roomInfoState';
-import type { Friend } from '@/hooks/friends';
+import type { Friend } from '@/hooks/query/friends';
 
 export interface NotificationChatData {
   sender: Friend;

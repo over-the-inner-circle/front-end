@@ -1,7 +1,7 @@
 import { useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '@/atom/Button';
-import {useSignUpUser} from "@/hooks/user";
+import {useSignUpUser} from "@/hooks/mutation/user";
 
 const SignUp = () => {
   const [nickname, setNickname] = useState("");

@@ -10,13 +10,13 @@ import {
 import {isDisable2FaModalOpenState, isEnable2FaModalOpenState} from "@/states/user/twoFaModalStates";
 import isEditAccountModalOpenState from "@/states/user/isEditAccountModalOpen";
 import Button from "@/atom/Button";
+import { useCurrentUser } from '@/hooks/query/user';
 import {
-  useCurrentUser,
   useUpdateUserName,
   useUpdateUserProfileImage,
   useDeleteAccount,
   useGenerateUser2FA,
-} from "@/hooks/user";
+} from "@/hooks/mutation/user";
 import Enable2FaModal from "@/molecule/Enable2FaModal";
 import {TwoFaGenData, twoFAGenDataState} from "@/states/user/twoFaGenData";
 import Disable2FaModal from "@/molecule/Disable2FaModal";
