@@ -102,5 +102,5 @@ export function useNotification() {
       socket.off('notification-dm', handleDM);
       socket.on('notification-user', handleUser);
     };
-  }, [socketRef, setDmHistory, currentOpponent, gameStatus]);
+  }, [queryClient, socketRef, setDmHistory, currentOpponent, gameStatus]);
 }

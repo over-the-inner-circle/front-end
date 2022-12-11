@@ -7,9 +7,9 @@ import Intro from '@/pages/Intro';
 import Login from '@/pages/Login';
 import SignUp from '@/pages/SignUp';
 import Main from '@/pages/Main';
+import NotFound from "@/pages/NotFound";
 
 import 'react-toastify/dist/ReactToastify.min.css';
-import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
 
@@ -31,7 +31,7 @@ function App() {
             transition={Slide}
             closeOnClick={false}
             closeButton={true}
-            toastClassName="bg-neutral-900 p-1 w-fit"
+            toastClassName="bg-neutral-900 p-1 m-0 w-fit"
             bodyClassName="font-pixel text-xs text-white p-3 w-full"
           />
         </BrowserRouter>
