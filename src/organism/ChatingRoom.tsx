@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useFetcher } from '@/hooks/fetcher';
-import { useRecoilValue } from 'recoil';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
 import { currentUserInfoState } from '@/states/user/auth';
 import { RoomInfo, RoomUserList } from '@/states/roomInfoState';
 import { useAutoScroll, useChat } from '@/hooks/chat';
@@ -18,6 +18,7 @@ import { FloatingPortal } from '@floating-ui/react-dom-interactions';
 import { useChatMessages } from '@/hooks/query/chat';
 import {useOptionMenu} from "@/hooks/optionMenu";
 import {useRequestNormalGame} from "@/hooks/game";
+import {profileUserState} from "@/states/user/profileUser";
 
 export type ChattingSideBarState = 'chat' | 'menu' | 'userList';
 
@@ -107,6 +108,7 @@ function UserListOptionView({ options }: { options: UserListOption[] }) {
 
 function UserOptionMenu({roomInfo, user}: ShowUserListInfo) {
   const requestNormalGame = useRequestNormalGame();
+  const setProfileUser = useSetRecoilState(profileUserState);
 
   const options: UserListOption[] = [
     {
@@ -115,6 +117,12 @@ function UserOptionMenu({roomInfo, user}: ShowUserListInfo) {
         requestNormalGame(user.nickname);
       }
     },
+    {
+      label: 'View Profile',
+      onClick: () => {
+        setProfileUser(user.nickname);
+      }
+    }
   ];
 
   return <UserListOptionView options={options} />;
