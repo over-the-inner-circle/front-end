@@ -109,7 +109,7 @@ function UserOptionMenu({roomInfo, user}: ShowUserListInfo) {
 
   const options: UserListOption[] = [
     {
-      label: 'Invite Gmae',
+      label: 'Invite Game',
       onClick: () => {
         requestNormalGame(user.nickname);
       }
