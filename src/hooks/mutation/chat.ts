@@ -1,10 +1,9 @@
-import { RoomInfo, roomInfoState } from "@/states/roomInfoState";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useFetcher } from "@/hooks/fetcher";
-import { toast } from "react-toastify";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { currentUserInfoState } from "@/states/user/auth";
-
+import { RoomInfo, roomInfoState } from '@/states/roomInfoState';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useFetcher } from '@/hooks/fetcher';
+import { toast } from 'react-toastify';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { currentUserInfoState } from '@/states/user/auth';
 
 export function useAddChatRoom(
   name: string,
@@ -46,6 +45,27 @@ export function useAddChatRoom(
   });
 
   return addChatRoom;
+}
+
+export function useInviteFriend(room_id: string) {
+  const fetcher = useFetcher();
+  const mutation = useMutation({
+    mutationFn: (nickname: string) => {
+      return fetcher(`/chat/room/${room_id}/invite`, {
+        method: 'POST',
+        body: JSON.stringify({ receiver_nickname: nickname }),
+      });
+    },
+    onSuccess: (res, nickname) => {
+      if (!res.ok) throw res;
+      toast.success(`Invitation sent to ${nickname}`);
+    },
+    onError: () => {
+      toast.error('Invitaion failed');
+    },
+  });
+
+  return mutation;
 }
 
 export function useJoinRoom() {
