@@ -11,6 +11,7 @@ import Spinner from '@/atom/Spinner';
 import SectionList from '@/molecule/SectionList';
 import OptionMenu, { Option } from '@/molecule/OptionMenu';
 import StatusIndicator from '@/molecule/StatusIndicator';
+import { useBlockUser } from '@/hooks/mutation/user';
 
 function FriendsList() {
   const { friends, isLoading, isError } = useFriends();
@@ -105,6 +106,7 @@ interface FriendOptionMenuProps {
 
 function FriendOptionMenu({ friend, close }: FriendOptionMenuProps) {
   const deleteFriend = useDeleteFriend();
+  const blockUser = useBlockUser();
   const requestWatchGame = useRequestWatchGame();
   const requestNormalGame = useRequestNormalGame();
   const setCurrentDMOpponent = useSetCurrentDMOpponent();
@@ -135,7 +137,7 @@ function FriendOptionMenu({ friend, close }: FriendOptionMenuProps) {
       label: 'Block',
       onClick: () => {
         close();
-        /**/
+        blockUser.mutate(friend.nickname);
       },
     },
     {
