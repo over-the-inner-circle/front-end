@@ -20,6 +20,7 @@ import { useChatMessages, useMemberList } from '@/hooks/query/chat';
 import { useOptionMenu } from '@/hooks/optionMenu';
 import { useRequestNormalGame } from '@/hooks/game';
 import { profileUserState } from '@/states/user/profileUser';
+import Textarea from '@/molecule/Textarea';
 
 export type ChattingSideBarState = 'chat' | 'menu' | 'userList';
 
@@ -240,27 +241,7 @@ function ChattingRoom({
           ))}
         </ul>
       </div>
-      <div className="h-30 flex">
-        <textarea
-          placeholder="plase input here."
-          className="h-20 w-full resize-none border-none bg-neutral-300 text-black"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          onKeyUp={(e) => {
-            if (e.key === 'Enter') {
-              sendMessage();
-            }
-          }}
-        />
-        <button
-          className="h-full border-b border-inherit bg-neutral-800 px-3"
-          onClick={() => {
-            sendMessage();
-          }}
-        >
-          send
-        </button>
-      </div>
+      <Textarea onSubmit={sendMessage} />
     </>
   );
 }

@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { useAutoScroll } from '@/hooks/chat';
 import { useOptionMenu } from '@/hooks/optionMenu';
@@ -9,6 +8,7 @@ import { useUserInfo } from '@/hooks/query/user';
 import { profileUserState } from '@/states/user/profileUser';
 import { FloatingPortal } from '@floating-ui/react-dom-interactions';
 import OptionMenu, { Option } from '@/molecule/OptionMenu';
+import Textarea from '@/molecule/Textarea';
 
 interface DirectmsgRoomProps {
   opponent: string;
@@ -67,7 +67,7 @@ function DirectmsgRoom({ opponent, close }: DirectmsgRoomProps) {
         </FloatingPortal>
       </div>
       <MessageContainer opponent={opponent} />
-      <TextInput onSubmit={handleSubmit} />
+      <Textarea onSubmit={handleSubmit} />
     </>
   );
 }
@@ -125,43 +125,6 @@ function MessageContainer({ opponent }: MessageContainerProps) {
           >{`${message.sender.nickname}: ${message.payload}`}</li>
         ))}
       </ul>
-    </div>
-  );
-}
-
-interface TextInputProps {
-  onSubmit(content: string): void;
-}
-
-function TextInput({ onSubmit }: TextInputProps) {
-  const [content, setContent] = useState('');
-
-  const sendMessage = () => {
-    onSubmit(content);
-    setContent('');
-  };
-
-  return (
-    <div className="h-30 flex">
-      <textarea
-        placeholder="plase input here."
-        className="h-20 w-full resize-none border-none bg-neutral-300 text-black"
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        onKeyUp={(e) => {
-          if (e.key === 'Enter') {
-            sendMessage();
-          }
-        }}
-      />
-      <button
-        className="h-full border-b border-inherit bg-neutral-800 px-3"
-        onClick={() => {
-          sendMessage();
-        }}
-      >
-        send
-      </button>
     </div>
   );
 }
