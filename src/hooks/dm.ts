@@ -28,7 +28,7 @@ export function useDirectMessageSocket(opponent: string) {
           const newMessage: Message = {
             sender: data.sender,
             payload: data.payload,
-            created: new Date(),
+            created: new Date().toISOString(),
           };
           return prevMsg ? [...prevMsg, newMessage] : [newMessage];
         },

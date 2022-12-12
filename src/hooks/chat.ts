@@ -37,7 +37,7 @@ export function useChat(roomId: string) {
             room_id: roomId,
             sender: data.sender,
             payload: data.payload,
-            created: new Date(),
+            created: new Date().toISOString(),
           };
           return prevMsg ? [...prevMsg, newMessage] : [newMessage];
         },

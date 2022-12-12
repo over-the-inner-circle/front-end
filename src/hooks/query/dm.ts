@@ -6,7 +6,7 @@ import { useSetCurrentDMOpponent } from '@/hooks/dm';
 export interface Message {
   sender: Friend;
   payload: string;
-  created: Date;
+  created: string;
 }
 
 export function useDirectMessages(opponent: string) {
@@ -22,6 +22,8 @@ export function useDirectMessages(opponent: string) {
       }
       return [];
     },
+    select: (messages) =>
+      messages?.sort((a, b) => Date.parse(a.created) - Date.parse(b.created)),
     refetchOnWindowFocus: false,
   });
 

@@ -8,7 +8,7 @@ export interface Message {
   room_id: string;
   sender: Friend;
   payload: string;
-  created: Date;
+  created: string;
 }
 
 export type RoomListType = 'all' | 'joined';
@@ -26,6 +26,8 @@ export function useChatMessages(roomId: string) {
       }
       return [];
     },
+    select: (messages) =>
+      messages?.sort((a, b) => Date.parse(a.created) - Date.parse(b.created)),
     refetchOnWindowFocus: false,
   });
 
