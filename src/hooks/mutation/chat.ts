@@ -68,6 +68,62 @@ export function useInviteFriend(room_id: string) {
   return mutation;
 }
 
+export function useRestrictMember(room_id: string) {
+  const fetcher = useFetcher();
+  const mutation = useMutation({
+    mutationFn: ({
+      user_id,
+      type,
+      second = 60,
+    }: {
+      user_id: string;
+      type: 'ban' | 'mute';
+      second: number;
+    }) => {
+      return fetcher(`/chat/room/${room_id}/${type}`, {
+        method: 'POST',
+        body: JSON.stringify({ user_id, time_amount_in_seconds: second }),
+      });
+    },
+    onSuccess: (res, { user_id, type }) => {
+      if (!res.ok) throw res;
+      toast.success(`${type} ${user_id}`);
+    },
+    onError: (_error, { type }) => {
+      toast.error(`${type} failed`);
+    },
+  });
+
+  return mutation;
+}
+
+export function useChageRole(room_id: string) {
+  const fetcher = useFetcher();
+  const mutation = useMutation({
+    mutationFn: ({
+      user_id,
+      role,
+    }: {
+      user_id: string;
+      role: 'admin' | 'user';
+    }) => {
+      return fetcher(`/chat/room/${room_id}/role`, {
+        method: 'POST',
+        body: JSON.stringify({ user_id, role }),
+      });
+    },
+    onSuccess: (res, { user_id, role }) => {
+      if (!res.ok) throw res;
+      toast.success(`${user_id} is ${role}`);
+    },
+    onError: (_error, { user_id }) => {
+      toast.error(`Change role failed ${user_id}`);
+    },
+  });
+
+  return mutation;
+}
+
 export function useJoinRoom() {
   const fetcher = useFetcher();
   const setRoomInfo = useSetRecoilState(roomInfoState);
