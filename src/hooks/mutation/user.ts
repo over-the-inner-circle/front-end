@@ -230,3 +230,24 @@ export const useDeleteAccount = () => {
   return mutation;
 };
 
+export function useBlockUser() {
+  const fetcher = useFetcher();
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: async (nickname: string) => {
+      const res = await fetcher(`/block/${nickname}`, {
+        method: 'POST',
+      });
+      if (res.ok) return res.json();
+      throw res;
+    },
+    onSuccess: () => {
+      toast.success('User has been blocked.');
+      queryClient.invalidateQueries({ queryKey: ['friends/all'] });
+    },
+    onError: () => {
+      toast.error('Failed to block user.');
+    },
+  });
+  return mutation;
+}

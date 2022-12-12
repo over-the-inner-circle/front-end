@@ -9,6 +9,7 @@ import { profileUserState } from '@/states/user/profileUser';
 import { FloatingPortal } from '@floating-ui/react-dom-interactions';
 import OptionMenu, { Option } from '@/molecule/OptionMenu';
 import Textarea from '@/molecule/Textarea';
+import { useBlockUser } from '@/hooks/mutation/user';
 
 interface DirectmsgRoomProps {
   opponent: string;
@@ -79,6 +80,7 @@ interface OpponentOpionMenuProps {
 function OpponentOpionMenu({ opponent }: OpponentOpionMenuProps) {
   const requestNormalGame = useRequestNormalGame();
   const setProfileUser = useSetRecoilState(profileUserState);
+  const blockUser = useBlockUser();
 
   const options: Option[] = [
     {
@@ -97,7 +99,7 @@ function OpponentOpionMenu({ opponent }: OpponentOpionMenuProps) {
       label: 'Block',
       color: 'text-red-700',
       onClick: () => {
-        /**/
+        blockUser.mutate(opponent);
       },
     },
   ];
