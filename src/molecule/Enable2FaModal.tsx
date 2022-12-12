@@ -30,14 +30,14 @@ const TwoFaQrForm = () => {
     setSecret(e.target.value);
   }
 
-  const enable2Fa = () => {
-    if (!twoFAGenData) {
-      enable2FaMutation.mutate(secret);
-      return;
-    }
+  const generate2fa = () => {
+    if (!twoFAGenData) return;
     update2faInfoMutation.mutate({otp: secret, info: twoFAGenData.info});
   }
 
+  const enable2Fa = () => {
+    enable2FaMutation.mutate(secret);
+  }
 
   const QRcodeContainer = () => {
     return (
@@ -50,6 +50,7 @@ const TwoFaQrForm = () => {
           }
         </div>
         <span className={`text-xs mb-4`}>Scan it with Google Authenticator</span>
+
         <div className={`h-0.5 w-20 bg-white mb-4`} />
       </div>
     )
@@ -69,10 +70,18 @@ const TwoFaQrForm = () => {
                value={secret}
                onChange={onChangeSecret}/>
       </div>
-      <Button onClick={enable2Fa}
-              className={`bg-true-green-600 text-xs`}
-      >
-        Enable 2FA</Button>
+      <div className="flex flex-row">
+        {twoFAGenData && <
+          Button onClick={generate2fa}
+                 className="bg-true-green-600 text-xs">
+            Generate
+        </Button>}
+        <Button onClick={enable2Fa}
+                className={`bg-true-green-600 text-xs`}
+        >
+          Enable 2FA</Button>
+      </div>
+
       <div className={`empty`} />
     </div>
   )

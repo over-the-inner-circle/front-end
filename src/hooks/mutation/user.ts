@@ -156,8 +156,6 @@ export const useUpdateUser2faInfo = (closeModal: () => void) => {
   }
 
   const fetcher = useFetcher();
-  const enable2Fa = useEnable2FA(closeModal);
-  const set2faGenData = useSetRecoilState(twoFAGenDataState);
   const mutation = useMutation({
     mutationFn: async (data: Update2faInfoData) => {
       const res = await fetcher('/auth/2fa/info', {
@@ -167,10 +165,7 @@ export const useUpdateUser2faInfo = (closeModal: () => void) => {
           info: data.info,
         }),
       });
-      if (res.ok) {
-        enable2Fa.mutate(data.otp);
-        return res;
-      }
+      if (res.ok) {return res;}
       throw res;
     },
     onError: () => {
