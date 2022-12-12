@@ -339,17 +339,16 @@ function ChattingRoomMenu({
                 {menuList['delete'].title}
               </button>
             </li>
-          ) : (
-            <li
-              className="flex h-fit w-full items-center justify-between
+          ) : null}
+          <li
+            className="flex h-fit w-full items-center justify-between
                          border-b border-neutral-400 bg-neutral-700 p-2 px-5
                          text-red-500"
-            >
-              <button onClick={menuList['exit'].onClick}>
-                {menuList['exit'].title}
-              </button>
-            </li>
-          )}
+          >
+            <button onClick={menuList['exit'].onClick}>
+              {menuList['exit'].title}
+            </button>
+          </li>
         </ul>
       </div>
     </>
@@ -482,7 +481,7 @@ export default function ChattingRoomWrapper({ roomInfo, close }: ChatProps) {
       return (
         <ShowUserList
           roomInfo={roomInfo}
-          close={() => setSidebarState('chat')}
+          close={() => setSidebarState('menu')}
         />
       );
     default:
