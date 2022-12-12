@@ -1,4 +1,5 @@
-import { useProfileModal, useUserInfo } from '@/hooks/profileModal';
+import { useProfileModal } from '@/hooks/profileModal';
+import { useUserInfo } from '@/hooks/query/user';
 import {
   FloatingFocusManager,
   FloatingOverlay,

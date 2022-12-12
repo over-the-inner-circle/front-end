@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useFetcher } from './fetcher';
+import { useFetcher } from '@/hooks/fetcher';
 
 export interface HistoryUser {
   user_id: string;

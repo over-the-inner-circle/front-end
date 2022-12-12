@@ -1,24 +1,26 @@
 import { useEffect, useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useFetcher } from '@/hooks/fetcher';
-import {RoomInfo, RoomUserList} from "@/states/roomInfoState";
-import { useAutoScroll, useSocketRef } from '@/hooks/chat';
-import { toast } from 'react-toastify';
-import Spinner from "@/atom/Spinner";
-import OptionMenu from "@/molecule/OptionMenu";
-import {useRequestNormalGame} from "@/hooks/game";
-import {useOptionMenu} from "@/hooks/optionMenu";
+import { useRecoilValue } from 'recoil';
+import { currentUserInfoState } from '@/states/user/auth';
+import { RoomInfo, RoomUserList } from '@/states/roomInfoState';
+import { useAutoScroll, useChat } from '@/hooks/chat';
+import {
+  useDeleteRoom,
+  useEditRoomAccess,
+  useEditRoomPassword,
+  useExitRoom,
+} from '@/hooks/mutation/chat';
+import Spinner from '@/atom/Spinner';
+import Button from '@/atom/Button';
 import { FloatingPortal } from '@floating-ui/react-dom-interactions';
+import { useChatMessages } from '@/hooks/query/chat';
+import {useOptionMenu} from "@/hooks/optionMenu";
+import {useRequestNormalGame} from "@/hooks/game";
 
-export type ChattingSideBarState = 'chatting' | 'configChattingRoom' | 'showUserList' | 'configurRoomSetting';
-
-export interface ChatProps {
-  roomInfo: RoomInfo;
-  close(): void;
-}
+export type ChattingSideBarState = 'chat' | 'menu' | 'userList';
 
 export interface ChattingSideBarProps {
-  sidebarState: ChattingSideBarState;
   roomInfo: RoomInfo;
   close(): void;
   setSidebarState(sidebarState: ChattingSideBarState): void;
@@ -62,13 +64,14 @@ function useGetUserListItem(roomInfo: RoomInfo) {
         return data.members;
       }
       return [];
-    }
+    },
   });
   return result;
 }
 
 interface ShowUserListProps {
   roomInfo: RoomInfo;
+  close(): void;
 }
 
 interface ShowUserListInfo {
@@ -119,8 +122,7 @@ function UserOptionMenu({roomInfo, user}: ShowUserListInfo) {
 function ShowUserList({ roomInfo }: ShowUserListProps) {
   const { data: users, isError, isLoading } = useGetUserListItem(roomInfo);
 
-  if (isLoading || isError)
-    return <Spinner />;
+  if (isLoading || isError) return <Spinner />;
 
   return (
     <>
@@ -138,11 +140,9 @@ function ShowUserList({ roomInfo }: ShowUserListProps) {
             </li>
           ))}
         </ul>
-
       </div>
-
     </>
-  )
+  );
 }
 
 function ShowUserItem({ roomInfo, user }: ShowUserListInfo) {
@@ -160,116 +160,40 @@ function ShowUserItem({ roomInfo, user }: ShowUserListInfo) {
 
   return (
     <>
-    <button
-      ref={reference}
-      {...getReferenceProps()}
-    >
-      {`${user.nickname}`}
-    </button>
-  <FloatingPortal>
-    {open && (
-      <div
-        ref={floating}
-        style={{
-          position: strategy,
-          top: y ?? 0,
-          left: x ?? 0,
-          width: 'max-content',
-        }}
-        {...getFloatingProps()}
+      <button
+        ref={reference}
+        {...getReferenceProps()}
       >
-        <UserOptionMenu roomInfo={roomInfo} user={user} close={() => setOpen(false)} />
-      </div>
-    )}
-  </FloatingPortal>
+        {`${user.nickname}`}
+      </button>
+      <FloatingPortal>
+        {open && (
+          <div
+            ref={floating}
+            style={{
+              position: strategy,
+              top: y ?? 0,
+              left: x ?? 0,
+              width: 'max-content',
+            }}
+            {...getFloatingProps()}
+          >
+            <UserOptionMenu roomInfo={roomInfo} user={user} close={() => setOpen(false)} />
+          </div>
+        )}
+      </FloatingPortal>
     </>
   );
 }
 
-function ChattingSideBarSelector ( { sidebarState, roomInfo, close, setSidebarState }: ChattingSideBarProps) {
-  switch (sidebarState) {
-    case 'chatting':
-      return <ChattingSideBar sidebarState= {sidebarState} roomInfo={roomInfo} close={close} setSidebarState={setSidebarState} />;
-    case 'configChattingRoom':
-      return <ConfigChattingRoomSideBar sidebarState= {sidebarState} roomInfo={roomInfo} close={close} setSidebarState={setSidebarState}/>;
-    case 'showUserList':
-      return <ShowUserList roomInfo={roomInfo} />;
-    // case 'configurRoomSetting':
-    //   return <ConfigRoomSettingSideBar sidebarState= {sidebarState} roomInfo={roomInfo} close={close} closeSidebarState={closeSidebarState}/>;
-    default:
-      return <ChattingSideBar sidebarState= {sidebarState} roomInfo={roomInfo} close={close} setSidebarState={setSidebarState} />;
-  }
-}
-
-function useChatMessages(roomId: string) {
-  const fetcher = useFetcher();
-  const data = useQuery<Message[]>({
-    queryKey: ['chat/room/messages', roomId],
-    queryFn: async () => {
-      const res = await fetcher(`/chat/room/${roomId}/messages`);
-
-      if (res.ok) {
-        const data = await res.json();
-        return data.messages;
-      }
-      return [];
-    },
-    refetchOnWindowFocus: false,
-  });
-
-  return data;
-}
-
-function useChat(roomId: string) {
-  const queryClient = useQueryClient();
-  const socketRef = useSocketRef(`ws://${import.meta.env.VITE_BASE_URL}:9999`);
-  const { data: messages } = useChatMessages(roomId);
-
-  useEffect(() => {
-    const socket = socketRef.current;
-
-    const handleSub = (data: SubscribeData) => {
-      queryClient.setQueryData<Message[]>(
-        ['chat/room/messages', roomId],
-        (prevMsg) => {
-          const newMessage: Message = {
-            room_msg_id:
-              prevMsg && prevMsg.length
-                ? prevMsg[prevMsg.length - 1].room_msg_id + 1
-                : 1,
-            room_id: roomId,
-            sender: data.sender,
-            payload: data.payload,
-            created: new Date(),
-          };
-          return prevMsg ? [...prevMsg, newMessage] : [newMessage];
-        },
-      );
-    };
-
-    const handleAnnounce = (data: object) => {
-      toast.info(JSON.stringify(data));
-    };
-
-    socket.emit('join', { room: roomId });
-
-    socket.on('subscribe', handleSub);
-    socket.on('subscribe_self', handleSub);
-    socket.on('announcement', handleAnnounce);
-
-    return () => {
-      socket.off('subscribe', handleSub);
-      socket.off('subscribe_self', handleSub);
-      socket.off('announcement', handleAnnounce);
-    };
-  }, [roomId, queryClient, socketRef]);
-
-  return { messages, socket: socketRef.current };
-}
-
-function ChattingSideBar({sidebarState, roomInfo, close, setSidebarState }: ChattingSideBarProps) {
+function ChattingRoom({
+  roomInfo,
+  close,
+  setSidebarState,
+}: ChattingSideBarProps) {
   const [content, setContent] = useState('');
-  const { messages, socket } = useChat(roomInfo.room_id);
+  const { socket } = useChat(roomInfo.room_id);
+  const { data: messages } = useChatMessages(roomInfo.room_id);
   const autoScrollRef = useAutoScroll(messages);
 
   const sendMessage = () => {
@@ -287,7 +211,7 @@ function ChattingSideBar({sidebarState, roomInfo, close, setSidebarState }: Chat
           &lt;
         </button>
         {roomInfo.room_name}
-        <button onClick={() => setSidebarState('configChattingRoom')} className="px-1">
+        <button onClick={() => setSidebarState('menu')} className="px-1">
           :
         </button>
       </div>
@@ -329,36 +253,194 @@ function ChattingSideBar({sidebarState, roomInfo, close, setSidebarState }: Chat
   );
 }
 
-function ConfigChattingRoomSideBar({sidebarState, roomInfo, close, setSidebarState}: ChattingSideBarProps) {
+function ChattingRoomMenu({
+  roomInfo,
+  close,
+  setSidebarState,
+}: ChattingSideBarProps) {
+  const currentUserInfo = useRecoilValue(currentUserInfoState);
+
+  const exitRoom = useExitRoom();
+  const deleteRoom = useDeleteRoom();
+  const menuList = {
+    userList: {
+      title: 'User List',
+      onClick: () => setSidebarState('userList'),
+    },
+    exit: {
+      title: 'Exit',
+      className: 'text-red-500',
+      onClick: () => {
+        if (confirm('Are you sure?')) {
+          exitRoom.mutate(roomInfo.room_id);
+        }
+      },
+    },
+    delete: {
+      title: 'Delete',
+      className: 'text-red-500',
+      onClick: () => {
+        if (confirm('Are you sure?')) {
+          deleteRoom.mutate(roomInfo.room_id);
+        }
+      },
+    },
+  };
 
   return (
     <>
-      <div className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
+      <div
+        className="flex h-fit w-full items-center justify-between
+                      border-b border-neutral-400 bg-neutral-800 p-3"
+      >
+        <button onClick={close} className="px-1">
+          &lt;
+        </button>
         {roomInfo.room_name}
+        <p className="h-full w-6 px-1" />
       </div>
-      <div className="h-full w-full grow overflow-y-auto border-b border-inherit">
+      <div className="h-full w-full grow overflow-y-auto border-b border-neutral-400">
         <ul className="flex h-fit w-full flex-col items-start justify-start">
-          <li className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
-            <button onClick={() => {setSidebarState('showUserList')}}> UserList </button>
-
+          {currentUserInfo?.user_id === roomInfo.room_owner_id ? (
+            <li className="w-full">
+              <EditRoomInfoForm roomInfo={roomInfo} />
+            </li>
+          ) : null}
+          <li
+            className="flex h-fit w-full items-center justify-between
+                        border-b border-neutral-400 bg-neutral-700 p-2 px-5"
+          >
+            <button onClick={menuList['userList'].onClick}>
+              {menuList['userList'].title}
+            </button>
           </li>
-          <li className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
-            <button> ConfigChattingRoom </button>
-          </li>
+          {currentUserInfo?.user_id === roomInfo.room_owner_id ? (
+            <li
+              className="flex h-fit w-full items-center justify-between
+                           border-b border-neutral-400 bg-neutral-700 p-2 px-5
+                           text-red-500"
+            >
+              <button onClick={menuList['delete'].onClick}>
+                {menuList['delete'].title}
+              </button>
+            </li>
+          ) : (
+            <li
+              className="flex h-fit w-full items-center justify-between
+                         border-b border-neutral-400 bg-neutral-700 p-2 px-5
+                         text-red-500"
+            >
+              <button onClick={menuList['exit'].onClick}>
+                {menuList['exit'].title}
+              </button>
+            </li>
+          )}
         </ul>
       </div>
     </>
-  )
+  );
 }
 
-
-
-
-
-export default function ChatingRoom({ roomInfo, close }: ChatProps) {
-  const [sidebarState, setSidebarState] = useState<ChattingSideBarState> (
-    'chatting');
-  return (
-    <ChattingSideBarSelector sidebarState={sidebarState} roomInfo={roomInfo} close={close} setSidebarState={setSidebarState} />
+function EditRoomInfoForm({ roomInfo }: { roomInfo: RoomInfo }) {
+  const [password, setPassword] = useState('');
+  const [accessType, setAccessType] = useState<RoomInfo['room_access']>(
+    roomInfo.room_access,
   );
+
+  useEffect(() => {
+    if (accessType !== 'protected') {
+      setPassword('');
+    }
+  }, [accessType]);
+
+  const editRoomAccess = useEditRoomAccess(roomInfo.room_id);
+  const editRoomPassword = useEditRoomPassword(roomInfo.room_id);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    editRoomPassword.mutate(password);
+    if (roomInfo.room_access !== accessType) {
+      editRoomAccess.mutate(accessType);
+    }
+  };
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="flex w-full flex-col items-center justify-start gap-2
+                 border-b border-neutral-400 bg-neutral-800 p-2"
+    >
+      <div className="flex w-full flex-row items-center justify-start p-1">
+        <label htmlFor="room_access">type:</label>
+        <select
+          name="room_access"
+          className="ml-2 w-full bg-neutral-500 p-1"
+          value={accessType}
+          onChange={(e) =>
+            setAccessType(e.target.value as RoomInfo['room_access'])
+          }
+        >
+          <option value="public">Public</option>
+          <option value="protected">Protected</option>
+          <option value="private">Private</option>
+        </select>
+      </div>
+      <div className="flex w-full flex-row items-center justify-start p-1">
+        <label
+          htmlFor="room_password"
+          className={`${accessType !== 'protected' ? 'opacity-30' : ''}`}
+        >
+          password:
+        </label>
+        <input
+          className="ml-2 w-full border-b-4 border-white bg-inherit disabled:opacity-30"
+          name="room_password"
+          type="password"
+          disabled={accessType !== 'protected'}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </div>
+      <Button type="submit" className="h-fit w-full bg-red-500">
+        Edit
+      </Button>
+    </form>
+  );
+}
+
+export interface ChatProps {
+  roomInfo: RoomInfo;
+  close(): void;
+}
+
+export default function ChattingRoomWrapper({ roomInfo, close }: ChatProps) {
+  const [sidebarState, setSidebarState] =
+    useState<ChattingSideBarState>('chat');
+
+  switch (sidebarState) {
+    case 'menu':
+      return (
+        <ChattingRoomMenu
+          roomInfo={roomInfo}
+          close={() => setSidebarState('chat')}
+          setSidebarState={setSidebarState}
+        />
+      );
+    case 'userList':
+      return (
+        <ShowUserList
+          roomInfo={roomInfo}
+          close={() => setSidebarState('chat')}
+        />
+      );
+    default:
+      return (
+        <ChattingRoom
+          roomInfo={roomInfo}
+          close={close}
+          setSidebarState={setSidebarState}
+        />
+      );
+  }
 }

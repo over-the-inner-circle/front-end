@@ -11,6 +11,7 @@ import GameIntro from "@/molecule/GameIntro";
 import GameFinished from '@/molecule/GameFinished';
 
 import {GameSocketManager} from "@/models/GameSocketManager";
+import {toast} from "react-toastify";
 
 export type GameStatus = 'INTRO' | 'ON_MATCHING' | 'MATCHED' | 'PLAYING' | 'WATCHING' | 'FINISHED';
 
@@ -21,21 +22,21 @@ const GameContainer = () => {
   const gameSocketUri = `ws://54.164.253.231:9998`;
   const accessToken = useRecoilValue(accessTokenState);
 
-  const isFirstMount = useRef(true);
+  const isSocketInitiated = useRef(false);
   const gameSocketManager = GameSocketManager.getInstance();
 
   //최초 소켓연결
   useEffect(() => {
-    if (!isFirstMount.current) { return; }
+    if (isSocketInitiated.current) { return; }
     if (!accessToken) { return; }
 
     // socket should be initiated before using;
     gameSocketManager.initSocket(gameSocketUri, accessToken);
+    isSocketInitiated.current = true;
 
     const gameSocket = gameSocketManager.socket;
     if (!gameSocket) { return; }
 
-    gameSocket.connect();
     gameSocket.on("connect", () => {
       console.log("connected");
       console.log(gameSocket.id);
@@ -43,13 +44,17 @@ const GameContainer = () => {
 
     gameSocket.on("disconnect", () => {
       console.log("disconnected");
-      console.log(gameSocket.id);
+      toast.error("lost connection to the game server.\nplease refresh the page");
       setCurrentStatus("INTRO");
     });
 
-    gameSocket.on("game_error", (error: any) => {
-      console.log(error);
+    gameSocket.on("game_error", (error: string) => {
+      toast.error(error);
     });
+
+    return () => {
+      console.log("GameContainer unmounted");
+    }
   },[accessToken]);
 
   return (

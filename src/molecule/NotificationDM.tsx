@@ -1,8 +1,6 @@
-import { useSetRecoilState } from 'recoil';
-import { currentSideBarItemState } from '@/states/currentSideBarItemState';
-import { currentDMOpponentState } from '@/states/currentDMOpponent';
 import type { ToastContentProps } from 'react-toastify';
-import type { Friend } from '@/hooks/friends';
+import type { Friend } from '@/hooks/query/friends';
+import { useSetCurrentDMOpponent } from '@/hooks/dm';
 
 export interface NotificationDMData {
   sender: Friend;
@@ -13,12 +11,10 @@ function NotificationDM({
   data,
   closeToast,
 }: ToastContentProps<NotificationDMData>) {
-  const setCurrentSideBarItem = useSetRecoilState(currentSideBarItemState);
-  const setCurrentDMOpponent = useSetRecoilState(currentDMOpponentState);
+  const setCurrentDMOpponent = useSetCurrentDMOpponent();
 
   const handleClick = () => {
     if (data?.sender) {
-      setCurrentSideBarItem('dm');
       setCurrentDMOpponent(data.sender.nickname);
     }
     if (closeToast) closeToast();

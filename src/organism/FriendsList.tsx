@@ -1,47 +1,16 @@
-import { useEffect } from 'react';
 import { useSetRecoilState } from 'recoil';
-import { useQueryClient } from '@tanstack/react-query';
-import { useSocketRef } from '@/hooks/chat';
 import { FloatingPortal } from '@floating-ui/react-dom-interactions';
 import { profileUserState } from '@/states/user/profileUser';
-import { Friend, useDeleteFriend, useFriends } from '@/hooks/friends';
+import { Friend, useFriends } from '@/hooks/query/friends';
+import { useDeleteFriend } from '@/hooks/mutation/friends';
 import { useOptionMenu } from '@/hooks/optionMenu';
 import { useRequestNormalGame, useRequestWatchGame } from '@/hooks/game';
+import { useSetCurrentDMOpponent } from '@/hooks/dm';
+import { useFriendsStatusSocket } from '@/hooks/friends';
 import Spinner from '@/atom/Spinner';
 import SectionList from '@/molecule/SectionList';
 import OptionMenu, { Option } from '@/molecule/OptionMenu';
 import StatusIndicator from '@/molecule/StatusIndicator';
-
-function useFriendsStatusSocket() {
-  const socketRef = useSocketRef(`ws://${import.meta.env.VITE_BASE_URL}:9994`);
-  const queryClient = useQueryClient();
-
-  useEffect(() => {
-    const handleNoti = (data: {
-      user: string;
-      state: 'online' | 'offline' | 'ingame';
-    }) => {
-      console.log(data);
-      queryClient.setQueryData(['friend/all'], (prevFriends?: Friend[]) => {
-        return prevFriends
-          ? prevFriends.map((friend) =>
-              friend.user_id === data.user
-                ? { ...friend, state: data.state }
-                : friend,
-            )
-          : undefined;
-      });
-    };
-
-    const socket = socketRef.current;
-
-    socket.on('update', handleNoti);
-
-    return () => {
-      socket.off('update', handleNoti);
-    };
-  }, [socketRef]);
-}
 
 function FriendsList() {
   const { friends, isLoading, isError } = useFriends();
@@ -119,10 +88,9 @@ function FriendItem({ friend }: FriendItemProps) {
               left: x ?? 0,
               width: 'max-content',
             }}
-            onClick={() => setOpen(false)}
             {...getFloatingProps()}
           >
-            <FriendOptionMenu friend={friend} />
+            <FriendOptionMenu friend={friend} close={() => setOpen(false)} />
           </div>
         )}
       </FloatingPortal>
@@ -132,35 +100,41 @@ function FriendItem({ friend }: FriendItemProps) {
 
 interface FriendOptionMenuProps {
   friend: Friend;
+  close(): void;
 }
 
-function FriendOptionMenu({ friend }: FriendOptionMenuProps) {
+function FriendOptionMenu({ friend, close }: FriendOptionMenuProps) {
   const deleteFriend = useDeleteFriend();
   const requestWatchGame = useRequestWatchGame();
   const requestNormalGame = useRequestNormalGame();
+  const setCurrentDMOpponent = useSetCurrentDMOpponent();
 
   const options: Option[] = [
     {
       label: 'Invite Game',
       onClick: () => {
         requestNormalGame(friend.nickname);
+        close();
       },
     },
     {
       label: 'Watch Game',
       onClick: () => {
         requestWatchGame(friend.nickname);
+        close();
       },
     },
     {
       label: 'DM',
       onClick: () => {
-        /**/
+        setCurrentDMOpponent(friend.nickname);
+        close();
       },
     },
     {
       label: 'Block',
       onClick: () => {
+        close();
         /**/
       },
     },
@@ -171,6 +145,7 @@ function FriendOptionMenu({ friend }: FriendOptionMenuProps) {
         if (confirm('Are you sure?')) {
           deleteFriend.mutate(friend);
         }
+        close();
       },
     },
   ];

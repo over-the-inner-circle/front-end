@@ -1,63 +1,79 @@
-import { useEffect, useRef } from 'react';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useRef, useState } from 'react';
+import { useRecoilValue } from 'recoil';
+import { useQueryClient } from '@tanstack/react-query';
 import { io } from 'socket.io-client';
+import { toast } from 'react-toastify';
 import { accessTokenState } from '@/states/user/auth';
-import { RoomInfo, roomInfoState } from '@/states/roomInfoState';
-import { useFetcher } from '@/hooks/fetcher';
+import { Friend } from '@/hooks/query/friends';
+import { Message } from '@/hooks/query/chat';
+import {
+  useDismiss,
+  useFloating,
+  useInteractions,
+} from '@floating-ui/react-dom-interactions';
 
-export type RoomListType = 'all' | 'joined';
-
-export function useRoomList(type: RoomListType) {
-  const queryClient = useQueryClient();
-  const fetcher = useFetcher();
-  const result = useQuery({
-    queryKey: ['chat/rooms', type],
-    queryFn: async (): Promise<RoomInfo[]> => {
-      const res = await fetcher(`/chat/rooms/${type}`);
-      if (res.ok) {
-        const data = await res.json();
-        return data.rooms;
-      }
-      return [];
-    },
-    select: (roomList) => {
-      if (type === 'all') {
-        const joinedRoomList = queryClient.getQueryData<RoomInfo[]>([
-          'chat/rooms',
-          'joined',
-        ]);
-
-        if (joinedRoomList) {
-          return roomList.filter(
-            (all) =>
-              !joinedRoomList.find((joined) => joined.room_id === all.room_id),
-          );
-        }
-      }
-      return roomList;
-    },
-  });
-  return result;
+interface SubscribeData {
+  sender: Friend;
+  payload: string;
 }
 
-export function useJoinRoom() {
-  const fetcher = useFetcher();
-  const setRoomInfo = useSetRecoilState(roomInfoState);
-  const mutation = useMutation({
-    mutationFn: async (room: RoomInfo) => {
-      return fetcher(`/chat/room/${room.room_id}/join`, {
-        method: 'POST',
-        body: JSON.stringify({ room_password: '' }),
-      });
-    },
-    onSuccess: (data, variables) => {
-      if (data.ok) {
-        setRoomInfo(variables ?? null);
-      }
-    },
+export function useChat(roomId: string) {
+  const queryClient = useQueryClient();
+  const socketRef = useSocketRef(`ws://${import.meta.env.VITE_BASE_URL}:9999`);
+
+  useEffect(() => {
+    const socket = socketRef.current;
+
+    const handleSub = (data: SubscribeData) => {
+      queryClient.setQueryData<Message[]>(
+        ['chat/room/messages', roomId],
+        (prevMsg) => {
+          const newMessage: Message = {
+            room_msg_id:
+              prevMsg && prevMsg.length
+                ? prevMsg[prevMsg.length - 1].room_msg_id + 1
+                : 1,
+            room_id: roomId,
+            sender: data.sender,
+            payload: data.payload,
+            created: new Date(),
+          };
+          return prevMsg ? [...prevMsg, newMessage] : [newMessage];
+        },
+      );
+    };
+
+    const handleAnnounce = (data: { payload: string }) => {
+      toast.info(data.payload);
+    };
+
+    socket.emit('join', { room: roomId });
+
+    socket.on('subscribe', handleSub);
+    socket.on('subscribe_self', handleSub);
+    socket.on('announcement', handleAnnounce);
+
+    return () => {
+      socket.off('subscribe', handleSub);
+      socket.off('subscribe_self', handleSub);
+      socket.off('announcement', handleAnnounce);
+    };
+  }, [roomId, queryClient, socketRef]);
+
+  return { socket: socketRef.current };
+}
+
+export function usePasswordForm() {
+  const [open, setOpen] = useState(false);
+  const { floating, context } = useFloating({
+    open,
+    onOpenChange: setOpen,
   });
-  return mutation;
+
+  const dismiss = useDismiss(context);
+  const { getFloatingProps } = useInteractions([dismiss]);
+
+  return { open, setOpen, floating, context, getFloatingProps };
 }
 
 export function useSocketRef(url: string) {

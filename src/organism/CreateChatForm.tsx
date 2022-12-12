@@ -1,56 +1,12 @@
 import { useState } from 'react';
 import Button from '@/atom/Button';
-import { useFetcher } from '@/hooks/fetcher';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSetRecoilState } from 'recoil';
-import { roomInfoState } from '@/states/roomInfoState';
-
-type ChatAccessType = 'public' | 'protected' | 'private';
-
-function useAddChatRoom(
-  name: string,
-  accessType: ChatAccessType,
-  password: string,
-) {
-  const queryClient = useQueryClient();
-  const fetcher = useFetcher();
-  const setRoomInfo = useSetRecoilState(roomInfoState);
-
-  const addChatRoom = useMutation({
-    mutationFn: (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      return fetcher('/chat/room', {
-        method: 'POST',
-        body: JSON.stringify({
-          room_name: name,
-          room_access: accessType,
-          room_password: password,
-        }),
-      });
-    },
-    onSuccess: async (data) => {
-      queryClient.invalidateQueries({ queryKey: ['chat/rooms'] });
-      try {
-        const { room_id } = await data.json();
-        setRoomInfo({
-          room_id,
-          room_name: name,
-          room_access: accessType,
-          room_owner_id: 'my id',
-          created: new Date(),
-        });
-      } catch (error) {
-        return error;
-      }
-    },
-  });
-
-  return addChatRoom;
-}
+import { RoomInfo } from '@/states/roomInfoState';
+import { useAddChatRoom } from '@/hooks/mutation/chat';
 
 function CreateChatForm() {
   const [name, setName] = useState('');
-  const [accessType, setAccessType] = useState<ChatAccessType>('public');
+  const [accessType, setAccessType] =
+    useState<RoomInfo['room_access']>('public');
   const [password, setPassword] = useState('');
   const addChatRoom = useAddChatRoom(name, accessType, password);
 
@@ -78,7 +34,9 @@ function CreateChatForm() {
           name="room_access"
           className="ml-2 w-full bg-neutral-500 p-1"
           value={accessType}
-          onChange={(e) => setAccessType(e.target.value as ChatAccessType)}
+          onChange={(e) =>
+            setAccessType(e.target.value as RoomInfo['room_access'])
+          }
         >
           <option value="public">Public</option>
           <option value="protected">Protected</option>

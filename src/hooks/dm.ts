@@ -1,39 +1,16 @@
-import { useEffect } from "react";
-import { useSetRecoilState } from "recoil";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from 'react';
+import { useSetRecoilState } from 'recoil';
+import { useQueryClient } from '@tanstack/react-query';
 import { dmHistoryState, type DmInfo } from '@/states/dmHistoryState';
-import { useSocketRef } from "./chat";
-import { useFetcher } from "./fetcher";
-import { type Friend } from "./friends";
-
-interface Message {
-  sender: Friend;
-  payload: string;
-  created: Date;
-}
+import { currentDMOpponentState } from '@/states/currentDMOpponent';
+import { currentSideBarItemState } from '@/states/currentSideBarItemState';
+import { useSocketRef } from './chat';
+import { type Friend } from '@/hooks/query/friends';
+import { type Message } from '@/hooks/query/dm';
 
 interface SubscribeData {
   sender: Friend;
   payload: string;
-}
-
-export function useDirectMessages(opponent: string) {
-  const fetcher = useFetcher();
-  const data = useQuery<Message[]>({
-    queryKey: ['dm/messages', opponent],
-    queryFn: async () => {
-      const res = await fetcher(`/dm/${opponent}/messages`);
-
-      if (res.ok) {
-        const data = await res.json();
-        return data.messages;
-      }
-      return [];
-    },
-    refetchOnWindowFocus: false,
-  });
-
-  return data;
 }
 
 export function useDirectMessageSocket(opponent: string) {
@@ -66,20 +43,14 @@ export function useDirectMessageSocket(opponent: string) {
       );
     };
 
-    const handleAnnounce = (data: unknown) => {
-      console.log(data);
-    };
-
     socket.emit('join', { opponent });
 
     socket.on('subscribe', handleSub);
     socket.on('subscribe_self', handleSub);
-    socket.on('announcement', handleAnnounce);
 
     return () => {
       socket.off('subscribe', handleSub);
       socket.off('subscribe_self', handleSub);
-      socket.off('announcement', handleAnnounce);
     };
   }, [opponent, queryClient, socketRef, setDmHistory]);
 
@@ -110,4 +81,15 @@ export function useUpdateDmHistory(opponent: Friend | undefined) {
       });
     }
   }, [opponent, setDmHistory]);
+}
+
+export function useSetCurrentDMOpponent() {
+  const setCurrentSideBarItem = useSetRecoilState(currentSideBarItemState);
+  const setCurrentDMOpponent = useSetRecoilState(currentDMOpponentState);
+
+  const setCurrentDMOpponentWrapper = (nickname: string) => {
+    setCurrentSideBarItem('dm');
+    setCurrentDMOpponent(nickname);
+  };
+  return setCurrentDMOpponentWrapper;
 }

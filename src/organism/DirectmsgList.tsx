@@ -1,15 +1,13 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { useFetcher } from '@/hooks/fetcher';
+import { useRecoilValue } from 'recoil';
+import { useSetCurrentDMOpponent } from '@/hooks/dm';
+import { useSearchUser } from '@/hooks/query/dm';
 import { sortedDmHistoryState } from '@/states/dmHistoryState';
-import { currentDMOpponentState } from '@/states/currentDMOpponent';
 import SideBarHeader from '@/molecule/SideBarHeader';
 import SectionList from '@/molecule/SectionList';
-import type { Friend } from '@/hooks/friends';
 
 function DirectmsgList() {
-  const setCurrentDMOpponent = useSetRecoilState(currentDMOpponentState);
+  const setCurrentDMOpponent = useSetCurrentDMOpponent();
   const dmHistory = useRecoilValue(sortedDmHistoryState);
 
   return (
@@ -21,7 +19,7 @@ function DirectmsgList() {
           sections={[{ title: 'Recent history', list: dmHistory }]}
           renderItem={(dmInfo) => (
             <button
-              className="flex w-full flex-col gap-1 p-3 px-5"
+              className="flex w-full flex-col items-start justify-center gap-1 p-3 px-5"
               onClick={() => setCurrentDMOpponent(dmInfo.opponent.nickname)}
             >
               <p>{dmInfo.opponent.nickname}</p>
@@ -32,27 +30,6 @@ function DirectmsgList() {
       ) : null}
     </>
   );
-}
-
-function useSearchUser(nickname: string) {
-  const fetcher = useFetcher();
-  const setCurrentDMOpponent = useSetRecoilState(currentDMOpponentState);
-
-  const data = useQuery<Friend>({
-    queryKey: ['user', nickname],
-    queryFn: async () => {
-      const res = await fetcher(`/user/${nickname}`);
-      if (res.ok) return res.json();
-      throw res;
-    },
-    onSuccess: () => {
-      setCurrentDMOpponent(nickname);
-    },
-    enabled: !!nickname,
-    retry: false,
-    refetchOnWindowFocus: false,
-  });
-  return data;
 }
 
 function AddDirectmsgForm() {
@@ -84,7 +61,7 @@ function AddDirectmsgForm() {
           required
         />
         <button
-          className="disabled:opacity-20 px-1"
+          className="px-1 disabled:opacity-20"
           type="submit"
           disabled={isFetching}
         >

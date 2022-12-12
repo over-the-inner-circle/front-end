@@ -14,6 +14,7 @@ export interface UserInfo {
   mmr: number;
   two_factor_authentication_type?: string;
   two_factor_authentication_key?: string;
+  is_two_factor_authentication_enabled: boolean;
   created: Date;
   deleted?: Date;
 }
