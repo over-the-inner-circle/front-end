@@ -22,10 +22,13 @@ const GamePlayerInfoBar = () => {
 		}
 		return (
 			<div className="flex my-6 ml-6">
-				<img className={`shrink-0 w-14 h-14 rounded-full`}
-						 src={lPlayerProfileImg ? lPlayerProfileImg : "src/assets/default_profile_image.png"}
-						 alt={"user profile"}
-				/>
+				<div className={`flex h-14 w-14 items-center justify-center overflow-hidden rounded-full shrink-0`}>
+					<img className={`w-full h-full object-cover`}
+							 src={lPlayerProfileImg ? lPlayerProfileImg : "src/assets/default_profile_image.png"}
+							 alt={"user profile"}
+					/>
+				</div>
+
 				<div className="flex flex-col ml-4 items-start justify-center">
 					<span>{playerInfo.lPlayerInfo.nickname}</span>
 					<span>{playerInfo.lPlayerInfo.mmr}</span>
@@ -44,10 +47,12 @@ const GamePlayerInfoBar = () => {
 					<span>{playerInfo.rPlayerInfo.nickname}</span>
 					<span>{playerInfo.rPlayerInfo.mmr}</span>
 				</div>
-				<img className={`shrink-0 w-14 h-14 rounded-full`}
-						 src={rPlayerProfileImg ? rPlayerProfileImg : "src/assets/default_profile_image.png"}
-						 alt={"user profile"}
-				/>
+				<div className={`flex h-14 w-14 items-center justify-center overflow-hidden rounded-full shrink-0`}>
+					<img className={`w-full h-full object-cover`}
+							 src={rPlayerProfileImg ? rPlayerProfileImg : "src/assets/default_profile_image.png"}
+							 alt={"user profile"}
+					/>
+				</div>
 			</div>
 		)
 	}
