@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useFetcher } from '@/hooks/fetcher';
-import { useRecoilValue } from 'recoil';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
 import { currentUserInfoState } from '@/states/user/auth';
 import { RoomInfo, RoomUserList } from '@/states/roomInfoState';
 import { useAutoScroll, useChat } from '@/hooks/chat';
@@ -10,6 +10,7 @@ import {
   useEditRoomAccess,
   useEditRoomPassword,
   useExitRoom,
+  useInviteFriend,
 } from '@/hooks/mutation/chat';
 import Spinner from '@/atom/Spinner';
 import Button from '@/atom/Button';
@@ -17,6 +18,7 @@ import { FloatingPortal } from '@floating-ui/react-dom-interactions';
 import { useChatMessages } from '@/hooks/query/chat';
 import {useOptionMenu} from "@/hooks/optionMenu";
 import {useRequestNormalGame} from "@/hooks/game";
+import {profileUserState} from "@/states/user/profileUser";
 
 export type ChattingSideBarState = 'chat' | 'menu' | 'userList';
 
@@ -106,29 +108,42 @@ function UserListOptionView({ options }: { options: UserListOption[] }) {
 
 function UserOptionMenu({roomInfo, user}: ShowUserListInfo) {
   const requestNormalGame = useRequestNormalGame();
+  const setProfileUser = useSetRecoilState(profileUserState);
 
   const options: UserListOption[] = [
     {
-      label: 'Invite Gmae',
+      label: 'Invite Game',
       onClick: () => {
         requestNormalGame(user.nickname);
       }
     },
+    {
+      label: 'View Profile',
+      onClick: () => {
+        setProfileUser(user.nickname);
+      }
+    }
   ];
 
   return <UserListOptionView options={options} />;
 }
 
-function ShowUserList({ roomInfo }: ShowUserListProps) {
+function ShowUserList({ roomInfo, close }: ShowUserListProps) {
   const { data: users, isError, isLoading } = useGetUserListItem(roomInfo);
-
-  if (isLoading || isError) return <Spinner />;
 
   return (
     <>
-      <div className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
+      <div
+        className="flex h-fit w-full items-center justify-between
+                      border-b border-neutral-400 bg-neutral-800 p-3"
+      >
+        <button onClick={close} className="px-1">
+          &lt;
+        </button>
         {roomInfo.room_name}
+        <p className="h-full w-6 px-1" />
       </div>
+      {isLoading || isError ? <Spinner /> : (
       <div className="h-full w-full grow overflow-y-auto border-b border-inherit">
         <ul className="flex h-fit w-full flex-col items-start justify-start">
           {users.map((user) => (
@@ -141,6 +156,7 @@ function ShowUserList({ roomInfo }: ShowUserListProps) {
           ))}
         </ul>
       </div>
+      )}
     </>
   );
 }
@@ -306,6 +322,9 @@ function ChattingRoomMenu({
               <EditRoomInfoForm roomInfo={roomInfo} />
             </li>
           ) : null}
+          <li className="w-full">
+            <InviteFriendForm roomInfo={roomInfo} />
+          </li>
           <li
             className="flex h-fit w-full items-center justify-between
                         border-b border-neutral-400 bg-neutral-700 p-2 px-5"
@@ -338,6 +357,42 @@ function ChattingRoomMenu({
         </ul>
       </div>
     </>
+  );
+}
+
+function InviteFriendForm({ roomInfo }: { roomInfo: RoomInfo }) {
+  const [query, setQuery] = useState<string>('');
+  const inviteFriend = useInviteFriend(roomInfo.room_id);
+
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
+    e.preventDefault();
+
+    if (query) {
+      inviteFriend.mutate(query);
+      setQuery('');
+    }
+  };
+
+  return (
+    <form
+      className="flex h-16 w-full flex-row items-center border-b border-neutral-400 bg-neutral-800"
+      onSubmit={handleSubmit}
+    >
+      <div className="flex h-full w-full items-center justify-start bg-neutral-800 px-3">
+        <input
+          className="w-full py-1 bg-neutral-700"
+          name="q"
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+      </div>
+      <div className="px-2">
+        <Button className="w-min px-1 bg-green-500" type="submit">
+          invite
+        </Button>
+      </div>
+    </form>
   );
 }
 

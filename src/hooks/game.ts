@@ -7,6 +7,7 @@ import {MatchInfo} from "@/molecule/GameOnMatching";
 import {useFetcher} from "@/hooks/fetcher";
 import {toast} from "react-toastify";
 import {useEffect} from "react";
+import {useCurrentUser} from "@/hooks/query/user";
 
 export const useRequestWatchGame = () => {
 
@@ -40,6 +41,7 @@ export const useRequestNormalGame = () => {
   const [gameStatus, setGameStatus] = useRecoilState(currentGameStatus);
   const setMatchInfo = useSetRecoilState(matchInfo);
   const fetcher = useFetcher();
+  const currentUser = useCurrentUser();
 
   const waitNormalGameMatched = (player: string) => {
     const socket = GameSocketManager.getInstance().socket;
@@ -67,6 +69,10 @@ export const useRequestNormalGame = () => {
   return (player: string) => {
     if (gameStatus !== 'INTRO') {
       toast.error('You cannot request game now');
+      return;
+    }
+    if (currentUser.data?.nickname === player) {
+      toast.error('You cannot invite yourself');
       return;
     }
     // 알림 발송
