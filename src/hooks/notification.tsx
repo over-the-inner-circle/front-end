@@ -46,7 +46,7 @@ export function useNotification() {
     const handleChat = ({
       data,
     }: NotificationResponse<NotificationChatData>) => {
-      queryClient.invalidateQueries({ queryKey: ['friend/joined'] });
+      queryClient.invalidateQueries({ queryKey: ['chat/rooms'] });
       toast(
         (props: ToastContentProps<NotificationChatData>) => (
           <NotificationChat {...props} />
