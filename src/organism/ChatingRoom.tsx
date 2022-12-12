@@ -13,7 +13,10 @@ import {
 } from '@/hooks/mutation/chat';
 import Spinner from '@/atom/Spinner';
 import Button from '@/atom/Button';
+import { FloatingPortal } from '@floating-ui/react-dom-interactions';
 import { useChatMessages } from '@/hooks/query/chat';
+import {useOptionMenu} from "@/hooks/optionMenu";
+import {useRequestNormalGame} from "@/hooks/game";
 
 export type ChattingSideBarState = 'chat' | 'menu' | 'userList';
 
@@ -21,6 +24,32 @@ export interface ChattingSideBarProps {
   roomInfo: RoomInfo;
   close(): void;
   setSidebarState(sidebarState: ChattingSideBarState): void;
+}
+
+interface UserInfo {
+  user_id: string;
+  nickname: string;
+  provider: string;
+  third_party_id: string;
+  two_factor_authentication_key: string;
+  two_factor_authentication_type: string;
+  prof_img: string;
+  mmr: number;
+  created: Date;
+  deleted: Date;
+}
+
+interface SubscribeData {
+  sender: UserInfo;
+  payload: string;
+}
+
+interface Message {
+  room_msg_id: number;
+  room_id: string;
+  sender: UserInfo;
+  payload: string;
+  created: Date;
 }
 
 function useGetUserListItem(roomInfo: RoomInfo) {
@@ -45,6 +74,51 @@ interface ShowUserListProps {
   close(): void;
 }
 
+interface ShowUserListInfo {
+  roomInfo: RoomInfo;
+  user: RoomUserList;
+  close?(): void;
+}
+
+export interface UserListOption {
+  label: string;
+  onClick(): void;
+}
+
+function UserListOptionView({ options }: { options: UserListOption[] }) {
+  return (
+    <ul>
+      {options.map((option) => (
+        <li
+          key={option.label}
+          className="bg-neutral-800 p-3 font-pixel text-xs text-white"
+        >
+          <button
+            onClick={option.onClick}
+            className={`h-full w-full ''}`}
+          >{option.label}
+          </button>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function UserOptionMenu({roomInfo, user}: ShowUserListInfo) {
+  const requestNormalGame = useRequestNormalGame();
+
+  const options: UserListOption[] = [
+    {
+      label: 'Invite Gmae',
+      onClick: () => {
+        requestNormalGame(user.nickname);
+      }
+    },
+  ];
+
+  return <UserListOptionView options={options} />;
+}
+
 function ShowUserList({ roomInfo }: ShowUserListProps) {
   const { data: users, isError, isLoading } = useGetUserListItem(roomInfo);
 
@@ -61,10 +135,53 @@ function ShowUserList({ roomInfo }: ShowUserListProps) {
             <li
               key={user.user_id}
               className="h-fit w-full break-words p-1 px-5 text-xs"
-            >{`${user.nickname}`}</li>
+            >
+              <ShowUserItem roomInfo={roomInfo} user={user} />
+            </li>
           ))}
         </ul>
       </div>
+    </>
+  );
+}
+
+function ShowUserItem({ roomInfo, user }: ShowUserListInfo) {
+  const {
+    open,
+    setOpen,
+    reference,
+    floating,
+    getReferenceProps,
+    getFloatingProps,
+    x,
+    y,
+    strategy,
+  } = useOptionMenu();
+
+  return (
+    <>
+      <button
+        ref={reference}
+        {...getReferenceProps()}
+      >
+        {`${user.nickname}`}
+      </button>
+      <FloatingPortal>
+        {open && (
+          <div
+            ref={floating}
+            style={{
+              position: strategy,
+              top: y ?? 0,
+              left: x ?? 0,
+              width: 'max-content',
+            }}
+            {...getFloatingProps()}
+          >
+            <UserOptionMenu roomInfo={roomInfo} user={user} close={() => setOpen(false)} />
+          </div>
+        )}
+      </FloatingPortal>
     </>
   );
 }
