@@ -70,10 +70,10 @@ const TwoFaQrForm = () => {
                value={secret}
                onChange={onChangeSecret}/>
       </div>
-      <div className="flex flex-row gap-4">
+      <div className="flex flex-col gap-4">
         {twoFAGenData && <
           Button onClick={generate2fa}
-                 className="bg-true-green-600 text-xs">
+                 className="bg-yellow-600 text-xs">
             Generate
         </Button>}
         <Button onClick={enable2Fa}

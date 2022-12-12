@@ -104,6 +104,7 @@ export function useUpdateUserProfileImage() {
 }
 
 export function useGenerateUser2FA() {
+  const setTwoFAGenData = useSetRecoilState(twoFAGenDataState);
   const fetcher = useFetcher();
   const mutation = useMutation({
     mutationFn: async () => {
@@ -114,7 +115,12 @@ export function useGenerateUser2FA() {
       if (res.ok) return res;
       throw res;
     },
+    onSuccess: () => {
+      toast.success('2FA has been generated.');
+      setTwoFAGenData(null);
+    },
     onError: (error: Response) => {
+      toast.error('Failed to generate 2FA.');
       console.log(error);
     },
   });
