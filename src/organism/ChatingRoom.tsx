@@ -5,6 +5,8 @@ import {RoomInfo, RoomUserList} from "@/states/roomInfoState";
 import { useAutoScroll, useSocketRef } from '@/hooks/chat';
 import { toast } from 'react-toastify';
 import Spinner from "@/atom/Spinner";
+import OptionMenu from "@/molecule/OptionMenu";
+import {useRequestNormalGame} from "@/hooks/game";
 
 export type ChattingSideBarState = 'chatting' | 'configChattingRoom' | 'showUserList' | 'configurRoomSetting';
 
@@ -67,6 +69,50 @@ interface ShowUserListProps {
   roomInfo: RoomInfo;
 }
 
+interface ShowUserListInfo {
+  roomInfo: RoomInfo;
+  user: RoomUserList;
+}
+
+export interface UserListOption {
+  label: string;
+  onClick(): void;
+}
+
+function UserListOptionView({ options }: { options: UserListOption[] }) {
+  return (
+    <ul>
+      {options.map((opetion) => (
+        <li
+          key={opetion.label}
+          className="bg-neutral-800 p-3 font-pixel text-xs text-white"
+        >
+          <button
+            onClick={opetion.onClick}
+            className={`h-full w-full ''}`}
+          >{opetion.label}
+          </button>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function UserOptionMenu({roomInfo, user}: ShowUserListInfo) {
+  const requestNormalGame = useRequestNormalGame();
+
+  const options: UserListOption[] = [
+    {
+      label: 'Invite Gmae',
+      onClick: () => {
+        requestNormalGame(user.nickname);
+      }
+    },
+  ];
+
+  return <UserListOptionView options={options} />;
+}
+
 function ShowUserList({ roomInfo }: ShowUserListProps) {
   const { data: users, isError, isLoading } = useGetUserListItem(roomInfo);
 
@@ -84,7 +130,11 @@ function ShowUserList({ roomInfo }: ShowUserListProps) {
             <li
               key={user.user_id}
               className="h-fit w-full break-words p-1 px-5 text-xs"
-            >{`${user.nickname}`}</li>
+            >
+              <button onClick={UserOptionMenu(roomInfo, user)}>
+                {`${user.nickname}`}
+              </button>
+            </li>
           ))}
         </ul>
       </div>
