@@ -1,24 +1,25 @@
 import { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useFetcher } from '@/hooks/fetcher';
-import {useRecoilValue, useSetRecoilState} from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { currentUserInfoState } from '@/states/user/auth';
-import { RoomInfo, RoomUserList } from '@/states/roomInfoState';
-import { useAutoScroll, useChat } from '@/hooks/chat';
+import { RoomInfo, RoomUser } from '@/states/roomInfoState';
+import { useAutoScroll, useChat, useMyRole } from '@/hooks/chat';
 import {
+  useChageRole,
   useDeleteRoom,
   useEditRoomAccess,
   useEditRoomPassword,
   useExitRoom,
   useInviteFriend,
+  useKickMember,
+  useRestrictMember,
 } from '@/hooks/mutation/chat';
 import Spinner from '@/atom/Spinner';
 import Button from '@/atom/Button';
 import { FloatingPortal } from '@floating-ui/react-dom-interactions';
-import { useChatMessages } from '@/hooks/query/chat';
-import {useOptionMenu} from "@/hooks/optionMenu";
-import {useRequestNormalGame} from "@/hooks/game";
-import {profileUserState} from "@/states/user/profileUser";
+import { useChatMessages, useMemberList } from '@/hooks/query/chat';
+import { useOptionMenu } from '@/hooks/optionMenu';
+import { useRequestNormalGame } from '@/hooks/game';
+import { profileUserState } from '@/states/user/profileUser';
 
 export type ChattingSideBarState = 'chat' | 'menu' | 'userList';
 
@@ -28,49 +29,6 @@ export interface ChattingSideBarProps {
   setSidebarState(sidebarState: ChattingSideBarState): void;
 }
 
-interface UserInfo {
-  user_id: string;
-  nickname: string;
-  provider: string;
-  third_party_id: string;
-  two_factor_authentication_key: string;
-  two_factor_authentication_type: string;
-  prof_img: string;
-  mmr: number;
-  created: Date;
-  deleted: Date;
-}
-
-interface SubscribeData {
-  sender: UserInfo;
-  payload: string;
-}
-
-interface Message {
-  room_msg_id: number;
-  room_id: string;
-  sender: UserInfo;
-  payload: string;
-  created: Date;
-}
-
-function useGetUserListItem(roomInfo: RoomInfo) {
-  const fetcher = useFetcher();
-  const result = useQuery({
-    queryKey: ['chat/room', roomInfo.room_id],
-    queryFn: async (): Promise<RoomUserList[]> => {
-      const res = await fetcher(`/chat/room/${roomInfo.room_id}/members`);
-
-      if (res.ok) {
-        const data = await res.json();
-        return data.members;
-      }
-      return [];
-    },
-  });
-  return result;
-}
-
 interface ShowUserListProps {
   roomInfo: RoomInfo;
   close(): void;
@@ -78,7 +36,8 @@ interface ShowUserListProps {
 
 interface ShowUserListInfo {
   roomInfo: RoomInfo;
-  user: RoomUserList;
+  user: RoomUser;
+  role: RoomUser['role'];
   close?(): void;
 }
 
@@ -95,41 +54,74 @@ function UserListOptionView({ options }: { options: UserListOption[] }) {
           key={option.label}
           className="bg-neutral-800 p-3 font-pixel text-xs text-white"
         >
-          <button
-            onClick={option.onClick}
-            className={`h-full w-full ''}`}
-          >{option.label}
+          <button onClick={option.onClick} className={`''} h-full w-full`}>
+            {option.label}
           </button>
         </li>
       ))}
     </ul>
-  )
+  );
 }
 
-function UserOptionMenu({roomInfo, user}: ShowUserListInfo) {
+function UserOptionMenu({ roomInfo, user, role }: ShowUserListInfo) {
   const requestNormalGame = useRequestNormalGame();
   const setProfileUser = useSetRecoilState(profileUserState);
+  const restrictMember = useRestrictMember(roomInfo.room_id);
+  const changeRole = useChageRole(roomInfo.room_id);
+  const kickMember = useKickMember(roomInfo.room_id);
 
   const options: UserListOption[] = [
     {
       label: 'Invite Game',
       onClick: () => {
         requestNormalGame(user.nickname);
-      }
+      },
     },
     {
       label: 'View Profile',
       onClick: () => {
         setProfileUser(user.nickname);
-      }
-    }
+      },
+    },
   ];
+
+  if (role !== 'user') {
+    const adminOptions: UserListOption[] = [
+      {
+        label: 'Make admin',
+        onClick: () => {
+          changeRole.mutate({ user, role: 'admin' });
+        },
+      },
+      {
+        label: 'Ban',
+        onClick: () => {
+          restrictMember.mutate({ user, type: 'ban' });
+        },
+      },
+      {
+        label: 'Mute',
+        onClick: () => {
+          restrictMember.mutate({ user, type: 'mute' });
+        },
+      },
+      {
+        label: 'Kick',
+        onClick: () => {
+          kickMember.mutate(user);
+        },
+      },
+    ];
+
+    options.push(...adminOptions);
+  }
 
   return <UserListOptionView options={options} />;
 }
 
 function ShowUserList({ roomInfo, close }: ShowUserListProps) {
-  const { data: users, isError, isLoading } = useGetUserListItem(roomInfo);
+  const { data: users, isError, isLoading } = useMemberList(roomInfo);
+  const role = useMyRole(users);
 
   return (
     <>
@@ -143,25 +135,27 @@ function ShowUserList({ roomInfo, close }: ShowUserListProps) {
         {roomInfo.room_name}
         <p className="h-full w-6 px-1" />
       </div>
-      {isLoading || isError ? <Spinner /> : (
-      <div className="h-full w-full grow overflow-y-auto border-b border-inherit">
-        <ul className="flex h-fit w-full flex-col items-start justify-start">
-          {users.map((user) => (
-            <li
-              key={user.user_id}
-              className="h-fit w-full break-words p-1 px-5 text-xs"
-            >
-              <ShowUserItem roomInfo={roomInfo} user={user} />
-            </li>
-          ))}
-        </ul>
-      </div>
+      {isLoading || isError ? (
+        <Spinner />
+      ) : (
+        <div className="h-full w-full grow overflow-y-auto border-b border-inherit">
+          <ul className="flex h-fit w-full flex-col items-start justify-start">
+            {users.map((user) => (
+              <li
+                key={user.user_id}
+                className="h-fit w-full break-words p-1 px-5 text-xs"
+              >
+                <ShowUserItem roomInfo={roomInfo} user={user} role={role} />
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </>
   );
 }
 
-function ShowUserItem({ roomInfo, user }: ShowUserListInfo) {
+function ShowUserItem({ roomInfo, user, role }: ShowUserListInfo) {
   const {
     open,
     setOpen,
@@ -176,10 +170,7 @@ function ShowUserItem({ roomInfo, user }: ShowUserListInfo) {
 
   return (
     <>
-      <button
-        ref={reference}
-        {...getReferenceProps()}
-      >
+      <button ref={reference} {...getReferenceProps()}>
         {`${user.nickname}`}
       </button>
       <FloatingPortal>
@@ -194,7 +185,12 @@ function ShowUserItem({ roomInfo, user }: ShowUserListInfo) {
             }}
             {...getFloatingProps()}
           >
-            <UserOptionMenu roomInfo={roomInfo} user={user} close={() => setOpen(false)} />
+            <UserOptionMenu
+              roomInfo={roomInfo}
+              user={user}
+              role={role}
+              close={() => setOpen(false)}
+            />
           </div>
         )}
       </FloatingPortal>
@@ -380,7 +376,7 @@ function InviteFriendForm({ roomInfo }: { roomInfo: RoomInfo }) {
     >
       <div className="flex h-full w-full items-center justify-start bg-neutral-800 px-3">
         <input
-          className="w-full py-1 bg-neutral-700"
+          className="w-full bg-neutral-700 py-1"
           name="q"
           type="text"
           value={query}
@@ -388,7 +384,7 @@ function InviteFriendForm({ roomInfo }: { roomInfo: RoomInfo }) {
         />
       </div>
       <div className="px-2">
-        <Button className="w-min px-1 bg-green-500" type="submit">
+        <Button className="w-min bg-green-500 px-1" type="submit">
           invite
         </Button>
       </div>

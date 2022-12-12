@@ -1,4 +1,4 @@
-import { RoomInfo, roomInfoState } from '@/states/roomInfoState';
+import { RoomInfo, roomInfoState, RoomUser } from '@/states/roomInfoState';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useFetcher } from '@/hooks/fetcher';
 import { toast } from 'react-toastify';
@@ -70,24 +70,26 @@ export function useInviteFriend(room_id: string) {
 
 export function useRestrictMember(room_id: string) {
   const fetcher = useFetcher();
+  const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: ({
-      user_id,
+      user,
       type,
       second = 60,
     }: {
-      user_id: string;
+      user: RoomUser;
       type: 'ban' | 'mute';
-      second: number;
+      second?: number;
     }) => {
       return fetcher(`/chat/room/${room_id}/${type}`, {
         method: 'POST',
-        body: JSON.stringify({ user_id, time_amount_in_seconds: second }),
+        body: JSON.stringify({ user: user.user_id, time_amount_in_seconds: second }),
       });
     },
-    onSuccess: (res, { user_id, type }) => {
+    onSuccess: (res, { user, type }) => {
       if (!res.ok) throw res;
-      toast.success(`${type} ${user_id}`);
+      queryClient.invalidateQueries({ queryKey: ['chat/room', 'member'] });
+      toast.success(`${type} ${user.nickname} success`);
     },
     onError: (_error, { type }) => {
       toast.error(`${type} failed`);
@@ -97,27 +99,52 @@ export function useRestrictMember(room_id: string) {
   return mutation;
 }
 
+export function useKickMember(room_id: string) {
+  const fetcher = useFetcher();
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: (user: RoomUser) => {
+      return fetcher(`/chat/room/${room_id}/kick`, {
+        method: 'POST',
+        body: JSON.stringify({ user_id: user.user_id }),
+      });
+    },
+    onSuccess: (res, user) => {
+      if (!res.ok) throw res;
+      queryClient.invalidateQueries({ queryKey: ['chat/rooms', 'member'] });
+      toast.success(`Kicked ${user.nickname}`);
+    },
+    onError: () => {
+      toast.error('Kick failed');
+    },
+  });
+
+  return mutation;
+}
+
 export function useChageRole(room_id: string) {
   const fetcher = useFetcher();
+  const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: ({
-      user_id,
+      user,
       role,
     }: {
-      user_id: string;
+      user: RoomUser;
       role: 'admin' | 'user';
     }) => {
       return fetcher(`/chat/room/${room_id}/role`, {
-        method: 'POST',
-        body: JSON.stringify({ user_id, role }),
+        method: 'PUT',
+        body: JSON.stringify({ user_id: user.user_id, role }),
       });
     },
-    onSuccess: (res, { user_id, role }) => {
+    onSuccess: (res, { user, role }) => {
       if (!res.ok) throw res;
-      toast.success(`${user_id} is ${role}`);
+      queryClient.invalidateQueries({ queryKey: ['chat/room', 'member'] });
+      toast.success(`${user.nickname} is ${role}`);
     },
-    onError: (_error, { user_id }) => {
-      toast.error(`Change role failed ${user_id}`);
+    onError: (_error, { user }) => {
+      toast.error(`Change role failed ${user.nickname}`);
     },
   });
 

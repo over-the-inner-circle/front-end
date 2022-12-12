@@ -13,8 +13,8 @@ export const roomInfoState = atom<RoomInfo | null>({
 	default: null,
 })
 
-export interface RoomUserList {
-	"role": string;
+export interface RoomUser {
+	"role": 'owner' | 'admin' | 'user';
 	"user_id": string;
 	"nickname": string;
 	"prof_img": string;
@@ -23,7 +23,7 @@ export interface RoomUserList {
 	"deleted": string;
 }
 
-export const roomUserListState = atom<RoomUserList | null>({
+export const roomUserListState = atom<RoomUser | null>({
 	key: 'roomUserList',
 	default: null,
 })
