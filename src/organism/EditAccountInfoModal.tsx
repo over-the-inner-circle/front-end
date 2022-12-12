@@ -7,9 +7,10 @@ import {
   useDismiss,
   useFloating, useInteractions
 } from "@floating-ui/react-dom-interactions";
+
 import {isDisable2FaModalOpenState, isEnable2FaModalOpenState} from "@/states/user/twoFaModalStates";
 import isEditAccountModalOpenState from "@/states/user/isEditAccountModalOpen";
-import Button from "@/atom/Button";
+
 import { useCurrentUser } from '@/hooks/query/user';
 import {
   useUpdateUserName,
@@ -17,9 +18,12 @@ import {
   useDeleteAccount,
   useGenerateUser2FA,
 } from "@/hooks/mutation/user";
+import {isValidNickname} from "@/hooks/user";
+
 import Enable2FaModal from "@/molecule/Enable2FaModal";
 import {TwoFaGenData, twoFAGenDataState} from "@/states/user/twoFaGenData";
 import Disable2FaModal from "@/molecule/Disable2FaModal";
+import Button from "@/atom/Button";
 
 interface ImageInfo {
   file: File;
@@ -110,7 +114,8 @@ const EditAccountForm = () => {
 
   const saveAccountInfo = () => {
     // 닉네임 수정 PUT 요청
-    if (nickname !== currentUser?.nickname) {
+    if (nickname !== currentUser?.nickname
+      && isValidNickname(nickname)) {
       updateUserName.mutate(nickname);
     }
     // 프로필 수정 PUT 요청

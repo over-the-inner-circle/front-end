@@ -2,6 +2,7 @@ import { useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '@/atom/Button';
 import {useSignUpUser} from "@/hooks/mutation/user";
+import {isValidNickname} from "@/hooks/user";
 
 const SignUp = () => {
   const [nickname, setNickname] = useState("");
@@ -9,30 +10,9 @@ const SignUp = () => {
   const signUp = useSignUpUser();
 
   const signUpNewUser = async () => {
-    signUp.mutate(nickname);
-    // const response = await fetch(`${REQUEST_URL}/user`, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify({
-    //     nickname,
-    //     provider: signUpUserInfo?.provider,
-    //     third_party_id: signUpUserInfo?.third_party_id,
-    //     prof_img: signUpUserInfo?.prof_img,
-    //   }),
-    // });
-    //
-    // if (response.ok) {
-    //   const data = await response.json();
-    //   console.log(data);
-    //   if (signUpUserInfo) {
-    //     window.location.href = getOAuthUrl(providers[signUpUserInfo.provider]);
-    //   }
-    // } else {
-    //   const error = await response.text();
-    //   console.log(error);
-    // }
+    if (isValidNickname(nickname)) {
+      signUp.mutate(nickname);
+    }
   }
 
   const cancelSignUp = () => {
