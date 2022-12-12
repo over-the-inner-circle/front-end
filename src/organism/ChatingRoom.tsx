@@ -7,6 +7,8 @@ import { toast } from 'react-toastify';
 import Spinner from "@/atom/Spinner";
 import OptionMenu from "@/molecule/OptionMenu";
 import {useRequestNormalGame} from "@/hooks/game";
+import {useOptionMenu} from "@/hooks/optionMenu";
+import { FloatingPortal } from '@floating-ui/react-dom-interactions';
 
 export type ChattingSideBarState = 'chatting' | 'configChattingRoom' | 'showUserList' | 'configurRoomSetting';
 
@@ -72,6 +74,7 @@ interface ShowUserListProps {
 interface ShowUserListInfo {
   roomInfo: RoomInfo;
   user: RoomUserList;
+  close?(): void;
 }
 
 export interface UserListOption {
@@ -82,15 +85,15 @@ export interface UserListOption {
 function UserListOptionView({ options }: { options: UserListOption[] }) {
   return (
     <ul>
-      {options.map((opetion) => (
+      {options.map((option) => (
         <li
-          key={opetion.label}
+          key={option.label}
           className="bg-neutral-800 p-3 font-pixel text-xs text-white"
         >
           <button
-            onClick={opetion.onClick}
+            onClick={option.onClick}
             className={`h-full w-full ''}`}
-          >{opetion.label}
+          >{option.label}
           </button>
         </li>
       ))}
@@ -131,15 +134,56 @@ function ShowUserList({ roomInfo }: ShowUserListProps) {
               key={user.user_id}
               className="h-fit w-full break-words p-1 px-5 text-xs"
             >
-              <button onClick={UserOptionMenu(roomInfo, user)}>
-                {`${user.nickname}`}
-              </button>
+              <ShowUserItem roomInfo={roomInfo} user={user} />
             </li>
           ))}
         </ul>
+
       </div>
+
     </>
   )
+}
+
+function ShowUserItem({ roomInfo, user }: ShowUserListInfo) {
+  const {
+    open,
+    setOpen,
+    reference,
+    floating,
+    getReferenceProps,
+    getFloatingProps,
+    x,
+    y,
+    strategy,
+  } = useOptionMenu();
+
+  return (
+    <>
+    <button
+      ref={reference}
+      {...getReferenceProps()}
+    >
+      {`${user.nickname}`}
+    </button>
+  <FloatingPortal>
+    {open && (
+      <div
+        ref={floating}
+        style={{
+          position: strategy,
+          top: y ?? 0,
+          left: x ?? 0,
+          width: 'max-content',
+        }}
+        {...getFloatingProps()}
+      >
+        <UserOptionMenu roomInfo={roomInfo} user={user} close={() => setOpen(false)} />
+      </div>
+    )}
+  </FloatingPortal>
+    </>
+  );
 }
 
 function ChattingSideBarSelector ( { sidebarState, roomInfo, close, setSidebarState }: ChattingSideBarProps) {
