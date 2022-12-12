@@ -35,12 +35,12 @@ function useLoginMutation(setError: (error: string) => void,
       return res.json();
     },
     onSuccess: (data) => {
-      if (!(data.grant)) {
-        tempAccessTokenRef.current = data.access_token;
-        setIs2FaRequired(true);
-        return;
-      }
       if ('access_token' in data) {
+        if (!(data.grant)) {
+          setIs2FaRequired(true);
+          tempAccessTokenRef.current = data.access_token;
+          return;
+        }
         setAccessToken(data.access_token);
         window.localStorage.setItem('refresh_token', data.refresh_token);
         return navigate('/main');
