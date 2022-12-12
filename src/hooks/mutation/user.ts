@@ -21,7 +21,7 @@ export const useSignUpUser = () => {
 
   const mutation = useMutation({
     mutationFn: async (nickname: string) => {
-      await fetcher('/user', {
+      const res = await fetcher('/user', {
         method: 'POST',
         body: JSON.stringify({
           nickname,
@@ -30,6 +30,7 @@ export const useSignUpUser = () => {
           prof_img: signUpUserInfo?.prof_img,
         }),
       });
+      if (!res.ok) throw res;
     },
     onSuccess: () => {
       if (signUpUserInfo) {
