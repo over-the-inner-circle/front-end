@@ -109,10 +109,7 @@ export function useGenerateUser2FA() {
     mutationFn: async () => {
       const res = await fetcher('/auth/2fa/generate', {
         method: 'POST',
-        body: JSON.stringify({
-          type: 'google',
-          key: '',
-        }),
+        body: JSON.stringify({type: 'google'}),
       });
       if (res.ok) return res;
       throw res;
@@ -163,7 +160,6 @@ export const useUpdateUser2faInfo = (closeModal: () => void) => {
   const set2faGenData = useSetRecoilState(twoFAGenDataState);
   const mutation = useMutation({
     mutationFn: async (data: Update2faInfoData) => {
-      console.log(JSON.stringify(data));
       const res = await fetcher('/auth/2fa/info', {
         method: 'PUT',
         body: JSON.stringify({
@@ -173,7 +169,6 @@ export const useUpdateUser2faInfo = (closeModal: () => void) => {
       });
       if (res.ok) {
         enable2Fa.mutate(data.otp);
-        set2faGenData(null);
         return res;
       }
       throw res;

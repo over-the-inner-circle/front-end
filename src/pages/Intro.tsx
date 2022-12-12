@@ -34,7 +34,6 @@ export const providers: { [key: string]: OAuthProvider } = {
 };
 
 const Intro = () => {
-
   return (
     <div className="stop-dragging flex h-screen bg-true-gray">
       <div className="m-auto font-pixel">

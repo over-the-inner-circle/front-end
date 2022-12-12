@@ -45,12 +45,12 @@ const TwoFaQrForm = () => {
         <span className="mb-4"> 2FA Init </span>
         <div className="bg-white p-1 mb-4">
           { twoFAGenData &&
-            (<QRCode value={twoFAGenData.otp_auth_url}
-                     size={96}
-            />)
+            <QRCode value={twoFAGenData.otp_auth_url}
+                     size={96}/>
           }
         </div>
         <span className={`text-xs mb-4`}>Scan it with Google Authenticator</span>
+        <div className={`h-0.5 w-20 bg-white mb-4`} />
       </div>
     )
   }
@@ -99,8 +99,7 @@ const Enable2FaModal = () => {
             </div>
           </FloatingFocusManager>
         </FloatingOverlay>
-      )
-      }
+      )}
     </FloatingPortal>
   )
 }
