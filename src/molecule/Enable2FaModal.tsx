@@ -12,7 +12,7 @@ import QRCode from "react-qr-code";
 import {twoFAGenDataState} from "@/states/user/twoFaGenData";
 import {isEnable2FaModalOpenState} from "@/states/user/twoFaModalStates";
 import Button from "@/atom/Button";
-import {useEnable2FA} from "@/hooks/mutation/user";
+import {useEnable2FA, useUpdateUser2faInfo} from "@/hooks/mutation/user";
 
 const TwoFaQrForm = () => {
   const setIs2FaQrModalOpen = useSetRecoilState(isEnable2FaModalOpenState);
@@ -23,19 +23,21 @@ const TwoFaQrForm = () => {
     setIs2FaQrModalOpen(false);
   }
 
+  const update2faInfoMutation = useUpdateUser2faInfo(closeModal);
   const enable2FaMutation = useEnable2FA(closeModal);
 
   const onChangeSecret = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSecret(e.target.value);
   }
 
-  const enable2Fa = () => {
-    enable2FaMutation.mutate(secret);
-    if (enable2FaMutation.isSuccess) {
-      closeModal();
-    }
+  const generate2fa = () => {
+    if (!twoFAGenData) return;
+    update2faInfoMutation.mutate({otp: secret, info: twoFAGenData.info});
   }
 
+  const enable2Fa = () => {
+    enable2FaMutation.mutate(secret);
+  }
 
   const QRcodeContainer = () => {
     return (
@@ -43,12 +45,13 @@ const TwoFaQrForm = () => {
         <span className="mb-4"> 2FA Init </span>
         <div className="bg-white p-1 mb-4">
           { twoFAGenData &&
-            (<QRCode value={twoFAGenData.otp_auth_url}
-                     size={96}
-            />)
+            <QRCode value={twoFAGenData.otp_auth_url}
+                     size={96}/>
           }
         </div>
         <span className={`text-xs mb-4`}>Scan it with Google Authenticator</span>
+
+        <div className={`h-0.5 w-20 bg-white mb-4`} />
       </div>
     )
   }
@@ -67,10 +70,18 @@ const TwoFaQrForm = () => {
                value={secret}
                onChange={onChangeSecret}/>
       </div>
-      <Button onClick={enable2Fa}
-              className={`bg-true-green-600 text-xs`}
-      >
-        Enable 2FA</Button>
+      <div className="flex flex-col gap-4">
+        {twoFAGenData && <
+          Button onClick={generate2fa}
+                 className="bg-yellow-600 text-xs">
+            Generate
+        </Button>}
+        <Button onClick={enable2Fa}
+                className={`bg-true-green-600 text-xs`}
+        >
+          Enable 2FA</Button>
+      </div>
+
       <div className={`empty`} />
     </div>
   )
@@ -97,8 +108,7 @@ const Enable2FaModal = () => {
             </div>
           </FloatingFocusManager>
         </FloatingOverlay>
-      )
-      }
+      )}
     </FloatingPortal>
   )
 }

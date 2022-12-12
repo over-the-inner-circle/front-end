@@ -41,11 +41,3 @@ div.stop-dragging
   -webkit-user-select: none;
   user-select: none;
 }
-
-div.text-stroke {
-  text-shadow:
-          /*-4px -4px 0 #000;*/
-          /*4px -4px 0 #000,*/
-          /*-4px 4px 0 #000,*/
-          3px 3px 0 #000;
-}

@@ -1,12 +1,13 @@
 import { toast } from 'react-toastify';
 import { useEffect } from 'react';
-import { useRecoilValue } from 'recoil';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
 import { useNavigate } from 'react-router-dom';
 import { signUpUserInfoState } from '@/states/user/signUp';
 import { getOAuthUrl, providers } from '@/pages/Intro';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useFetcher } from '@/hooks/fetcher';
 import { useLogOut } from '@/hooks/user';
+import {twoFAGenDataState} from "@/states/user/twoFaGenData";
 
 export const useSignUpUser = () => {
   const fetcher = useFetcher();
@@ -41,7 +42,7 @@ export const useSignUpUser = () => {
       if (error.status === 409) {
         toast.error('Nickname is already exist');
       } else {
-        toast.error('Something went wrong');
+        toast.error('Something went wrong on sign up');
         console.log(error);
       }
     },
@@ -104,23 +105,24 @@ export function useUpdateUserProfileImage() {
 }
 
 export function useGenerateUser2FA() {
+  const setTwoFAGenData = useSetRecoilState(twoFAGenDataState);
   const fetcher = useFetcher();
   const mutation = useMutation({
     mutationFn: async () => {
       const res = await fetcher('/auth/2fa/generate', {
         method: 'POST',
-        body: JSON.stringify({
-          type: 'google',
-          key: '',
-        }),
+        body: JSON.stringify({type: 'google'}),
       });
       if (res.ok) return res;
       throw res;
     },
+    onSuccess: () => {
+      toast.success('2FA has been generated.');
+      setTwoFAGenData(null);
+    },
     onError: (error: Response) => {
-      error.text().then((text) => {
-        console.log(text);
-      });
+      toast.error('Failed to generate 2FA.');
+      console.log(error);
     },
   });
   return mutation;
@@ -141,13 +143,45 @@ export const useEnable2FA = (closeModal: () => void) => {
     onSuccess: () => {
       toast.success('2FA has been enabled.');
       queryClient.invalidateQueries({ queryKey: ['user'] });
+      closeModal();
     },
-    onError: () => {
+    onError: (error) => {
       toast.error('Failed to enable 2FA');
+      console.log(error);
     },
   });
   return mutation;
 };
+
+export const useUpdateUser2faInfo = (closeModal: () => void) => {
+  interface Update2faInfoData {
+    otp: string
+    info: {
+      type: string
+      key: string
+    }
+  }
+
+  const fetcher = useFetcher();
+  const mutation = useMutation({
+    mutationFn: async (data: Update2faInfoData) => {
+      const res = await fetcher('/auth/2fa/info', {
+        method: 'PUT',
+        body: JSON.stringify({
+          otp: data.otp,
+          info: data.info,
+        }),
+      });
+      if (res.ok) {return res;}
+      throw res;
+    },
+    onError: () => {
+      toast.error('Failed to update 2FA info');
+    }
+  })
+  return mutation;
+}
+
 
 export const useDisable2FA = (closeModal: () => void) => {
   const fetcher = useFetcher();
