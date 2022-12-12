@@ -120,16 +120,22 @@ function UserOptionMenu({roomInfo, user}: ShowUserListInfo) {
   return <UserListOptionView options={options} />;
 }
 
-function ShowUserList({ roomInfo }: ShowUserListProps) {
+function ShowUserList({ roomInfo, close }: ShowUserListProps) {
   const { data: users, isError, isLoading } = useGetUserListItem(roomInfo);
-
-  if (isLoading || isError) return <Spinner />;
 
   return (
     <>
-      <div className="flex h-fit w-full items-center justify-between border-b border-inherit bg-neutral-800 p-2">
+      <div
+        className="flex h-fit w-full items-center justify-between
+                      border-b border-neutral-400 bg-neutral-800 p-3"
+      >
+        <button onClick={close} className="px-1">
+          &lt;
+        </button>
         {roomInfo.room_name}
+        <p className="h-full w-6 px-1" />
       </div>
+      {isLoading || isError ? <Spinner /> : (
       <div className="h-full w-full grow overflow-y-auto border-b border-inherit">
         <ul className="flex h-fit w-full flex-col items-start justify-start">
           {users.map((user) => (
@@ -142,6 +148,7 @@ function ShowUserList({ roomInfo }: ShowUserListProps) {
           ))}
         </ul>
       </div>
+      )}
     </>
   );
 }
