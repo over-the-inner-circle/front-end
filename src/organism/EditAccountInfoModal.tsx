@@ -15,7 +15,6 @@ import { useCurrentUser } from '@/hooks/query/user';
 import {
   useUpdateUserName,
   useUpdateUserProfileImage,
-  useDeleteAccount,
   useGenerateUser2FA,
 } from "@/hooks/mutation/user";
 import {isValidNickname} from "@/hooks/user";
@@ -50,16 +49,12 @@ const EditAccountForm = () => {
   const updateUserName = useUpdateUserName();
   const updateUserProfileImage = useUpdateUserProfileImage();
   const {mutateAsync} = useGenerateUser2FA();
-  const deleteAccount = useDeleteAccount();
 
   const fetcher = useFetcher();
 
-
   useEffect(() => {
     setNickname(currentUser?.nickname || "");
-    if (currentUser?.is_two_factor_authentication_enabled) {
-      setIs2faOn(true);
-    }
+    setIs2faOn(currentUser?.is_two_factor_authentication_enabled || false);
   }, [currentUser]);
 
   const onUploadImage = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,7 +68,6 @@ const EditAccountForm = () => {
         type: fileList[0].type
       })
     }
-    console.log(imageInfo);
   }
 
   const onUploadImageButtonClick = useCallback(() => {
@@ -145,14 +139,6 @@ const EditAccountForm = () => {
     }
   }
 
-  const deleteCurrentAccount = () => {
-    if (confirm("Are you sure you want to delete your account?")
-      && confirm("Are you really sure? This action cannot be undone.")
-      && confirm("Last chance.\nARE YOU REALLY SURE?")) {
-      deleteAccount.mutate();
-    }
-  }
-
   /* sub components =========================================================== */
 
   const ProfileContainer = () => {
@@ -185,11 +171,6 @@ const EditAccountForm = () => {
              onClick={handle2fa}>
           {is2faOn ? <div className="box-content h-4 w-4 bg-white"></div> : null}
         </button>
-        {/*<Button className={`bg-red-400 text-xs`}*/}
-        {/*        onClick={delete2faInfo}*/}
-        {/*>*/}
-        {/*  delete 2fa Info*/}
-        {/*</Button>*/}
       </div>
     )
   }
@@ -211,9 +192,9 @@ const EditAccountForm = () => {
       <div className="flex w-full items-start">
         <button onClick={closeModal}>X</button>
       </div>
-      <div className="flex flex-col items-center justify-center bg-neutral-900 font-pixel text-white">
-        <span className={`text-xl mb-10`}>Edit Account Info</span>
-        <div className="flex flex-row gap-20 mb-16">
+      <div className="flex flex-col items-center justify-center bg-neutral-900 font-pixel text-white m-8">
+        <span className="text-xl m-8">Edit Account Info</span>
+        <div className="flex flex-row gap-20 m-8">
           <ProfileContainer />
           <div className="flex flex-col">
             <div className="mb-2 stop-dragging"> Username </div>
@@ -224,17 +205,11 @@ const EditAccountForm = () => {
             <TwoFactorAuthContainer />
           </div>
         </div>
-        <div className="flex flex-row gap-20 stop-dragging">
+        <div className="flex flex-row m-8 stop-dragging">
           <SaveButton />
         </div>
       </div>
-      <div className="flex w-full items-start">
-        {/*<div className="text-neutral-700 text-xs stop-dragging hover:text-neutral-300"*/}
-        {/*     onClick={deleteCurrentAccount}*/}
-        {/*>*/}
-        {/*  Delete Account*/}
-        {/*</div>*/}
-      </div>
+      <div className="empty" />
     </div>
   )
 }
@@ -257,7 +232,7 @@ const EditAccountInfoModal = () => {
           <FloatingFocusManager context={context}
                                 order={['floating', 'content']}
           >
-            <div className="h-3/4 w-2/3" ref={floating} {...getFloatingProps()}>
+            <div className="h-auto w-auto" ref={floating} {...getFloatingProps()}>
               <EditAccountForm/>
               <Enable2FaModal />
               <Disable2FaModal />

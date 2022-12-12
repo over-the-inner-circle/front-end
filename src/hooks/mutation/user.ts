@@ -41,7 +41,7 @@ export const useSignUpUser = () => {
       if (error.status === 409) {
         toast.error('Nickname is already exist');
       } else {
-        toast.error('Something went wrong');
+        toast.error('Something went wrong on sign up');
         console.log(error);
       }
     },
@@ -118,9 +118,7 @@ export function useGenerateUser2FA() {
       throw res;
     },
     onError: (error: Response) => {
-      error.text().then((text) => {
-        console.log(text);
-      });
+      console.log(error);
     },
   });
   return mutation;
@@ -169,10 +167,9 @@ export const useUpdateUser2faInfo = (closeModal: () => void) => {
       const res = await fetcher('/auth/2fa/info', {
         method: 'PUT',
         body: JSON.stringify({
-            otp: data.otp,
-            info: data.info,
-          }
-        ),
+          otp: data.otp,
+          info: data.info,
+        }),
       });
       if (res.ok) {
         enable2Fa.mutate(data.otp);
