@@ -3,7 +3,8 @@ import { useRecoilValue } from 'recoil';
 import { useQueryClient } from '@tanstack/react-query';
 import { io } from 'socket.io-client';
 import { toast } from 'react-toastify';
-import { accessTokenState } from '@/states/user/auth';
+import { accessTokenState, currentUserInfoState } from '@/states/user/auth';
+import { RoomUser } from '@/states/roomInfoState';
 import { Friend } from '@/hooks/query/friends';
 import { Message } from '@/hooks/query/chat';
 import {
@@ -61,6 +62,22 @@ export function useChat(roomId: string) {
   }, [roomId, queryClient, socketRef]);
 
   return { socket: socketRef.current };
+}
+
+export function useMyRole(users: RoomUser[] | undefined) {
+  const currentUserInfo = useRecoilValue(currentUserInfoState);
+  const [myRole, setMyRole] = useState<RoomUser['role']>('user');
+
+  useEffect(() => {
+    const myUser = users?.find(
+      (user) => user.user_id === currentUserInfo?.user_id,
+    );
+    if (myUser) {
+      setMyRole(myUser.role);
+    }
+  }, [users, currentUserInfo?.user_id]);
+
+  return myRole;
 }
 
 export function usePasswordForm() {

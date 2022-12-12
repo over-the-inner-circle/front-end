@@ -1,6 +1,6 @@
 import { useFetcher } from '@/hooks/fetcher';
 import { Friend } from '@/hooks/query/friends';
-import { RoomInfo } from '@/states/roomInfoState';
+import { RoomInfo, RoomUser } from '@/states/roomInfoState';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 export interface Message {
@@ -60,6 +60,23 @@ export function useRoomList(type: RoomListType) {
         }
       }
       return roomList;
+    },
+  });
+  return result;
+}
+
+export function useMemberList(roomInfo: RoomInfo) {
+  const fetcher = useFetcher();
+  const result = useQuery({
+    queryKey: ['chat/room', 'member', roomInfo.room_id],
+    queryFn: async (): Promise<RoomUser[]> => {
+      const res = await fetcher(`/chat/room/${roomInfo.room_id}/members`);
+
+      if (res.ok) {
+        const data = await res.json();
+        return data.members;
+      }
+      return [];
     },
   });
   return result;
