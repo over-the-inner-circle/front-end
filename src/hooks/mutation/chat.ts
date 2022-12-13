@@ -283,7 +283,15 @@ export function useEditRoomPassword(room_id: string) {
       );
       toast.success('success');
     },
-    onError: () => {
+    onError: async (err) => {
+      if (err instanceof Response) {
+        if (err.status === 400) {
+          const { message } = await err.json();
+
+          toast.error(message);
+          return;
+        }
+      }
       toast.error('failed');
     },
   });
