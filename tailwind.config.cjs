@@ -7,13 +7,13 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'true-gray': "#171717",
-        'true-gray-600' : "#52525B",
-        'true-green-600' : "#059669",
-        'color-42' : "#1fbabc",
-        'color-kakao' : "#fce403",
-        'hot-pink' : "#FF00E5",
-        'hot-green' : "#00FF38",
+        'true-gray': '#171717',
+        'true-gray-600': '#52525B',
+        'true-green-600': '#059669',
+        'color-42': '#1fbabc',
+        'color-kakao': '#fce403',
+        'hot-pink': '#FF00E5',
+        'hot-green': '#00FF38',
       },
       fontFamily: {
         pixel: ['dalmoori', 'PressStart2P', ...defaultTheme.fontFamily.mono],

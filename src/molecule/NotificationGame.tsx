@@ -1,23 +1,22 @@
 import Button from '@/atom/Button';
 import type { ToastContentProps } from 'react-toastify';
-import {useAcceptNormalGameInvitation} from "@/hooks/game";
+import { useAcceptNormalGameInvitation } from '@/hooks/game';
 
 export interface GameInvitationData {
-  sender : {
-    created: string
+  sender: {
+    created: string;
     deleted: string | null;
-    mmr: number
-    nickname: string
-    prof_img: string
-    user_id: string
-  }
+    mmr: number;
+    nickname: string;
+    prof_img: string;
+    user_id: string;
+  };
 }
 
 function NotificationGame({
   data,
   closeToast,
 }: ToastContentProps<GameInvitationData>) {
-
   const acceptInvitation = useAcceptNormalGameInvitation();
 
   return (

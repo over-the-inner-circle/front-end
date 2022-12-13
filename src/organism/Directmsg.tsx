@@ -13,8 +13,8 @@ const Directmsg = () => {
   useEffect(() => {
     return () => {
       setCurrentDMOpponent(null);
-    }
-  }, [setCurrentDMOpponent])
+    };
+  }, [setCurrentDMOpponent]);
 
   return (
     <SideBarLayout>

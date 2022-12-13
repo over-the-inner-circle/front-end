@@ -1,4 +1,4 @@
-import {atom} from "recoil";
+import { atom } from 'recoil';
 
 export const isEnable2FaModalOpenState = atom({
   key: 'isEnable2FaModalOpenState',

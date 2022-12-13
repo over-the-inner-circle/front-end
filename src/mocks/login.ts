@@ -27,4 +27,3 @@ const tokenInfo = {
   access_token: 'some access token',
   refresh_token: 'some refresh token',
 };
-

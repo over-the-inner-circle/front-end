@@ -2,7 +2,11 @@ import { useOptionMenu } from '@/hooks/optionMenu';
 import { useRequestNormalGame } from '@/hooks/game';
 import { profileUserState } from '@/states/user/profileUser';
 import { useSetRecoilState } from 'recoil';
-import { useChageRole, useKickMember, useRestrictMember } from '@/hooks/mutation/chat';
+import {
+  useChageRole,
+  useKickMember,
+  useRestrictMember,
+} from '@/hooks/mutation/chat';
 import { useMyRole } from '@/hooks/chat';
 import { useMemberList } from '@/hooks/query/chat';
 import { FloatingPortal } from '@floating-ui/react-dom-interactions';

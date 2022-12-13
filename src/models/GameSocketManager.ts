@@ -1,4 +1,4 @@
-import {io, Socket} from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 
 export class GameSocketManager {
   private static instance: GameSocketManager;
@@ -21,5 +21,4 @@ export class GameSocketManager {
     }
     return GameSocketManager.instance;
   }
-
 }

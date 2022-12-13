@@ -83,7 +83,10 @@ export function useRestrictMember(room_id: string) {
     }) => {
       return fetcher(`/chat/room/${room_id}/${type}`, {
         method: 'POST',
-        body: JSON.stringify({ user_id: user.user_id, time_amount_in_seconds: second }),
+        body: JSON.stringify({
+          user_id: user.user_id,
+          time_amount_in_seconds: second,
+        }),
       });
     },
     onSuccess: (res, { user, type }) => {

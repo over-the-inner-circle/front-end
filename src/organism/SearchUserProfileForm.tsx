@@ -13,14 +13,17 @@ function SearchUserProfileForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="font-pixel text-sm text-white border-b w-40 flex">
+    <form
+      onSubmit={handleSubmit}
+      className="flex w-40 border-b font-pixel text-sm text-white"
+    >
       <button type="submit">@</button>
       <input
         type="search"
         placeholder="search"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="bg-inherit p-2 w-full"
+        className="w-full bg-inherit p-2"
       />
     </form>
   );

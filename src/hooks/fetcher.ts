@@ -8,9 +8,11 @@ export function useFetcher() {
   const accessToken = useRecoilValue(accessTokenState);
   const queryClient = useQueryClient();
 
-  const fetcherWrapper = (url: string,
-                          options: RequestInit = {},
-                          contentType = 'application/json') =>
+  const fetcherWrapper = (
+    url: string,
+    options: RequestInit = {},
+    contentType = 'application/json',
+  ) =>
     fetcher(url, accessToken, options, contentType)
       .then((res) => {
         if (res.status === 401) throw res;

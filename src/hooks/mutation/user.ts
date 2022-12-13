@@ -1,13 +1,13 @@
 import { toast } from 'react-toastify';
 import { useEffect } from 'react';
-import {useRecoilValue, useSetRecoilState} from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { useNavigate } from 'react-router-dom';
 import { signUpUserInfoState } from '@/states/user/signUp';
 import { getOAuthUrl, providers } from '@/pages/Intro';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useFetcher } from '@/hooks/fetcher';
 import { useLogOut } from '@/hooks/user';
-import {twoFAGenDataState} from "@/states/user/twoFaGenData";
+import { twoFAGenDataState } from '@/states/user/twoFaGenData';
 
 export const useSignUpUser = () => {
   const fetcher = useFetcher();
@@ -110,7 +110,7 @@ export function useGenerateUser2FA() {
     mutationFn: async () => {
       const res = await fetcher('/auth/2fa/generate', {
         method: 'POST',
-        body: JSON.stringify({type: 'google'}),
+        body: JSON.stringify({ type: 'google' }),
       });
       if (res.ok) return res;
       throw res;
@@ -150,11 +150,11 @@ export const useEnable2FA = (closeModal: () => void) => {
 
 export const useUpdateUser2faInfo = (closeModal: () => void) => {
   interface Update2faInfoData {
-    otp: string
+    otp: string;
     info: {
-      type: string
-      key: string
-    }
+      type: string;
+      key: string;
+    };
   }
 
   const setTwoFAGenData = useSetRecoilState(twoFAGenDataState);
@@ -168,7 +168,9 @@ export const useUpdateUser2faInfo = (closeModal: () => void) => {
           info: data.info,
         }),
       });
-      if (res.ok) {return res;}
+      if (res.ok) {
+        return res;
+      }
       throw res;
     },
     onSuccess: () => {
@@ -177,11 +179,10 @@ export const useUpdateUser2faInfo = (closeModal: () => void) => {
     },
     onError: () => {
       toast.error('Failed to update 2FA info');
-    }
-  })
+    },
+  });
   return mutation;
-}
-
+};
 
 export const useDisable2FA = (closeModal: () => void) => {
   const fetcher = useFetcher();

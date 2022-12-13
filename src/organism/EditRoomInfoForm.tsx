@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { useEditRoomAccess, useEditRoomPassword } from "@/hooks/mutation/chat";
-import { RoomInfo } from "@/states/roomInfoState";
-import Button from "@/atom/Button";
+import { useEffect, useState } from 'react';
+import { useEditRoomAccess, useEditRoomPassword } from '@/hooks/mutation/chat';
+import { RoomInfo } from '@/states/roomInfoState';
+import Button from '@/atom/Button';
 
 function EditRoomInfoForm({ roomInfo }: { roomInfo: RoomInfo }) {
   const [password, setPassword] = useState('');
