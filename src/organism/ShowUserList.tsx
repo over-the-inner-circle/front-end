@@ -39,7 +39,7 @@ function ShowUserList({ roomInfo, close }: ShowUserListProps) {
             {users.map((user) => (
               <li
                 key={user.user_id}
-                className="h-fit w-full break-words p-1 px-5 text-xs"
+                className="h-fit w-full break-words p-1 px-5 text-xs border-b border-neutral-400"
               >
                 <ShowUserItem
                   roomInfo={roomInfo}
@@ -79,8 +79,13 @@ function ShowUserItem({ roomInfo, user, role }: ShowUserItemProps) {
   return (
     <>
       <button ref={reference} {...getReferenceProps()}>
-        {`${user.nickname}`}
+        <div className="text-lg" >
+          {user.nickname}
+        </div>
       </button>
+      <div className="ml-auto mt-2 flex justify-center h-full w-10 items-start text-xs hover:text-neutral-400">
+        {user.role}
+      </div>
       <FloatingPortal>
         {open && (
           <div
