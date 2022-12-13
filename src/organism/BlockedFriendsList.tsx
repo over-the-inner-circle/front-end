@@ -49,7 +49,7 @@ function BlockedFriendItem({ data }: BlockedFriendItemProps) {
 
   return (
     <div className="flex flex-row justify-between px-5 py-3">
-      <p>{data.blocked}</p>
+      <p>{data.blocked?.nickname ?? 'unknown'}</p>
       <button
         onClick={() => cancelBlock.mutate(data.block_id)}
         className="pl-3"

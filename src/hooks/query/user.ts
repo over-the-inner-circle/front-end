@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { accessTokenState, UserInfo } from '@/states/user/auth';
 import { refreshAccessToken } from '@/hooks/fetcher';
 import { useFetcher } from '@/hooks/fetcher';
+import { Friend } from '@/hooks/query/friends';
 
 export function useCurrentUser() {
   const fetcher = useFetcher();
@@ -39,8 +40,8 @@ export function useUserInfo(nickname: string) {
 
 export interface BlockData {
   block_id: string;
-  blocker: string;
-  blocked: string;
+  blocker: Friend;
+  blocked: Friend | null;
   created_date: Date;
 }
 
@@ -50,7 +51,10 @@ export function useBlockedFriends() {
     queryKey: ['block'],
     queryFn: async (): Promise<BlockData[]> => {
       const res = await fetcher('/block/list');
-      if (res.ok) return res.json();
+      if (res.ok) {
+        const { block_list } = await res.json();
+        return block_list;
+      }
       return [];
     },
   });
