@@ -50,14 +50,15 @@ export function useAddChatRoom(
 export function useInviteFriend(room_id: string) {
   const fetcher = useFetcher();
   const mutation = useMutation({
-    mutationFn: (nickname: string) => {
-      return fetcher(`/chat/room/${room_id}/invite`, {
+    mutationFn: async (nickname: string) => {
+      const res = await fetcher(`/chat/room/${room_id}/invite`, {
         method: 'POST',
         body: JSON.stringify({ receiver_nickname: nickname }),
       });
-    },
-    onSuccess: (res, nickname) => {
       if (!res.ok) throw res;
+      return res;
+    },
+    onSuccess: (_res, nickname) => {
       toast.success(`Invitation sent to ${nickname}`);
     },
     onError: () => {
@@ -72,7 +73,7 @@ export function useRestrictMember(room_id: string) {
   const fetcher = useFetcher();
   const queryClient = useQueryClient();
   const mutation = useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       user,
       type,
       second = 60,
@@ -81,13 +82,17 @@ export function useRestrictMember(room_id: string) {
       type: 'ban' | 'mute';
       second?: number;
     }) => {
-      return fetcher(`/chat/room/${room_id}/${type}`, {
+      const res = await fetcher(`/chat/room/${room_id}/${type}`, {
         method: 'POST',
-        body: JSON.stringify({ user_id: user.user_id, time_amount_in_seconds: second }),
+        body: JSON.stringify({
+          user_id: user.user_id,
+          time_amount_in_seconds: second,
+        }),
       });
-    },
-    onSuccess: (res, { user, type }) => {
       if (!res.ok) throw res;
+      return res;
+    },
+    onSuccess: (_res, { user, type }) => {
       queryClient.invalidateQueries({ queryKey: ['chat/room', 'member'] });
       toast.success(`${type} ${user.nickname} success`);
     },
@@ -103,14 +108,15 @@ export function useKickMember(room_id: string) {
   const fetcher = useFetcher();
   const queryClient = useQueryClient();
   const mutation = useMutation({
-    mutationFn: (user: RoomUser) => {
-      return fetcher(`/chat/room/${room_id}/kick`, {
+    mutationFn: async (user: RoomUser) => {
+      const res = await fetcher(`/chat/room/${room_id}/kick`, {
         method: 'POST',
         body: JSON.stringify({ user_id: user.user_id }),
       });
-    },
-    onSuccess: (res, user) => {
       if (!res.ok) throw res;
+      return res;
+    },
+    onSuccess: (_res, user) => {
       queryClient.invalidateQueries({ queryKey: ['chat/rooms', 'member'] });
       toast.success(`Kicked ${user.nickname}`);
     },
@@ -126,20 +132,21 @@ export function useChageRole(room_id: string) {
   const fetcher = useFetcher();
   const queryClient = useQueryClient();
   const mutation = useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       user,
       role,
     }: {
       user: RoomUser;
       role: 'admin' | 'user';
     }) => {
-      return fetcher(`/chat/room/${room_id}/role`, {
+      const res = await fetcher(`/chat/room/${room_id}/role`, {
         method: 'PUT',
         body: JSON.stringify({ user_id: user.user_id, role }),
       });
-    },
-    onSuccess: (res, { user, role }) => {
       if (!res.ok) throw res;
+      return res;
+    },
+    onSuccess: (_res, { user, role }) => {
       queryClient.invalidateQueries({ queryKey: ['chat/room', 'member'] });
       toast.success(`${user.nickname} is ${role}`);
     },
@@ -186,16 +193,14 @@ export function useExitRoom() {
   const setRoomInfo = useSetRecoilState(roomInfoState);
   const mutation = useMutation({
     mutationFn: async (room_id: string) => {
-      return fetcher(`/chat/room/${room_id}/exit`, {
+      const res = await fetcher(`/chat/room/${room_id}/exit`, {
         method: 'POST',
       });
+      if (!res.ok) throw res;
+      return res;
     },
-    onSuccess: (data) => {
-      if (data.ok) {
-        setRoomInfo(null);
-      } else {
-        throw data;
-      }
+    onSuccess: () => {
+      setRoomInfo(null);
     },
     onError: () => {
       toast.error('Fail to exit this room');
@@ -209,16 +214,14 @@ export function useDeleteRoom() {
   const setRoomInfo = useSetRecoilState(roomInfoState);
   const mutation = useMutation({
     mutationFn: async (room_id: string) => {
-      return fetcher(`/chat/room/${room_id}`, {
+      const res = await fetcher(`/chat/room/${room_id}`, {
         method: 'DELETE',
       });
+      if (!res.ok) throw res;
+      return res;
     },
-    onSuccess: (data) => {
-      if (data.ok) {
-        setRoomInfo(null);
-      } else {
-        throw data;
-      }
+    onSuccess: () => {
+      setRoomInfo(null);
     },
     onError: () => {
       toast.error('Fail to delete this room');
@@ -231,14 +234,15 @@ export function useEditRoomAccess(room_id: string) {
   const fetcher = useFetcher();
   const [roomInfo, setRoomInfo] = useRecoilState(roomInfoState);
   const mutation = useMutation({
-    mutationFn: (room_access: RoomInfo['room_access']) => {
-      return fetcher(`/chat/room/${room_id}/access`, {
+    mutationFn: async (room_access: RoomInfo['room_access']) => {
+      const res = await fetcher(`/chat/room/${room_id}/access`, {
         method: 'PUT',
         body: JSON.stringify({ room_access }),
       });
-    },
-    onSuccess: (res, room_access) => {
       if (!res.ok) throw res;
+      return res;
+    },
+    onSuccess: (_res, room_access) => {
       setRoomInfo((currRoomInfo) =>
         currRoomInfo
           ? ({
@@ -260,14 +264,15 @@ export function useEditRoomPassword(room_id: string) {
   const fetcher = useFetcher();
   const [roomInfo, setRoomInfo] = useRecoilState(roomInfoState);
   const mutation = useMutation({
-    mutationFn: (room_password: string) => {
-      return fetcher(`/chat/room/${room_id}/password`, {
+    mutationFn: async (room_password: string) => {
+      const res = await fetcher(`/chat/room/${room_id}/password`, {
         method: 'PUT',
         body: JSON.stringify({ room_password }),
       });
-    },
-    onSuccess: (res, room_password) => {
       if (!res.ok) throw res;
+      return res;
+    },
+    onSuccess: (_res, room_password) => {
       setRoomInfo((currRoomInfo) =>
         currRoomInfo
           ? ({
