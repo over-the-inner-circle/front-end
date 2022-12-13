@@ -57,9 +57,9 @@ function UserProfile({ nickname, close }: UserProfileProps) {
         {isError ? (
           <h2>Could not found {`'${nickname}'`}</h2>
         ) : isLoading ? (
-            <div className="py-28">
-              <Spinner />
-            </div>
+          <div className="py-28">
+            <Spinner />
+          </div>
         ) : (
           <>
             <div className="flex flex-row items-center">

@@ -7,7 +7,7 @@ import Intro from '@/pages/Intro';
 import Login from '@/pages/Login';
 import SignUp from '@/pages/SignUp';
 import Main from '@/pages/Main';
-import NotFound from "@/pages/NotFound";
+import NotFound from '@/pages/NotFound';
 
 import 'react-toastify/dist/ReactToastify.min.css';
 

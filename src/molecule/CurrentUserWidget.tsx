@@ -1,4 +1,4 @@
-import {useRecoilValue, useSetRecoilState} from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { useLogOut } from '@/hooks/user';
 import { useCurrentUser } from '@/hooks/query/user';
 import { useOptionMenu } from '@/hooks/optionMenu';
@@ -7,8 +7,8 @@ import { profileUserState } from '@/states/user/profileUser';
 import isEditAccountModalOpenState from '@/states/user/isEditAccountModalOpen';
 import { UserInfo } from '@/states/user/auth';
 import Button from '@/atom/Button';
-import {currentGameStatus} from "@/states/game/currentGameStatus";
-import {toast} from "react-toastify";
+import { currentGameStatus } from '@/states/game/currentGameStatus';
+import { toast } from 'react-toastify';
 
 function CurrentUserWidget() {
   const { data, isError, isLoading } = useCurrentUser();
@@ -26,11 +26,7 @@ function CurrentUserWidget() {
   const logOut = useLogOut();
 
   if (isError || isLoading) {
-    return (
-      <Button onClick={logOut}>
-        Sign in
-      </Button>
-    );
+    return <Button onClick={logOut}>Sign in</Button>;
   }
 
   return (
@@ -91,7 +87,7 @@ function UserOptionMenu({ currentUser, close }: OptionMenuProps) {
     {
       label: 'Edit Account',
       onClick: () => {
-        if (gameStatus !== "INTRO") {
+        if (gameStatus !== 'INTRO') {
           toast.error("You can't edit account info during the game");
           return;
         }
@@ -103,7 +99,7 @@ function UserOptionMenu({ currentUser, close }: OptionMenuProps) {
       label: 'Log Out',
       color: 'text-red-700',
       onClick: () => {
-        if (gameStatus !== "INTRO") {
+        if (gameStatus !== 'INTRO') {
           toast.error("You can't log out during the game");
           return;
         }

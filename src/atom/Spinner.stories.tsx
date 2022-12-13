@@ -10,4 +10,3 @@ const template: ComponentStory<typeof Spinner> = () => <Spinner />;
 
 export const main = template.bind({});
 main.args = {};
-

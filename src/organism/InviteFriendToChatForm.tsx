@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { useInviteFriend } from "@/hooks/mutation/chat";
-import { RoomInfo } from "@/states/roomInfoState";
-import Button from "@/atom/Button";
+import { useState } from 'react';
+import { useInviteFriend } from '@/hooks/mutation/chat';
+import { RoomInfo } from '@/states/roomInfoState';
+import Button from '@/atom/Button';
 
 function InviteFriendForm({ roomInfo }: { roomInfo: RoomInfo }) {
   const [query, setQuery] = useState<string>('');

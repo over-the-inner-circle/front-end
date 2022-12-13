@@ -7,8 +7,8 @@ import Chat from '@/organism/Chat';
 import Friends from '@/organism/Friends';
 import Directmsg from '@/organism/Directmsg';
 import UserProfileModal from '@/organism/UserProfileModal';
-import GameContainer from "@/templates/GameContainer";
-import EditAccountInfoModal from "@/organism/EditAccountInfoModal";
+import GameContainer from '@/templates/GameContainer';
+import EditAccountInfoModal from '@/organism/EditAccountInfoModal';
 import { useRefreshToken } from '@/hooks/query/user';
 
 function SidebarSelector() {
@@ -35,8 +35,8 @@ function Main() {
         <SidebarSelector />
       </div>
       <UserProfileModal />
-			<EditAccountInfoModal />
-		</div>
+      <EditAccountInfoModal />
+    </div>
   );
 }
 

@@ -1,8 +1,8 @@
-import {atom} from "recoil";
+import { atom } from 'recoil';
 
 const isEditAccountModalOpenState = atom({
-  key: "isEditAccountModalOpen",
+  key: 'isEditAccountModalOpen',
   default: false,
-})
+});
 
 export default isEditAccountModalOpenState;

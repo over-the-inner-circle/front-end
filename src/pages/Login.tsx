@@ -6,17 +6,18 @@ import { BASE_API_URL, useFetcher } from '@/hooks/fetcher';
 import { SignUpUserInfo, signUpUserInfoState } from '@/states/user/signUp';
 import { toast } from 'react-toastify';
 import { accessTokenState } from '@/states/user/auth';
-import Button from "@/atom/Button";
+import Button from '@/atom/Button';
 
 interface LoginParams {
   provider: string;
   code: string;
 }
 
-function useLoginMutation(setError: (error: string) => void,
-                          setIs2FaRequired: (is2FaRequired: boolean) => void,
-                          tempAccessTokenRef: React.MutableRefObject<string>)
-{
+function useLoginMutation(
+  setError: (error: string) => void,
+  setIs2FaRequired: (is2FaRequired: boolean) => void,
+  tempAccessTokenRef: React.MutableRefObject<string>,
+) {
   const navigate = useNavigate();
   const setSignupUserInfo = useSetRecoilState(signUpUserInfoState);
   const setAccessToken = useSetRecoilState(accessTokenState);
@@ -36,7 +37,7 @@ function useLoginMutation(setError: (error: string) => void,
     },
     onSuccess: (data) => {
       if ('access_token' in data) {
-        if (!(data.grant)) {
+        if (!data.grant) {
           setIs2FaRequired(true);
           tempAccessTokenRef.current = data.access_token;
           return;
@@ -54,19 +55,24 @@ function useLoginMutation(setError: (error: string) => void,
     onError: (res: Response) => {
       setError('Login request failed');
       throw res;
-    }
+    },
   });
   return mutation;
 }
 
-function useLogin(setIs2FaRequired: (is2FaRequired: boolean) => void,
-                  tempAccessTokenRef: React.MutableRefObject<string>)
-{
+function useLogin(
+  setIs2FaRequired: (is2FaRequired: boolean) => void,
+  tempAccessTokenRef: React.MutableRefObject<string>,
+) {
   const params = useParams();
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
 
-  const { mutate } = useLoginMutation(setError, setIs2FaRequired, tempAccessTokenRef);
+  const { mutate } = useLoginMutation(
+    setError,
+    setIs2FaRequired,
+    tempAccessTokenRef,
+  );
 
   useEffect(() => {
     const provider: string = params.provider || '';
@@ -105,19 +111,19 @@ const Login = () => {
 
   const onChangeSecret = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSecret(e.target.value);
-  }
+  };
 
   const submit2FaSecret = async () => {
     const res = await fetch(`${BASE_API_URL}/auth/2fa/verify`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${tempAccessToken.current}`
+        Authorization: `Bearer ${tempAccessToken.current}`,
       },
       body: JSON.stringify({
         otp: secret,
-      })
-    })
+      }),
+    });
     if (res.ok) {
       const data = await res.json();
       setAccessToken(data.access_token);
@@ -128,29 +134,34 @@ const Login = () => {
       toast.error(data);
       toast.error('2fa failed. please try again');
     }
-  }
+  };
 
   /* ========================================================================= */
 
   return (
-    <div className="flex flex-col w-full h-full items-center justify-center bg-true-gray">
-      { is2FaRequired && (
-        <div className="flex flex-col items-center justify-center text-white font-pixel">
+    <div className="flex h-full w-full flex-col items-center justify-center bg-true-gray">
+      {is2FaRequired && (
+        <div className="flex flex-col items-center justify-center font-pixel text-white">
           <div className={`flex flex-col items-center`}>
-            <span className={`text-sm mb-2`}> Secret </span>
-            <input className="w-48 h-10 bg-white text-true-gray mb-4"
-                   type="text"
-                   value={secret}
-                   onChange={onChangeSecret}/>
+            <span className={`mb-2 text-sm`}> Secret </span>
+            <input
+              className="mb-4 h-10 w-48 bg-white text-true-gray"
+              type="text"
+              value={secret}
+              onChange={onChangeSecret}
+            />
           </div>
-          <Button onClick={submit2FaSecret} className={`bg-true-green-600 text-xs`}>
+          <Button
+            onClick={submit2FaSecret}
+            className={`bg-true-green-600 text-xs`}
+          >
             submit
           </Button>
         </div>
       )}
-      { !is2FaRequired &&
+      {!is2FaRequired && (
         <div className="m-auto font-pixel text-2xl text-white">Loading...</div>
-      }
+      )}
     </div>
   );
 };

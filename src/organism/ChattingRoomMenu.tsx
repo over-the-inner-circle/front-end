@@ -1,10 +1,9 @@
-import { useRecoilValue } from "recoil";
-import { useDeleteRoom, useExitRoom } from "@/hooks/mutation/chat";
-import { currentUserInfoState } from "@/states/user/auth";
-import { ChattingSideBarProps } from "@/organism/ChatingRoom";
-import EditRoomInfoForm from "@/organism/EditRoomInfoForm";
+import { useRecoilValue } from 'recoil';
+import { useDeleteRoom, useExitRoom } from '@/hooks/mutation/chat';
+import { currentUserInfoState } from '@/states/user/auth';
+import { ChattingSideBarProps } from '@/organism/ChatingRoom';
+import EditRoomInfoForm from '@/organism/EditRoomInfoForm';
 import InviteFriendForm from '@/organism/InviteFriendToChatForm';
-
 
 function ChattingRoomMenu({
   roomInfo,

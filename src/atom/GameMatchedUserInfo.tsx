@@ -1,4 +1,4 @@
-import Circle from "@/atom/Circle";
+import Circle from '@/atom/Circle';
 
 export interface MatchedUserInfoProps {
   name: string;
@@ -8,18 +8,18 @@ export interface MatchedUserInfoProps {
   className?: string;
 }
 
-const GameMatchedUserInfo = (info: MatchedUserInfoProps) =>
-{
+const GameMatchedUserInfo = (info: MatchedUserInfoProps) => {
   return (
-    <div className={`flex flex-col items-center shrink-0 ${info.className}`}>
-      <img className={`w-36 h-36 object-fit rounded-full mb-4 border-solid border-8 ${info.borderColor}`}
-           src={info.imgUri ? info.imgUri : "src/assets/default_profile_image.png"}
-           alt={"user profile"}
+    <div className={`flex shrink-0 flex-col items-center ${info.className}`}>
+      <img
+        className={`object-fit mb-4 h-36 w-36 rounded-full border-8 border-solid ${info.borderColor}`}
+        src={info.imgUri ? info.imgUri : 'src/assets/default_profile_image.png'}
+        alt={'user profile'}
       />
       <span>{info.name}</span>
       <span>{info.eloScore}</span>
     </div>
   );
-}
+};
 
 export default GameMatchedUserInfo;

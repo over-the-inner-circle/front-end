@@ -33,10 +33,10 @@ export default function NavBar({
 
   return (
     <div
-      className="flex flex-row justify-between items-center
-                 font-pixel text-white text-sm bg-neutral-900
-                 w-full h-16 px-5
-                 border-b border-neutral-400"
+      className="flex h-16 w-full flex-row
+                 items-center justify-between border-b border-neutral-400
+                 bg-neutral-900 px-5 font-pixel
+                 text-sm text-white"
     >
       <button
         className="flex flex-row items-center gap-2 p-1

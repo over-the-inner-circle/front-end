@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import SideBarLayout from '@/molecule/SideBarLayout';
 import SideBarHeader from '@/molecule/SideBarHeader';
-import FriendsList from './FriendsList'
+import FriendsList from './FriendsList';
 import RequestedFriendsList from './RequestedFriendsList';
 import AddFriendForm from './AddFriendForm';
 

@@ -1,4 +1,4 @@
-import {atom} from "recoil";
+import { atom } from 'recoil';
 
 interface CurrentGameScore {
   p1Score: number;
@@ -6,10 +6,9 @@ interface CurrentGameScore {
 }
 
 export const currentGameScore = atom<CurrentGameScore>({
-  key: "currentGameScore",
+  key: 'currentGameScore',
   default: {
     p1Score: 0,
-    p2Score: 0
-  }
+    p2Score: 0,
+  },
 });
-
