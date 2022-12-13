@@ -255,3 +255,25 @@ export function useBlockUser() {
   });
   return mutation;
 }
+
+export function useCancelBlockUser() {
+  const fetcher = useFetcher();
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: async (block_id: string) => {
+      const res = await fetcher(`/block/${block_id}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) return res;
+      throw res;
+    },
+    onSuccess: () => {
+      toast.success('User has been unblocked.');
+      queryClient.invalidateQueries({ queryKey: ['block'] });
+    },
+    onError: () => {
+      toast.error('Failed to unblock user.');
+    },
+  });
+  return mutation;
+}

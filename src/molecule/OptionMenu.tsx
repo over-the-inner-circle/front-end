@@ -6,19 +6,21 @@ export interface Option {
 
 interface OptionMenuProps {
   options: Option[];
+  close?(): void;
 }
 
-function OptionMenu({ options }: OptionMenuProps) {
+function OptionMenu({ options, close }: OptionMenuProps) {
   return (
     <ul>
       {options.map((option) => (
         <li
           key={option.label}
-          className="bg-neutral-800 p-3 font-pixel text-xs text-white"
+          className="bg-neutral-900 p-3 font-pixel text-xs text-white"
         >
           <button
             onClick={() => {
               option.onClick();
+              if (close) close();
             }}
             className={`h-full w-full ${option.color ?? ''}`}
           >

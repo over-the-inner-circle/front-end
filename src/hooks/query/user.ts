@@ -37,6 +37,26 @@ export function useUserInfo(nickname: string) {
   return data;
 }
 
+export interface BlockData {
+  block_id: string;
+  blocker: string;
+  blocked: string;
+  created_date: Date;
+}
+
+export function useBlockedFriends() {
+  const fetcher = useFetcher();
+  const data = useQuery({
+    queryKey: ['block'],
+    queryFn: async (): Promise<BlockData[]> => {
+      const res = await fetcher('/block/list');
+      if (res.ok) return res.json();
+      return [];
+    },
+  });
+  return data;
+}
+
 interface RefreshData {
   access_token: string;
   refresh_token: string;

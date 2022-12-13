@@ -21,6 +21,7 @@ function DirectmsgRoom({ opponent, close }: DirectmsgRoomProps) {
   const { data: opponentInfo } = useUserInfo(opponent);
   const {
     open,
+    setOpen,
     reference,
     floating,
     getReferenceProps,
@@ -62,7 +63,10 @@ function DirectmsgRoom({ opponent, close }: DirectmsgRoomProps) {
               }}
               {...getFloatingProps()}
             >
-              <OpponentOpionMenu opponent={opponent} />
+              <OpponentOpionMenu
+                opponent={opponent}
+                close={() => setOpen(false)}
+              />
             </div>
           )}
         </FloatingPortal>
@@ -75,9 +79,10 @@ function DirectmsgRoom({ opponent, close }: DirectmsgRoomProps) {
 
 interface OpponentOpionMenuProps {
   opponent: string;
+  close?(): void;
 }
 
-function OpponentOpionMenu({ opponent }: OpponentOpionMenuProps) {
+function OpponentOpionMenu({ opponent, close }: OpponentOpionMenuProps) {
   const requestNormalGame = useRequestNormalGame();
   const setProfileUser = useSetRecoilState(profileUserState);
   const blockUser = useBlockUser();
@@ -103,7 +108,7 @@ function OpponentOpionMenu({ opponent }: OpponentOpionMenuProps) {
       },
     },
   ];
-  return <OptionMenu options={options} />;
+  return <OptionMenu options={options} close={close} />;
 }
 
 interface MessageContainerProps {
