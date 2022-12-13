@@ -15,8 +15,8 @@ export interface MatchHistory {
   game_end: string;
   difficulty: 'easy' | 'normal' | 'hard';
   mode: 'rank' | '???';
-  l_player: HistoryUser;
-  r_player: HistoryUser;
+  l_player: HistoryUser | null;
+  r_player: HistoryUser | null;
 }
 
 export function useMatchHistory(nickname: string) {

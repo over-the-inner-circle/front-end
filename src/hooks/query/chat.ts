@@ -6,7 +6,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 export interface Message {
   room_msg_id: number;
   room_id: string;
-  sender: Friend;
+  sender: Friend | null;
   payload: string;
   created: string;
 }

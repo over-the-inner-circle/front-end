@@ -14,7 +14,7 @@ import {
 } from '@floating-ui/react-dom-interactions';
 
 interface SubscribeData {
-  sender: Friend;
+  sender: Friend | null;
   message: Message;
 }
 
