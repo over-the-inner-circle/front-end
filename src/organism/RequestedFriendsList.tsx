@@ -4,9 +4,15 @@ import {
   useFriendRequestAccept,
   useFriendRequestReject,
 } from '@/hooks/mutation/friends';
+import { FriendsListType } from '@/organism/Friends';
 import SectionList from '@/molecule/SectionList';
+import SideBarHeader from '@/molecule/SideBarHeader';
 
-function RequestedFriendsList() {
+interface RequestedFriendListProps {
+  setListType(listType: FriendsListType): void;
+}
+
+function RequestedFriendsList({ setListType }: RequestedFriendListProps) {
   const sentFriends = useRequestedFriends('sent');
   const recvFriends = useRequestedFriends('recv');
 
@@ -29,13 +35,21 @@ function RequestedFriendsList() {
   }
 
   return (
-    <SectionList
-      sections={requestedData}
-      renderItem={(data, type) => (
-        <RequestedFriendItem data={data} type={type} />
-      )}
-      keyExtractor={(data) => data.request_id}
-    />
+    <>
+      <SideBarHeader>
+        <div className="flex flex-row items-center justify-start gap-3">
+          <button onClick={() => setListType('friends')}>&lt;</button>
+          <p>Requested Friends</p>
+        </div>
+      </SideBarHeader>
+      <SectionList
+        sections={requestedData}
+        renderItem={(data, type) => (
+          <RequestedFriendItem data={data} type={type} />
+        )}
+        keyExtractor={(data) => data.request_id}
+      />
+    </>
   );
 }
 

@@ -1,32 +1,110 @@
+import { useState } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { FloatingPortal } from '@floating-ui/react-dom-interactions';
 import { profileUserState } from '@/states/user/profileUser';
 import { Friend, useFriends } from '@/hooks/query/friends';
 import { useDeleteFriend } from '@/hooks/mutation/friends';
 import { useOptionMenu } from '@/hooks/optionMenu';
+import { useBlockUser } from '@/hooks/mutation/user';
 import { useRequestNormalGame, useRequestWatchGame } from '@/hooks/game';
 import { useSetCurrentDMOpponent } from '@/hooks/dm';
 import { useFriendsStatusSocket } from '@/hooks/friends';
 import Spinner from '@/atom/Spinner';
 import SectionList from '@/molecule/SectionList';
 import OptionMenu, { Option } from '@/molecule/OptionMenu';
+import { FriendsListType } from '@/organism/Friends';
 import StatusIndicator from '@/molecule/StatusIndicator';
-import { useBlockUser } from '@/hooks/mutation/user';
+import SideBarHeader from '@/molecule/SideBarHeader';
+import AddFriendForm from '@/organism/AddFriendForm';
 
-function FriendsList() {
+interface FriendsListProps {
+  setListType(listType: FriendsListType): void;
+}
+
+function FriendsList({ setListType }: FriendsListProps) {
   const { friends, isLoading, isError } = useFriends();
+  const {
+    open,
+    setOpen,
+    reference,
+    floating,
+    getReferenceProps,
+    getFloatingProps,
+    x,
+    y,
+    strategy,
+  } = useOptionMenu();
+  const [isOpenForm, setIsOpenForm] = useState<boolean>(false);
   useFriendsStatusSocket();
 
   if (isLoading) return <Spinner />;
   if (isError) return null;
 
   return (
-    <SectionList
-      sections={friends}
-      renderItem={(friend) => <FriendItem friend={friend} />}
-      keyExtractor={(friend) => friend.user_id}
-    />
+    <>
+      <SideBarHeader>
+        <button
+          className="flex flex-row items-center justify-start"
+          onClick={() => setIsOpenForm(!isOpenForm)}
+        >
+          <p className="text-lg">Friends</p>
+          <p className="px-1">{isOpenForm ? 'x' : '+'}</p>
+        </button>
+        <button ref={reference} {...getReferenceProps()}>
+          :
+        </button>
+      </SideBarHeader>
+      {isOpenForm ? <AddFriendForm /> : null}
+      <SectionList
+        sections={friends}
+        renderItem={(friend) => <FriendItem friend={friend} />}
+        keyExtractor={(friend) => friend.user_id}
+      />
+      <FloatingPortal>
+        {open && (
+          <div
+            ref={floating}
+            style={{
+              position: strategy,
+              top: y ?? 0,
+              left: x ?? 0,
+              width: 'max-content',
+            }}
+            {...getFloatingProps()}
+          >
+            <OtherOptionMenu
+              setListType={setListType}
+              close={() => setOpen(false)}
+            />
+          </div>
+        )}
+      </FloatingPortal>
+    </>
   );
+}
+
+interface OtherOptionMenuProps {
+  setListType(type: FriendsListType): void;
+  close?(): void;
+}
+
+function OtherOptionMenu({ setListType, close }: OtherOptionMenuProps) {
+  const options: Option[] = [
+    {
+      label: 'Requested',
+      onClick: () => {
+        setListType('requestedFriends');
+      },
+    },
+    {
+      label: 'Blocked',
+      onClick: () => {
+        setListType('blockedFriends');
+      },
+    },
+  ];
+
+  return <OptionMenu options={options} close={close} />;
 }
 
 interface FriendItemProps {
@@ -116,27 +194,23 @@ function FriendOptionMenu({ friend, close }: FriendOptionMenuProps) {
       label: 'Invite Game',
       onClick: () => {
         requestNormalGame(friend.nickname);
-        close();
       },
     },
     {
       label: 'Watch Game',
       onClick: () => {
         requestWatchGame(friend.nickname);
-        close();
       },
     },
     {
       label: 'DM',
       onClick: () => {
         setCurrentDMOpponent(friend.nickname);
-        close();
       },
     },
     {
       label: 'Block',
       onClick: () => {
-        close();
         blockUser.mutate(friend.nickname);
       },
     },
@@ -147,12 +221,11 @@ function FriendOptionMenu({ friend, close }: FriendOptionMenuProps) {
         if (confirm('Are you sure?')) {
           deleteFriend.mutate(friend);
         }
-        close();
       },
     },
   ];
 
-  return <OptionMenu options={options} />;
+  return <OptionMenu options={options} close={close} />;
 }
 
 export default FriendsList;

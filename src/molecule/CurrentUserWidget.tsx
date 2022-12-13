@@ -81,7 +81,6 @@ function UserOptionMenu({ currentUser, close }: OptionMenuProps) {
       label: 'My Profile',
       onClick: () => {
         setProfileUser(currentUser.nickname);
-        close();
       },
     },
     {
@@ -92,7 +91,6 @@ function UserOptionMenu({ currentUser, close }: OptionMenuProps) {
           return;
         }
         setIsEditModalOpen(true);
-        close();
       },
     },
     {
@@ -107,7 +105,7 @@ function UserOptionMenu({ currentUser, close }: OptionMenuProps) {
       },
     },
   ];
-  return <OptionMenu options={options} />;
+  return <OptionMenu options={options} close={close} />;
 }
 
 export default CurrentUserWidget;

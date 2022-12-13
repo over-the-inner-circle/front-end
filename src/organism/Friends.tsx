@@ -1,30 +1,23 @@
 import { useState } from 'react';
 import SideBarLayout from '@/molecule/SideBarLayout';
-import SideBarHeader from '@/molecule/SideBarHeader';
-import FriendsList from './FriendsList';
-import RequestedFriendsList from './RequestedFriendsList';
-import AddFriendForm from './AddFriendForm';
+import FriendsList from '@/organism/FriendsList';
+import RequestedFriendsList from '@/organism/RequestedFriendsList';
+import BlockedFriendsList from '@/organism/BlockedFriendsList';
+
+export type FriendsListType = 'friends' | 'requestedFriends' | 'blockedFriends';
 
 function Friends() {
-  const [isOpenForm, setIsOpenForm] = useState<boolean>(false);
-  const [isOpenRequest, setIsOpenRequest] = useState<boolean>(false);
+  const [listType, setListType] = useState<FriendsListType>('friends');
 
   return (
     <SideBarLayout>
-      <SideBarHeader>
-        <button
-          className="flex flex-row items-center justify-start"
-          onClick={() => setIsOpenForm(!isOpenForm)}
-        >
-          <p className="text-lg">Friends</p>
-          <p className="px-1">{isOpenForm ? 'x' : '+'}</p>
-        </button>
-        <button onClick={() => setIsOpenRequest(!isOpenRequest)}>
-          {isOpenRequest ? 'x' : '?'}
-        </button>
-      </SideBarHeader>
-      {isOpenForm ? <AddFriendForm /> : null}
-      {isOpenRequest ? <RequestedFriendsList /> : <FriendsList />}
+      {listType === 'friends' ? (
+        <FriendsList setListType={setListType} />
+      ) : listType === 'requestedFriends' ? (
+        <RequestedFriendsList setListType={setListType} />
+      ) : (
+        <BlockedFriendsList setListType={setListType} />
+      )}
     </SideBarLayout>
   );
 }
