@@ -19,17 +19,15 @@ function ChattingRoom({
   close,
   setSidebarState,
 }: ChattingSideBarProps) {
-  const [content, setContent] = useState('');
   const { socket } = useChat(roomInfo.room_id);
   const { data: messages } = useChatMessages(roomInfo.room_id);
   const autoScrollRef = useAutoScroll(messages);
 
-  const sendMessage = () => {
+  const sendMessage = (content: string) => {
     const msg = content.trim();
     if (msg) {
       socket.emit('publish', { room: roomInfo.room_id, payload: msg });
     }
-    setContent('');
   };
 
   return (
