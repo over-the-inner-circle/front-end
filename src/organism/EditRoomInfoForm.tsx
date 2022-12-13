@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { useEditRoomAccess, useEditRoomPassword } from "@/hooks/mutation/chat";
-import { RoomInfo } from "@/states/roomInfoState";
-import Button from "@/atom/Button";
+import { useEffect, useState } from 'react';
+import { useEditRoomAccess, useEditRoomPassword } from '@/hooks/mutation/chat';
+import { RoomInfo } from '@/states/roomInfoState';
+import Button from '@/atom/Button';
 
 function EditRoomInfoForm({ roomInfo }: { roomInfo: RoomInfo }) {
   const [password, setPassword] = useState('');
@@ -21,8 +21,9 @@ function EditRoomInfoForm({ roomInfo }: { roomInfo: RoomInfo }) {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    editRoomPassword.mutate(password);
-    if (roomInfo.room_access !== accessType) {
+    if (roomInfo.room_access === 'protected' || accessType === 'protected') {
+      editRoomPassword.mutate(password);
+    } else {
       editRoomAccess.mutate(accessType);
     }
   };
