@@ -37,7 +37,7 @@ const GameContainer = () => {
       gameSocketManager.socket?.disconnect();
       console.log('GameContainer unmounted');
     };
-  }, [gameSocketManager, accessToken]);
+  }, [accessToken]);
 
   //최초 소켓연결
   useEffect(() => {
@@ -61,19 +61,19 @@ const GameContainer = () => {
         toast.error(error);
       });
 
-      // gameSocket.on('matching_queue', (data) => {
-      //   console.log(`matching_queue: ${data}`);
-      // });
-      //
-      // gameSocket.on('clients', (data) => {
-      //   console.log(`clients: ${data}`);
-      // });
+      gameSocket.on('matching_queue', (data) => {
+        console.log(`matching_queue: ${data}`);
+      });
+
+      gameSocket.on('clients', (data) => {
+        console.log(`clients: ${data}`);
+      });
     }
 
     return () => {
       gameSocket?.removeAllListeners();
     };
-  }, [gameSocketManager]);
+  }, [gameSocketManager, accessToken]);
 
   return (
     <div className="flex h-full w-full flex-col bg-neutral-900">
