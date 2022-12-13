@@ -22,8 +22,6 @@ export function useDirectMessages(opponent: string) {
       }
       return [];
     },
-    select: (messages) =>
-      messages?.sort((a, b) => Date.parse(a.created) - Date.parse(b.created)),
     refetchOnWindowFocus: false,
   });
 
