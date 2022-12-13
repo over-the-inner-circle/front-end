@@ -1,7 +1,7 @@
 import { toast } from 'react-toastify';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { useNavigate } from 'react-router-dom';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { accessTokenState, UserInfo } from '@/states/user/auth';
 import { refreshAccessToken } from '@/hooks/fetcher';
 import { useFetcher } from '@/hooks/fetcher';
@@ -44,7 +44,6 @@ interface RefreshData {
 
 export function useRefreshToken() {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [accessToken, setAccessToken] = useRecoilState(accessTokenState);
 
   useQuery<RefreshData>({
@@ -59,9 +58,6 @@ export function useRefreshToken() {
       if (data.access_token) {
         setAccessToken(data.access_token);
         window.localStorage.setItem('refresh_token', data.refresh_token);
-        queryClient.invalidateQueries({
-          predicate: (query) => query.queryKey[0] !== 'auth/refresh',
-        });
       } else {
         throw data;
       }
