@@ -124,7 +124,7 @@ function MessageContainer({ opponent }: MessageContainerProps) {
           <li
             key={idx}
             className="h-fit w-full break-words p-1 px-5 text-xs"
-          >{`${message.sender.nickname}: ${message.payload}`}</li>
+          >{`${message.sender?.nickname ?? 'unknown'}: ${message.payload}`}</li>
         ))}
       </ul>
     </div>

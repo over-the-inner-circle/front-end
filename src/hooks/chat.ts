@@ -14,8 +14,8 @@ import {
 } from '@floating-ui/react-dom-interactions';
 
 interface SubscribeData {
-  sender: Friend;
-  payload: string;
+  sender: Friend | null;
+  message: Message;
 }
 
 export function useChat(roomId: string) {
@@ -30,14 +30,8 @@ export function useChat(roomId: string) {
         ['chat/room/messages', roomId],
         (prevMsg) => {
           const newMessage: Message = {
-            room_msg_id:
-              prevMsg && prevMsg.length
-                ? prevMsg[prevMsg.length - 1].room_msg_id + 1
-                : 1,
-            room_id: roomId,
+            ...data.message,
             sender: data.sender,
-            payload: data.payload,
-            created: new Date().toISOString(),
           };
           return prevMsg ? [...prevMsg, newMessage] : [newMessage];
         },

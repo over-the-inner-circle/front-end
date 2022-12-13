@@ -21,8 +21,9 @@ function EditRoomInfoForm({ roomInfo }: { roomInfo: RoomInfo }) {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    editRoomPassword.mutate(password);
-    if (roomInfo.room_access !== accessType) {
+    if (roomInfo.room_access === 'protected' || accessType === 'protected') {
+      editRoomPassword.mutate(password);
+    } else {
       editRoomAccess.mutate(accessType);
     }
   };

@@ -100,7 +100,7 @@ export function useNotification() {
       socket.off('notification-game', handleGame);
       socket.off('notification-chat', handleChat);
       socket.off('notification-dm', handleDM);
-      socket.on('notification-user', handleUser);
+      socket.off('notification-user', handleUser);
     };
   }, [queryClient, socketRef, setDmHistory, currentOpponent, gameStatus]);
 }

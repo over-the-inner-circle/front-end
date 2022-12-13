@@ -65,6 +65,7 @@ export function useUpdateUserName() {
     onSuccess: () => {
       toast.success('Your nickname has been updated.');
       queryClient.invalidateQueries({ queryKey: ['auth/refresh'] });
+      queryClient.invalidateQueries({ queryKey: ['user'] });
     },
     onError: (error: Response) => {
       if (error.status === 409) {
@@ -78,6 +79,7 @@ export function useUpdateUserName() {
 }
 
 export function useUpdateUserProfileImage() {
+  const queryClient = useQueryClient();
   const fetcher = useFetcher();
   const mutation = useMutation({
     mutationFn: async (image: File) => {
@@ -95,6 +97,7 @@ export function useUpdateUserProfileImage() {
       throw res;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user'] });
       toast.success('Your profile image has been updated.');
     },
     onError: () => {
