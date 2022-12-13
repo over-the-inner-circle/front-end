@@ -30,6 +30,8 @@ const GameMatched = () => {
   const currentMatchInfo = useRecoilValue(matchInfo);
 
   const [isPlayerReady, setIsPlayerReady] = useState<boolean>(false);
+  const [isReadyButtonClicked, setIsReadyButtonClicked] =
+    useState<boolean>(false);
   const [isCounterpartReady, setIsCounterpartReady] = useState<boolean>(false);
   const [gameDifficulty, setGameDifficulty] = useState<number>(2);
 
@@ -94,8 +96,14 @@ const GameMatched = () => {
   /* event handlers ===========================================================*/
 
   const playerReady = () => {
-    setIsPlayerReady(true);
-    socketManager.socket?.emit('player_ready');
+    if (!isReadyButtonClicked) {
+      setIsPlayerReady(true);
+      socketManager.socket?.emit('player_ready');
+      setIsReadyButtonClicked(true);
+      setTimeout(() => {
+        setIsReadyButtonClicked(false);
+      }, 1000);
+    }
   };
 
   const changeGameDifficulty = (
