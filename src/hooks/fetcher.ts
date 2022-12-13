@@ -51,7 +51,7 @@ export async function refreshAccessToken() {
   const refresh_token = window.localStorage.getItem('refresh_token');
 
   if (!refresh_token) {
-    return null;
+    throw new Response('No refresh token found', { status: 401 });
   }
 
   const res = await fetch(BASE_API_URL + '/auth/refresh', {
