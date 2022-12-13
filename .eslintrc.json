@@ -19,6 +19,5 @@
   "env": {
     "browser": true,
     "node": true
-  },
-  "ignorePatterns": ["!.storybook"]
+  }
 }
