@@ -46,13 +46,13 @@ function UserMatchHistory({ nickname }: UserMatchHistoryProps) {
                     isLeft={true}
                   />
                   <p className="flex w-14 items-center justify-end pr-5 text-2xl">
-                    {matchInfo.l_player.score}
+                    {matchInfo.l_player?.score ?? 0}
                   </p>
                 </div>
                 <p className="flex items-center justify-center">:</p>
                 <div className="flex w-full flex-row items-center justify-between">
                   <p className="flex w-14 items-center justify-start pl-5 text-2xl">
-                    {matchInfo.r_player.score}
+                    {matchInfo.r_player?.score ?? 0}
                   </p>
                   <UserLabel
                     user={matchInfo.r_player}
@@ -70,7 +70,7 @@ function UserMatchHistory({ nickname }: UserMatchHistoryProps) {
 }
 
 interface UserLabelProps {
-  user: HistoryUser;
+  user: HistoryUser | null;
   winner: string;
   isLeft: boolean;
 }
@@ -82,8 +82,8 @@ function UserLabel({ user, winner, isLeft }: UserLabelProps) {
         isLeft ? 'items-start' : 'items-end'
       }`}
     >
-      <p>{user.nickname}</p>
-      <p className="text-xs">{winner === user.nickname ? 'win' : 'lose'}</p>
+      <p>{user?.nickname ?? 'unknown'}</p>
+      <p className="text-xs">{winner === user?.nickname ? 'win' : 'lose'}</p>
     </div>
   );
 }

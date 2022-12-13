@@ -4,7 +4,7 @@ import { type Friend } from '@/hooks/query/friends';
 import { useSetCurrentDMOpponent } from '@/hooks/dm';
 
 export interface Message {
-  sender: Friend;
+  sender: Friend | null;
   payload: string;
   created: string;
 }
