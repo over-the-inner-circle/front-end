@@ -15,7 +15,7 @@ export function getOAuthUrl({ auth_url, ...params }: OAuthProvider) {
 }
 
 export const providers: { [key: string]: OAuthProvider } = {
-  ft: {
+  '42': {
     auth_url: import.meta.env.VITE_FT_AUTH_URL,
     client_id: import.meta.env.VITE_FT_CLIENT_ID,
     redirect_uri: import.meta.env.VITE_FT_REDIRECT_URL,
@@ -43,7 +43,7 @@ const Intro = () => {
           <div className="flex flex-row gap-10 text-xl">
             <a
               className="text-color-42 hover:text-white"
-              href={getOAuthUrl(providers['ft'])}
+              href={getOAuthUrl(providers['42'])}
             >
               42
             </a>
