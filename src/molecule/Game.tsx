@@ -80,6 +80,13 @@ const Game = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      canvas.focus();
+    }
+  }, [])
+
   // 윈도우 리사이즈 시 게임 크기 조정
   useEffect(() => {
     window.addEventListener('resize', adjustGameSize);
