@@ -12,6 +12,7 @@ import GameFinished from '@/molecule/GameFinished';
 
 import { GameSocketManager } from '@/models/GameSocketManager';
 import { toast } from 'react-toastify';
+import { BASE_API_URL } from "@/hooks/fetcher";
 
 export type GameStatus =
   | 'INTRO'
@@ -24,7 +25,9 @@ export type GameStatus =
 const GameContainer = () => {
   const [currentStatus, setCurrentStatus] = useRecoilState(currentGameStatus);
 
-  const gameSocketUri = `ws://54.164.253.231:9998`;
+  const API_URL = import.meta.env.VITE_BASE_URL;
+
+  const gameSocketUri = `ws://${API_URL}:9998`;
   const accessToken = useRecoilValue(accessTokenState);
 
   const gameSocketManager = GameSocketManager.getInstance();
