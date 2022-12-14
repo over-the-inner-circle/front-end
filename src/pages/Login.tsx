@@ -29,7 +29,6 @@ function useLoginMutation(
         method: 'POST',
         body: JSON.stringify({ code }),
       });
-      console.log(res);
       if (!res.ok) {
         throw res;
       }

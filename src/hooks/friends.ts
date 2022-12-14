@@ -12,7 +12,6 @@ export function useFriendsStatusSocket() {
       user: string;
       state: 'online' | 'offline' | 'ingame';
     }) => {
-      console.log(data);
       queryClient.setQueryData(['friend/all'], (prevFriends?: Friend[]) => {
         return prevFriends
           ? prevFriends.map((friend) =>

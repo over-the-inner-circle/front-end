@@ -29,8 +29,6 @@ export const useRequestWatchGame = () => {
         setMatchInfo(data.gameInfo);
         setGameInitialData(data.renderInfo);
         setGameStatus('WATCHING');
-      } else {
-        console.log('watch_game_ready_to_start: data is null');
       }
     });
   };
@@ -50,7 +48,6 @@ export const useRequestNormalGame = () => {
     socket.emit('user_create_friendly_room', player);
     socket.once('user_joined_room', (data: MatchInfo) => {
       if (data) {
-        console.log(data);
         setMatchInfo(data);
         setGameStatus('MATCHED');
       }
@@ -82,7 +79,6 @@ export const useRequestNormalGame = () => {
       } else {
         toast.error('Invitation is failed');
         res.json().then((data) => {
-          console.log(data);
         });
       }
     });
@@ -111,7 +107,6 @@ export const useAcceptNormalGameInvitation = () => {
     socket.emit('user_join_friendly_room', player);
     socket.once('user_joined_room', (data: MatchInfo) => {
       if (data) {
-        console.log(data);
         setMatchInfo(data);
         setGameStatus('MATCHED');
       }

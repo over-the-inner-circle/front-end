@@ -42,43 +42,32 @@ const GameMatched = () => {
   useEffect(() => {
     // TODO: 에러처리
     if (!currentMatchInfo) {
-      console.error('currentMatchInfo is null');
       setGameStatus('INTRO');
     }
 
     const socket = socketManager.socket;
     if (!socket) {
-      console.log('socket is null');
       setGameStatus('INTRO');
       return;
     }
 
     socket.on('difficulty_changed', (changedDifficulty: number) => {
-      console.log('difficulty_changed received');
-      console.log('difficulty: ' + changedDifficulty);
       setGameDifficulty(changedDifficulty);
     });
 
     socket.on('counterpart_ready', (socketId) => {
-      console.log('counterpart_ready received');
-      console.log(socketId);
-      console.log(socket.id);
       if (!(socketId === socket.id)) {
         setIsCounterpartReady(true);
       }
     });
 
     socket.once('server_ready_to_start', (data: GameInitialData) => {
-      console.log('server_ready_to_start received');
-      console.log(data);
       setGameInitialData(data);
       setGameStatus('PLAYING');
     });
 
     socket.once('user_exit_room', () => {
-      console.log('user_exit_room received');
       socket.emit('user_checkout_room');
-      console.log('user_checkout_room emitted');
       setGameStatus('INTRO');
     });
 
@@ -87,7 +76,6 @@ const GameMatched = () => {
       socket.removeAllListeners('counterpart_ready');
       socket.removeAllListeners('server_ready_to_start');
       socket.removeAllListeners('user_exit_room');
-      console.log('GameMatched unmounted');
     };
   }, []);
 
@@ -124,8 +112,6 @@ const GameMatched = () => {
       case 'HARD':
         socket.emit('player_change_difficulty', 3);
         break;
-      default:
-        console.error('difficulty is not valid');
     }
   };
 

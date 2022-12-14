@@ -15,7 +15,6 @@ const GameFinished = () => {
   };
 
   if (!result) {
-    console.log('result or finalScore is null');
     return null;
   }
 
