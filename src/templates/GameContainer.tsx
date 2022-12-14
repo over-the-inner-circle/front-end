@@ -12,7 +12,6 @@ import GameFinished from '@/molecule/GameFinished';
 
 import { GameSocketManager } from '@/models/GameSocketManager';
 import { toast } from 'react-toastify';
-import { BASE_API_URL } from "@/hooks/fetcher";
 
 export type GameStatus =
   | 'INTRO'
