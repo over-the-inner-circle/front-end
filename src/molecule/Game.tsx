@@ -198,6 +198,7 @@ const Game = () => {
   return (
     <div ref={containerRef} className="h-full w-full">
       <canvas
+        className="outline-none"
         tabIndex={0}
         ref={canvasRef}
         onKeyDown={(event) => handleKeyPress(event, 'keyDown')}
