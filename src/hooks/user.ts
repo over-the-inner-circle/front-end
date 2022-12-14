@@ -4,12 +4,10 @@ import { useSetRecoilState } from 'recoil';
 import { toast } from 'react-toastify';
 
 export const isValidNickname = (nickname: string): boolean => {
-  // check if input nickname is valid
-  // the nickname cannot contain " $?#&*(){}[]|\/<>@^`~!%+=;:,.'""
   if (
     nickname.length > 1 &&
     nickname.length < 17 &&
-    !nickname.match(/[$?#&*(){}[\]|\\/<>@^`~!%+=;:,.'"]/)
+    nickname.match(/^[a-zA-Z0-9가-힣_]+$/)
   ) {
     return true;
   }
