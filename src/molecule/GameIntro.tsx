@@ -13,7 +13,6 @@ const GameIntro = () => {
   useEffect(() => {
     return () => {
       socketManager.socket?.removeAllListeners('user_is_in_queue');
-      console.log('GameIntro unmounted');
     };
   }, []);
 
@@ -26,12 +25,8 @@ const GameIntro = () => {
       socket.connect();
     }
     if (!isButtonClicked) {
-      console.log(socket.id);
       socket.emit('user_join_queue');
-      console.log('user_join_queue emitted');
       socket.once('user_is_in_queue', () => {
-        console.log('user_is_in_queue received');
-        console.log(socket.id);
         setGameStatus('ON_MATCHING');
       });
       setIsButtonClicked(true);

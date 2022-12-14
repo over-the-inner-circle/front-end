@@ -37,7 +37,6 @@ const GameContainer = () => {
     }
     return () => {
       gameSocketManager.socket?.disconnect();
-      console.log('GameContainer unmounted');
     };
   }, [accessToken]);
 
@@ -46,13 +45,8 @@ const GameContainer = () => {
     // socket should be initiated before using;
     const gameSocket = gameSocketManager.socket;
     if (gameSocket) {
-      gameSocket.on('connect', () => {
-        console.log('connected');
-        console.log(gameSocket.id);
-      });
 
       gameSocket.on('disconnect', () => {
-        console.log('disconnected');
         toast.error(
           'lost connection to the game server.\nplease refresh the page',
         );
@@ -61,14 +55,6 @@ const GameContainer = () => {
 
       gameSocket.on('game_error', (error: string) => {
         toast.error(error);
-      });
-
-      gameSocket.on('matching_queue', (data) => {
-        console.log(`matching_queue: ${data}`);
-      });
-
-      gameSocket.on('clients', (data) => {
-        console.log(`clients: ${data}`);
       });
     }
 

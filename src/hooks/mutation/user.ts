@@ -43,7 +43,6 @@ export const useSignUpUser = () => {
         toast.error('Nickname is already exist');
       } else {
         toast.error('Something went wrong on sign up');
-        console.log(error);
       }
     },
   });
@@ -118,9 +117,8 @@ export function useGenerateUser2FA() {
       if (res.ok) return res;
       throw res;
     },
-    onError: (error: Response) => {
+    onError: () => {
       toast.error('Failed to generate 2FA.');
-      console.log(error);
     },
   });
   return mutation;
@@ -143,15 +141,14 @@ export const useEnable2FA = (closeModal: () => void) => {
       queryClient.invalidateQueries({ queryKey: ['user'] });
       closeModal();
     },
-    onError: (error) => {
+    onError: () => {
       toast.error('Failed to enable 2FA');
-      console.log(error);
     },
   });
   return mutation;
 };
 
-export const useUpdateUser2faInfo = (closeModal: () => void) => {
+export const useUpdateUser2faInfo = () => {
   interface Update2faInfoData {
     otp: string;
     info: {
@@ -226,8 +223,7 @@ export const useDeleteAccount = () => {
       logOut();
       toast.success('Your account has been deleted.');
     },
-    onError: (error: Response) => {
-      console.log(error);
+    onError: () => {
       toast.error('Failed to delete account.');
     },
   });

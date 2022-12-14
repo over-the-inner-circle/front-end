@@ -129,22 +129,6 @@ const EditAccountForm = () => {
     }
   };
 
-  const delete2faInfo = async () => {
-    const secret = prompt('enter the secret');
-    if (secret) {
-      const res = await fetcher('/auth/2fa/info', {
-        method: 'DELETE',
-        body: JSON.stringify({ otp: secret }),
-      });
-      if (res.ok) {
-        toast.success('2fa info deleted');
-      } else {
-        toast.error('2fa info delete failed');
-        console.log(res);
-      }
-    }
-  };
-
   /* sub components =========================================================== */
 
   const ProfileContainer = () => {

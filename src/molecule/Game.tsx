@@ -93,14 +93,12 @@ const Game = () => {
     const socket = socketManager.socket;
 
     if (!socket || !socket.connected) {
-      console.log('socket is not connected');
       alert('socket is not connected');
       setGameStatus('INTRO');
       return;
     }
 
     socket.once('game_started', () => {
-      console.log('game_started');
       didGameStarted.current = true;
     });
 
@@ -131,13 +129,10 @@ const Game = () => {
 
     socket.once('game_finished', () => {
       // 게임 종료
-      console.log('game_finished received');
       socket.emit('save_game_data');
-      console.log('game_save_data emitted');
     });
 
     socket.once('saved_game_data', () => {
-      console.log('saved_game_data received');
       socket.emit('user_leave_room');
     });
 
