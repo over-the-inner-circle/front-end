@@ -129,7 +129,7 @@ const EditAccountForm = () => {
     }
   };
 
-  /* sub components =========================================================== */
+  /* sub components ========================================================= */
 
   const ProfileContainer = () => {
     return (
